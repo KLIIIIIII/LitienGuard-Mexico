@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SmokeScene } from "@/components/smoke-scene";
+import { AuroraMesh } from "@/components/aurora-mesh";
 import { FloatingMockup } from "@/components/floating-mockup";
 import { Eyebrow } from "@/components/eyebrow";
 
@@ -7,7 +7,7 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-line bg-canvas">
       <div className="absolute inset-0">
-        <SmokeScene />
+        <AuroraMesh />
       </div>
 
       <div className="lg-shell relative grid gap-14 py-20 lg:grid-cols-[1.05fr_minmax(0,440px)] lg:items-center lg:py-28">
