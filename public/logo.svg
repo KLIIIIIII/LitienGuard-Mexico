@@ -1,0 +1,7 @@
+<svg viewBox="0 0 220 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LitienGuard">
+  <text x="0" y="30" font-family="Manrope, system-ui, sans-serif" font-weight="700"
+        font-size="28" letter-spacing="-0.022em" fill="#1F1E1B">
+    LitienGuard
+  </text>
+  <circle cx="195" cy="22" r="4" fill="#4A6B5B"/>
+</svg>
