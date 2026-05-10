@@ -21,7 +21,8 @@ const eyebrowVariants = cva(
 );
 
 export interface EyebrowProps
-  extends HTMLAttributes<HTMLSpanElement>,
+  extends
+    HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof eyebrowVariants> {}
 
 export function Eyebrow({ className, tone, children, ...rest }: EyebrowProps) {

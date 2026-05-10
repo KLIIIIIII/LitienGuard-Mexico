@@ -10,7 +10,7 @@ export function LegalSection({ number, title, children }: LegalSectionProps) {
   return (
     <section className="border-t border-line py-10">
       <div className="grid gap-6 md:grid-cols-[120px_1fr]">
-        <p className="text-caption font-mono font-semibold tracking-eyebrow text-ink-soft">
+        <p className="font-mono text-caption font-semibold tracking-eyebrow text-ink-soft">
           {number}
         </p>
         <div>

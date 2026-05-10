@@ -21,10 +21,10 @@ export default function AvisoPrivacidadPage() {
       <article className="lg-shell max-w-3xl py-12">
         <LegalSection number="01" title="Identificación del responsable">
           <p>
-            <strong>LitienGuard</strong> (en adelante, &quot;el Responsable&quot;),
-            con domicilio en la Ciudad de México, México, es responsable del
-            tratamiento de sus datos personales conforme a la LFPDPPP y su
-            Reglamento.
+            <strong>LitienGuard</strong> (en adelante, &quot;el
+            Responsable&quot;), con domicilio en la Ciudad de México, México, es
+            responsable del tratamiento de sus datos personales conforme a la
+            LFPDPPP y su Reglamento.
           </p>
           <p>
             Para cualquier asunto relacionado con datos personales, puede
@@ -53,8 +53,10 @@ export default function AvisoPrivacidadPage() {
             </li>
           </ul>
           <p>
-            <strong>No recabamos datos personales sensibles ni datos de
-            salud</strong> a través de este sitio público.
+            <strong>
+              No recabamos datos personales sensibles ni datos de salud
+            </strong>{" "}
+            a través de este sitio público.
           </p>
         </LegalSection>
 
@@ -68,9 +70,7 @@ export default function AvisoPrivacidadPage() {
               Atender solicitudes de información y acceso al programa piloto.
             </li>
             <li>Establecer comunicación de seguimiento sobre su solicitud.</li>
-            <li>
-              Cumplir con obligaciones legales aplicables al Responsable.
-            </li>
+            <li>Cumplir con obligaciones legales aplicables al Responsable.</li>
           </ul>
           <p>
             <strong>Finalidades secundarias</strong> (puede oponerse en
@@ -144,10 +144,7 @@ export default function AvisoPrivacidadPage() {
           </p>
         </LegalSection>
 
-        <LegalSection
-          number="07"
-          title="Cambios al aviso de privacidad"
-        >
+        <LegalSection number="07" title="Cambios al aviso de privacidad">
           <p>
             Cualquier modificación al presente Aviso será notificada en este
             mismo sitio con al menos 15 días naturales de anticipación a su

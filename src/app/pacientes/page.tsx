@@ -37,8 +37,16 @@ const FEATURES = [
 const SUB_TABS = [
   { n: "01", label: "¿Qué hago ahora?", desc: "Wizard guiado paso a paso." },
   { n: "02", label: "Triaje rápido", desc: "Manchester + NOM-027." },
-  { n: "03", label: "¿Qué cubre mi seguro?", desc: "Coverage finder por esquema." },
-  { n: "04", label: "Comparador clínico", desc: "Qué te conviene por padecimiento." },
+  {
+    n: "03",
+    label: "¿Qué cubre mi seguro?",
+    desc: "Coverage finder por esquema.",
+  },
+  {
+    n: "04",
+    label: "Comparador clínico",
+    desc: "Qué te conviene por padecimiento.",
+  },
   { n: "05", label: "Recursos cercanos", desc: "Unidades médicas con cita." },
   { n: "06", label: "Mis derechos", desc: "12 derechos clave del paciente." },
   { n: "07", label: "Trámites", desc: "9 guías paso a paso." },
@@ -65,8 +73,8 @@ export default function PacientesPage() {
           <div className="mb-12 max-w-2xl">
             <Eyebrow>Lo que resuelve</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Cuando tienes un síntoma, no necesitas Google. Necesitas saber
-              qué hacer.
+              Cuando tienes un síntoma, no necesitas Google. Necesitas saber qué
+              hacer.
             </h2>
           </div>
           <FeatureList items={FEATURES} />
@@ -82,7 +90,7 @@ export default function PacientesPage() {
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {SUB_TABS.map((t) => (
               <TiltCard key={t.n} className="p-5">
-                <p className="text-caption font-mono font-semibold text-ink-soft">
+                <p className="font-mono text-caption font-semibold text-ink-soft">
                   {t.n}
                 </p>
                 <h3 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">

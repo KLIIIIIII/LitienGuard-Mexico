@@ -75,7 +75,7 @@ export function HowItWorks() {
                 aria-hidden
                 className="absolute left-0 top-10 h-2 w-2 rounded-full border border-validation bg-canvas"
               />
-              <p className="text-caption font-mono font-semibold tracking-eyebrow text-ink-soft">
+              <p className="font-mono text-caption font-semibold tracking-eyebrow text-ink-soft">
                 {v.n}
               </p>
               <h3 className="mt-2 text-h2 font-semibold tracking-tight text-ink-strong">

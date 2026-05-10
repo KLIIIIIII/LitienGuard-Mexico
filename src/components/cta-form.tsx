@@ -141,9 +141,7 @@ export function CtaForm() {
                 {...register("tipo")}
               >
                 {(
-                  Object.keys(TIPO_LABELS) as Array<
-                    keyof typeof TIPO_LABELS
-                  >
+                  Object.keys(TIPO_LABELS) as Array<keyof typeof TIPO_LABELS>
                 ).map((k) => (
                   <option key={k} value={k}>
                     {TIPO_LABELS[k]}

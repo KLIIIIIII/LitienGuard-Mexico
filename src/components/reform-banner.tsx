@@ -12,7 +12,8 @@ export function ReformBanner() {
           <div>
             <Eyebrow tone="warn">Reforma LGS Salud Digital · DOF 2026</Eyebrow>
             <h2 className="mt-2 max-w-2xl text-h2 font-semibold tracking-tight text-ink-strong">
-              Telemedicina, SINBA/SINAIS y Credencial Paciente 2026 — ya son ley.
+              Telemedicina, SINBA/SINAIS y Credencial Paciente 2026 — ya son
+              ley.
             </h2>
             <p className="mt-3 max-w-2xl text-body-sm text-ink-muted">
               LitienGuard nace compatible con la reforma. Reporteo SINBA

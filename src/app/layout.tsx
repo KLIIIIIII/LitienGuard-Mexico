@@ -72,7 +72,7 @@ export default function RootLayout({
       lang="es-MX"
       className={`${manrope.variable} ${sourceSerif.variable}`}
     >
-      <body className="min-h-screen flex flex-col bg-canvas text-ink antialiased">
+      <body className="flex min-h-screen flex-col bg-canvas text-ink antialiased">
         <TopBar />
         <main className="flex-1 pt-[72px]">{children}</main>
         <Footer />

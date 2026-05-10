@@ -12,11 +12,13 @@ export function Hero() {
 
       <div className="lg-shell relative grid gap-14 py-20 lg:grid-cols-[1.05fr_minmax(0,440px)] lg:items-center lg:py-28">
         <div>
-          <Eyebrow tone="validation">Sistema operativo clínico — México</Eyebrow>
+          <Eyebrow tone="validation">
+            Sistema operativo clínico — México
+          </Eyebrow>
           <h1 className="mt-5 max-w-2xl text-display font-semibold tracking-tight text-ink md:text-[3rem] lg:text-[3.4rem] lg:leading-[1.05]">
             Inteligencia{" "}
-            <span className="lg-serif-italic text-validation">Médica</span>{" "}
-            para México.
+            <span className="lg-serif-italic text-validation">Médica</span> para
+            México.
           </h1>
           <p className="mt-6 max-w-xl text-body text-ink-muted md:text-[1.04rem]">
             Decisiones clínicas con evidencia citada, pacientes con respuestas
