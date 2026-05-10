@@ -120,6 +120,7 @@ export function CtaForm() {
                 )}
                 disabled={pending}
                 aria-invalid={!!errors.email}
+                suppressHydrationWarning
                 {...register("email")}
               />
               {errors.email && (
@@ -166,6 +167,7 @@ export function CtaForm() {
                 placeholder="Cómo te llamas"
                 className="lg-input"
                 disabled={pending}
+                suppressHydrationWarning
                 {...register("nombre")}
               />
             </div>
