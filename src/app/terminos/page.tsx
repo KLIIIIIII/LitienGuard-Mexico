@@ -22,8 +22,8 @@ export default function TerminosPage() {
         <section className="rounded-2xl border border-rose-soft bg-rose-soft p-6">
           <p className="lg-eyebrow text-rose">Disclaimer médico</p>
           <p className="mt-3 text-body font-semibold text-ink-strong">
-            LitienGuard NO sustituye atención médica profesional, diagnóstico
-            ni tratamiento.
+            LitienGuard NO sustituye atención médica profesional, diagnóstico ni
+            tratamiento.
           </p>
           <p className="mt-2 text-body-sm leading-relaxed text-ink-strong">
             Si tiene una emergencia médica, llame al 911 inmediatamente.
@@ -35,9 +35,9 @@ export default function TerminosPage() {
 
         <LegalSection number="01" title="Aceptación de los términos">
           <p>
-            Al acceder a este sitio web o utilizar cualquier producto LitienGuard
-            usted acepta estos Términos de Uso. Si no está de acuerdo con alguno
-            de ellos, le pedimos no utilizar el servicio.
+            Al acceder a este sitio web o utilizar cualquier producto
+            LitienGuard usted acepta estos Términos de Uso. Si no está de
+            acuerdo con alguno de ellos, le pedimos no utilizar el servicio.
           </p>
         </LegalSection>
 
@@ -49,8 +49,9 @@ export default function TerminosPage() {
             información se presenta con cita textual y referencia bibliográfica.
           </p>
           <p>
-            Esta información <strong>no constituye consejo médico individual</strong>
-            . Cada paciente requiere evaluación profesional personalizada.
+            Esta información{" "}
+            <strong>no constituye consejo médico individual</strong>. Cada
+            paciente requiere evaluación profesional personalizada.
           </p>
         </LegalSection>
 
@@ -81,8 +82,8 @@ export default function TerminosPage() {
             Las guías de práctica clínica, normas oficiales mexicanas y demás
             documentos oficiales referenciados son propiedad de sus respectivos
             titulares (IMSS, CENETEC, Secretaría de Salud, organizaciones
-            internacionales). LitienGuard cita estos documentos con
-            trazabilidad completa al original.
+            internacionales). LitienGuard cita estos documentos con trazabilidad
+            completa al original.
           </p>
         </LegalSection>
 
@@ -100,9 +101,7 @@ export default function TerminosPage() {
               Reproducir, distribuir o crear obras derivadas sin autorización
               expresa.
             </li>
-            <li>
-              Realizar ingeniería inversa del software o cerebro curado.
-            </li>
+            <li>Realizar ingeniería inversa del software o cerebro curado.</li>
           </ul>
         </LegalSection>
 

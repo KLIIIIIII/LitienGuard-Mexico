@@ -17,9 +17,7 @@ export default function ContactoPage() {
         title={
           <>
             Hablemos de cómo{" "}
-            <span className="lg-serif-italic text-validation">
-              LitienGuard
-            </span>{" "}
+            <span className="lg-serif-italic text-validation">LitienGuard</span>{" "}
             te ayuda.
           </>
         }
@@ -27,10 +25,7 @@ export default function ContactoPage() {
         variant="alt"
       />
 
-      <section
-        id="piloto"
-        className="border-b border-line bg-canvas py-20"
-      >
+      <section id="piloto" className="border-b border-line bg-canvas py-20">
         <div className="lg-shell grid gap-12 lg:grid-cols-[1fr_minmax(0,460px)] lg:items-start">
           <div>
             <Eyebrow tone="validation">Acceso piloto</Eyebrow>

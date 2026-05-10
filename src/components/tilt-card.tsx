@@ -12,11 +12,7 @@ interface TiltCardProps {
 
 const SPRING_CONFIG = { damping: 30, stiffness: 200, mass: 0.8 };
 
-export function TiltCard({
-  children,
-  className,
-  maxTilt = 8,
-}: TiltCardProps) {
+export function TiltCard({ children, className, maxTilt = 8 }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);

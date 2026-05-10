@@ -10,18 +10,18 @@
   }
 
   body {
-    @apply bg-canvas text-ink font-sans;
+    @apply bg-canvas font-sans text-ink;
     font-size: 0.94rem;
     line-height: 1.6;
   }
 
   ::selection {
-    background: #4A6B5B;
-    color: #FBFAF6;
+    background: #4a6b5b;
+    color: #fbfaf6;
   }
 
   *:focus-visible {
-    outline: 2px solid #2D3E50;
+    outline: 2px solid #2d3e50;
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -49,29 +49,19 @@
   }
 
   .lg-cta-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full
-           bg-accent px-5 py-2.5 text-body-sm font-medium text-canvas
-           shadow-soft transition-all duration-200 ease-out-quint
-           hover:bg-accent-deep hover:shadow-lift
-           focus-visible:outline-validation;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-accent px-5 py-2.5 text-body-sm font-medium text-canvas shadow-soft transition-all duration-200 ease-out-quint hover:bg-accent-deep hover:shadow-lift focus-visible:outline-validation;
   }
 
   .lg-cta-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full
-           border border-line-strong bg-surface px-5 py-2.5 text-body-sm
-           font-medium text-ink-strong transition-all duration-200 ease-out-quint
-           hover:border-accent hover:text-accent;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line-strong bg-surface px-5 py-2.5 text-body-sm font-medium text-ink-strong transition-all duration-200 ease-out-quint hover:border-accent hover:text-accent;
   }
 
   .lg-card {
-    @apply rounded-2xl border border-line bg-surface p-6 shadow-soft
-           transition-all duration-300 ease-out-quint;
+    @apply rounded-2xl border border-line bg-surface p-6 shadow-soft transition-all duration-300 ease-out-quint;
   }
 
   .lg-input {
-    @apply w-full rounded-xl border border-line bg-surface px-4 py-3
-           text-body text-ink placeholder:text-ink-quiet
-           focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-soft;
+    @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-body text-ink placeholder:text-ink-quiet focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-soft;
   }
 }
 
