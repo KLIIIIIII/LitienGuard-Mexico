@@ -1,8 +1,11 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { checkRateLimit, extractIp } from "@/lib/rate-limit";
+import { recordAudit } from "@/lib/audit";
 
 const emailSchema = z.string().email("Correo inválido");
 
@@ -17,6 +20,17 @@ export async function requestMagicLink(email: string): Promise<LoginState> {
     return { status: "error", message: parsed.error.issues[0].message };
   }
   const normalized = parsed.data.toLowerCase().trim();
+
+  const hdrs = await headers();
+  const ip = extractIp(hdrs);
+  const rl = await checkRateLimit(ip, "login");
+  if (!rl.allowed) {
+    return {
+      status: "error",
+      message:
+        "Demasiados intentos. Espera unos minutos antes de volver a pedir un magic link.",
+    };
+  }
 
   const supaAdmin = getSupabaseAdmin();
   if (!supaAdmin) {
@@ -73,6 +87,13 @@ export async function requestMagicLink(email: string): Promise<LoginState> {
       message: `No pudimos enviar el correo (${error.message}). Inténtalo de nuevo.`,
     };
   }
+
+  void recordAudit({
+    action: "login.magic_link_requested",
+    resource: normalized,
+    ip,
+    userAgent: hdrs.get("user-agent"),
+  });
 
   return {
     status: "ok",

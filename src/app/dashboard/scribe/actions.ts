@@ -1,9 +1,12 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getGroq, GROQ_MODELS, SCRIBE_LIMITS } from "@/lib/groq";
+import { checkRateLimit, extractIp } from "@/lib/rate-limit";
+import { recordAudit } from "@/lib/audit";
 import {
   SOAP_SYSTEM_PROMPT,
   KEYWORDS_SYSTEM_PROMPT,
@@ -59,6 +62,17 @@ export async function generarNotaScribe(
   } = await supa.auth.getUser();
   if (!user) {
     return { status: "error", message: "No autenticado." };
+  }
+
+  const hdrs = await headers();
+  const ip = extractIp(hdrs);
+  const rl = await checkRateLimit(ip, "scribe", user.id);
+  if (!rl.allowed) {
+    return {
+      status: "error",
+      message:
+        "Has alcanzado el límite de generación por hora. Espera unos minutos.",
+    };
   }
 
   // Entitlement check — Scribe is a paid/pilot feature
@@ -308,6 +322,21 @@ export async function generarNotaScribe(
 
   revalidatePath("/dashboard/notas");
   revalidatePath("/dashboard");
+
+  void recordAudit({
+    userId: user.id,
+    action: "scribe.note_created",
+    resource: nota.id,
+    metadata: {
+      duracion_audio_bytes: file.size,
+      keywords_count: keywords.length,
+      evidence_count: evidencia.length,
+      memoria_count: memoria.length,
+    },
+    ip,
+    userAgent: hdrs.get("user-agent"),
+  });
+
   return { status: "ok", notaId: nota.id };
 }
 
