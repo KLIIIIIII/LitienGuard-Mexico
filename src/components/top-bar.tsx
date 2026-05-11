@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { UserChip } from "@/components/user-chip";
 
@@ -10,26 +11,39 @@ const navLinks = [
   { href: "/contacto", label: "Contacto" },
 ];
 
-async function tryGetUser() {
+async function tryGetUserAndRole(): Promise<{
+  user: { id: string } | null;
+  role: "medico" | "admin" | null;
+}> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
-    return null;
+    return { user: null, role: null };
   }
   try {
     const supa = await createSupabaseServer();
     const {
       data: { user },
     } = await supa.auth.getUser();
-    return user;
+    if (!user) return { user: null, role: null };
+    const { data: profile } = await supa
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    return {
+      user: { id: user.id },
+      role: (profile?.role as "medico" | "admin" | null) ?? null,
+    };
   } catch {
-    return null;
+    return { user: null, role: null };
   }
 }
 
 export async function TopBar() {
-  const user = await tryGetUser();
+  const { user, role } = await tryGetUserAndRole();
+  const isAdmin = role === "admin";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-line bg-surface/95 backdrop-blur-sm">
@@ -73,6 +87,15 @@ export async function TopBar() {
               {link.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              href="/admin/cerebro"
+              className="inline-flex items-center gap-1.5 rounded-full border border-warn-soft bg-warn-soft px-2.5 py-1 text-caption font-semibold text-warn transition-colors hover:bg-warn-soft/80"
+            >
+              <ShieldCheck className="h-3 w-3" strokeWidth={2.4} />
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">

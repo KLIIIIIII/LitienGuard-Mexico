@@ -2,7 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
+import {
+  BookOpen,
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  ShieldCheck,
+} from "lucide-react";
 import { signOut } from "@/app/login/actions";
 import { useRouter } from "next/navigation";
 
@@ -121,15 +127,26 @@ export function UserChipClient({
               Ir al dashboard
             </Link>
             {role === "admin" && (
-              <Link
-                href="/admin/invitaciones"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-ink-strong hover:bg-surface-alt"
-                role="menuitem"
-              >
-                <ShieldCheck className="h-4 w-4 text-ink-muted" />
-                Gestionar invitaciones
-              </Link>
+              <>
+                <Link
+                  href="/admin/invitaciones"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-ink-strong hover:bg-surface-alt"
+                  role="menuitem"
+                >
+                  <ShieldCheck className="h-4 w-4 text-ink-muted" />
+                  Gestionar invitaciones
+                </Link>
+                <Link
+                  href="/admin/cerebro"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-ink-strong hover:bg-surface-alt"
+                  role="menuitem"
+                >
+                  <BookOpen className="h-4 w-4 text-ink-muted" />
+                  Curar cerebro
+                </Link>
+              </>
             )}
             <button
               type="button"
