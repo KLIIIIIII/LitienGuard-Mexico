@@ -17,10 +17,11 @@ REGLAS DURAS:
 2. Para "subjetivo" y "objetivo": APÉGATE A LA TRANSCRIPCIÓN. NO inventes signos vitales, exploración o estudios que no se hayan mencionado. Si falta un dato, deja la oración relacionada como "(no consignado)".
 3. Para "analisis" y "plan": PUEDES proponer sugerencias clínicas cuando exista contexto de guías relevante en la sección "EVIDENCIA DISPONIBLE" del prompt del usuario. Cada sugerencia DEBE ir acompañada de su fuente entre corchetes inmediatamente después, ejemplo:
    "Iniciar metformina 500 mg c/12h con titulación semanal hasta 1.5-2 g/día [GPC IMSS SS-718-15 pág. 19]."
-4. Si NO hay evidencia en la sección "EVIDENCIA DISPONIBLE" sobre algún punto, NO inventes citas. Marca esas sugerencias con "[según juicio clínico]" en lugar de fuente.
-5. "citas": arreglo de strings con los identificadores de guías que efectivamente usaste (formato corto, ej. "GPC IMSS SS-718-15 pág. 19"). Cadena vacía si no usaste ninguna.
-6. NUNCA pongas información identificable del paciente (nombre completo, dirección, RFC, CURP, número de seguridad social). Si la transcripción la menciona, omítela.
-7. Las sugerencias NO sustituyen el juicio clínico del médico que firma. Tu rol es proponer; él decide.
+4. Si la sección "PATRÓN PROPIO DEL MÉDICO" contiene notas previas firmadas del mismo médico para casos similares, PUEDES referenciarlas con la etiqueta "[patrón propio]" indicando que sigues el estilo y manejo previo del médico. NO uses esto para sustituir guías oficiales: si hay evidencia académica, ESA tiene prioridad sobre el patrón propio.
+5. Si NO hay evidencia ni patrón aplicable sobre algún punto, NO inventes citas. Marca esas sugerencias con "[según juicio clínico]".
+6. "citas": arreglo de strings con los identificadores de fuentes que efectivamente usaste (ej. "GPC IMSS SS-718-15 pág. 19" o "patrón propio · 15-mar-2026"). Vacío si no usaste ninguna.
+7. NUNCA pongas información identificable del paciente (nombre completo, dirección, RFC, CURP, número de seguridad social) en el JSON SOAP. Si la transcripción la menciona, omítela.
+8. Las sugerencias NO sustituyen el juicio clínico del médico que firma. Tu rol es proponer; él decide.
 
 CONTENIDO POR SECCIÓN:
 - subjetivo: motivo de consulta, padecimiento actual, antecedentes (AHF, APP, APNP), revisión por sistemas — lo que reporta el paciente.
@@ -39,12 +40,18 @@ export interface EvidenceChunk {
   content: string;
 }
 
+export interface MemoryChunk {
+  fecha: string;
+  resumen: string;
+}
+
 export function buildSoapUserPrompt(opts: {
   transcripcion: string;
   iniciales?: string | null;
   edad?: number | null;
   sexo?: string | null;
   evidencia?: EvidenceChunk[];
+  memoria?: MemoryChunk[];
 }): string {
   const ctx = [
     opts.iniciales ? `Iniciales: ${opts.iniciales}` : null,
@@ -56,16 +63,23 @@ export function buildSoapUserPrompt(opts: {
 
   const evidenceBlock =
     opts.evidencia && opts.evidencia.length > 0
-      ? `\n\nEVIDENCIA DISPONIBLE (úsala para sustentar análisis y plan; cita siempre con [fuente pág. X]):\n${opts.evidencia
+      ? `\n\nEVIDENCIA DISPONIBLE (guías oficiales — prioridad alta. Cita con [fuente pág. X]):\n${opts.evidencia
           .map(
             (c, i) =>
               `[${i + 1}] ${c.source} · pág. ${c.page} · ${c.title}\n   ${c.content}`,
           )
           .join("\n\n")}\n`
-      : `\n\nEVIDENCIA DISPONIBLE: (sin coincidencias en el cerebro; usa [según juicio clínico] en sugerencias).\n`;
+      : `\n\nEVIDENCIA DISPONIBLE: (sin coincidencias en el cerebro; usa [según juicio clínico]).\n`;
+
+  const memoryBlock =
+    opts.memoria && opts.memoria.length > 0
+      ? `\n\nPATRÓN PROPIO DEL MÉDICO (notas firmadas previas para casos similares — referencia secundaria, NO sustituye guías oficiales. Cita con [patrón propio · fecha]):\n${opts.memoria
+          .map((m, i) => `[P${i + 1}] ${m.fecha}\n   ${m.resumen}`)
+          .join("\n\n")}\n`
+      : "";
 
   return `Contexto del paciente: ${ctx || "(no especificado)"}
-${evidenceBlock}
+${evidenceBlock}${memoryBlock}
 Transcripción de la consulta:
 """
 ${opts.transcripcion}
