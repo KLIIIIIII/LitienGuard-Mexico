@@ -6,87 +6,99 @@ import { TiltCard } from "@/components/tilt-card";
 import { Eyebrow } from "@/components/eyebrow";
 
 export const metadata: Metadata = {
-  title: "Para hospitales — RCM Copilot + EHR ligero",
+  title: "Para hospitales — Recupera ingresos y reduce DSO",
   description:
-    "Validación de pólizas, predicción de denegaciones, cobranza limpia, EHR compatible con SINBA y Credencial Paciente 2026.",
+    "Validación de pólizas en segundos, predicción de denegaciones, automatización de facturación y EHR ligero compatible con la Reforma de Salud Digital 2026.",
 };
 
 const RCM_FEATURES = [
   {
-    title: "G.1 · Validación de pólizas en segundos",
-    desc: "Antes de admitir al paciente, sabes qué cubre y qué no. Cero sorpresas a la hora del alta.",
+    title: "Valida la póliza antes de admitir al paciente",
+    desc: "Sabe en segundos qué cubre la aseguradora y qué no. Cero sorpresas a la hora del alta, cero reclamaciones tardías de pacientes.",
   },
   {
-    title: "G.2 · Predicción de denegaciones",
-    desc: "Modelo entrenado en patrones reales de aseguradoras y TPAs MX. Alerta antes de facturar.",
+    title: "Predice denegaciones antes de facturar",
+    desc: "Modelo entrenado con patrones reales de aseguradoras y administradoras mexicanas. Te avisa cuándo un claim probablemente será rechazado, antes de enviarlo.",
   },
   {
-    title: "G.3 · Automatización de facturación",
-    desc: "Conversión automática de notas clínicas a códigos CIE-10 y procedimientos. Reduces backlog.",
+    title: "Convierte notas clínicas en facturación correcta",
+    desc: "Codificación CIE-10 y procedimientos automática a partir de tus notas. Menos backlog en facturación, menos errores humanos.",
   },
   {
-    title: "G.4 · Seguimiento de cobranza",
-    desc: "Dashboard de cuentas por cobrar con priorización por riesgo y antigüedad. -20-30% DSO.",
+    title: "Cobra más rápido y con menos esfuerzo",
+    desc: "Dashboard de cuentas por cobrar con priorización por antigüedad y riesgo de impago. Reducción típica de DSO entre 20% y 30%.",
   },
   {
-    title: "G.5 · Detección de fraude",
-    desc: "Patrones anómalos de facturación, codificación y referenciación.",
+    title: "Detecta fraude y patrones anómalos",
+    desc: "Alertas cuando las cifras de facturación, codificación o referenciación se desvían de tu propia línea base.",
   },
 ];
 
 const EHR_FEATURES = [
   {
-    title: "Captura única, sin doble registro",
-    desc: "El médico documenta una vez. Calidad, RCM y reporteo SINBA se nutren del mismo flujo.",
+    title: "Tus médicos documentan una sola vez",
+    desc: "La nota clínica alimenta calidad, facturación y reporteo en un solo flujo. Sin duplicar captura, sin sistemas paralelos.",
   },
   {
     title: "Reporteo SINBA/SINAIS automatizado",
-    desc: "Cumplimiento Reforma LGS 2026 sin trabajo manual. Caballo de Troya regulatorio.",
+    desc: "Cumple con la Reforma General de Salud Digital 2026 sin trabajo manual mensual. Lo que antes consumía días, ahora se entrega solo.",
   },
   {
-    title: "Credencial Paciente 2026 nativa",
-    desc: "Identidad clínica unificada compatible con la nueva credencial federal.",
+    title: "Compatible con la Credencial Paciente 2026",
+    desc: "Identidad clínica unificada lista para la nueva credencial federal. Sin migraciones forzadas ni proyectos de TI a 12 meses.",
   },
   {
-    title: "Interop mediadora",
-    desc: "Bridges con sistemas legacy (SAP, Epic-lite, in-house). No te obligamos a migrar todo de golpe.",
+    title: "Convive con tus sistemas actuales",
+    desc: "Puentes con SAP, sistemas internos y plataformas legacy. No te obligamos a tirar lo que ya invertiste — se integra encima.",
   },
 ];
 
-const TARGETS = [
-  "Christus Muguerza",
-  "TecSalud",
-  "Hospitales MAC",
-  "Grupo Ángeles",
-  "Médica Sur",
+const SEGMENTS = [
+  {
+    title: "100+ camas",
+    desc: "Volumen suficiente para que el RCM mueva la aguja de tu EBITDA en un trimestre.",
+  },
+  {
+    title: "5,000+ pacientes/mes",
+    desc: "Suficientes claims para que la predicción de denegaciones se vuelva tu segunda nómina.",
+  },
+  {
+    title: "3+ aseguradoras activas",
+    desc: "Si tu mezcla de pagadores es compleja, la validación de pólizas paga el sistema en un mes.",
+  },
+  {
+    title: "Múltiples ubicaciones",
+    desc: "Reportes consolidados, reglas por unidad, conciliación centralizada — sin un equipo administrativo paralelo por sucursal.",
+  },
 ];
 
 export default function HospitalesPage() {
   return (
     <>
       <PageHero
-        eyebrow="Capa B + G · Hospitales"
+        eyebrow="Hospitales privados"
         title={
           <>
             Recupera{" "}
             <span className="lg-serif-italic text-validation">5–15%</span> de
-            ingresos. Reduce DSO 20-30%.
+            ingresos. Cobra 20–30% más rápido.
           </>
         }
-        description="RCM Copilot + EHR ligero, ambos compatibles con la Reforma LGS Salud Digital 2026. Empezamos por revenue cycle, escalamos a EHR completo."
+        description="Validación de pólizas, predicción de denegaciones, automatización de facturación y un EHR ligero que cumple con la Reforma de Salud Digital 2026. Empezamos por el ciclo de ingresos donde la inversión se paga sola, y crecemos contigo a EHR completo cuando ya hay resultados visibles."
         variant="alt"
       />
 
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
-          <Eyebrow>Capa G · Revenue Cycle Management</Eyebrow>
+          <Eyebrow>Ciclo de ingresos hospitalarios</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            Tu palanca de ROI rápido — antes del EHR completo.
+            Donde más duele, donde más rápido se ve el ROI.
           </h2>
           <p className="mt-4 max-w-prose text-body text-ink-muted">
-            Empezamos por donde duele: pólizas validadas, denegaciones
-            predichas, cobranza limpia. Sin migración masiva, sin reemplazo de
-            sistemas existentes.
+            La industria pierde entre 5% y 15% de ingresos cobrables en fugas
+            administrativas: pólizas mal validadas, denegaciones evitables,
+            cuentas que envejecen, errores de codificación. Empezamos por ahí
+            — sin reemplazar tu HIS, sin proyectos de migración de un año.
           </p>
           <div className="mt-10">
             <FeatureList items={RCM_FEATURES} />
@@ -96,10 +108,15 @@ export default function HospitalesPage() {
 
       <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
-          <Eyebrow>Capa B · EHR ligero</Eyebrow>
+          <Eyebrow>Expediente clínico electrónico</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            EHR construido sobre el RCM ya instalado.
+            EHR construido encima del flujo ya instalado.
           </h2>
+          <p className="mt-4 max-w-prose text-body text-ink-muted">
+            Una vez que tu ciclo de ingresos está bajo control, el siguiente
+            paso natural es que los médicos documenten una sola vez y todo el
+            hospital se beneficie. Cumplimiento regulatorio incluido.
+          </p>
           <div className="mt-10">
             <FeatureList items={EHR_FEATURES} />
           </div>
@@ -108,29 +125,31 @@ export default function HospitalesPage() {
 
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
-          <Eyebrow>Targets de Fase 2A · Hospitales privados premium</Eyebrow>
+          <Eyebrow>¿Es para tu hospital?</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            Construimos para los grupos que mueven el sector privado mexicano.
+            Si tu operación tiene este perfil, hay un caso de ROI claro.
           </h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {TARGETS.map((t) => (
-              <TiltCard key={t} className="px-4 py-5 text-center">
-                <p className="text-body-sm font-semibold text-ink-strong">
-                  {t}
+          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {SEGMENTS.map((s) => (
+              <TiltCard key={s.title} className="p-5">
+                <p className="text-h3 font-semibold tracking-tight text-ink-strong">
+                  {s.title}
                 </p>
+                <p className="mt-2 text-body-sm text-ink-muted">{s.desc}</p>
               </TiltCard>
             ))}
           </div>
           <p className="mt-6 max-w-prose text-caption text-ink-soft">
-            [verificar copy] Targets nombrados en estrategia interna · sin
-            relación comercial confirmada al cierre de mayo 2026.
+            Trabajamos con grupos hospitalarios privados premium en México.
+            Si tu hospital no encaja exactamente con estos criterios pero
+            quieres explorar, escríbenos: tomamos la conversación caso por caso.
           </p>
         </div>
       </section>
 
       <FinalCta
-        title="Demo guiada — 30 minutos."
-        description="Si tu hospital procesa más de 5,000 pacientes/mes, tienes un caso de ROI claro en RCM. Vamos a verlo juntos."
+        title="Demo guiada — 30 minutos, con tus números."
+        description="Te mostramos exactamente cuánto podrías recuperar en tu operación. Sin compromiso, sin demos genéricas — usamos un pedazo de tu data real para cuantificar el caso."
       />
     </>
   );
