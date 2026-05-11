@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Lock,
   Settings,
+  Download,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -66,6 +67,12 @@ export function DashboardSidebar({
       icon: BookOpen,
       match: (p) => p.startsWith("/dashboard/cerebro"),
       locked: !canCerebro,
+    },
+    {
+      href: "/dashboard/exportar",
+      label: "Exportar datos",
+      icon: Download,
+      match: (p) => p.startsWith("/dashboard/exportar"),
     },
     {
       href: "/dashboard/configuracion",
