@@ -4,8 +4,14 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getGroq, GROQ_MODELS, SCRIBE_LIMITS } from "@/lib/groq";
-import { SOAP_SYSTEM_PROMPT, buildSoapUserPrompt } from "@/lib/soap-prompt";
+import {
+  SOAP_SYSTEM_PROMPT,
+  KEYWORDS_SYSTEM_PROMPT,
+  buildSoapUserPrompt,
+  type EvidenceChunk,
+} from "@/lib/soap-prompt";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { searchCerebro } from "@/lib/bm25";
 import {
   canUseScribe,
   scribeMonthlyLimit,
@@ -138,7 +144,54 @@ export async function generarNotaScribe(
     };
   }
 
-  let soap = { subjetivo: "", objetivo: "", analisis: "", plan: "" };
+  // RAG step 1: extract clinical keywords from transcription
+  let keywords: string[] = [];
+  try {
+    const kwCompletion = await groq.chat.completions.create({
+      model: GROQ_MODELS.llama,
+      messages: [
+        { role: "system", content: KEYWORDS_SYSTEM_PROMPT },
+        { role: "user", content: transcripcionText },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.1,
+      max_tokens: 300,
+    });
+    const kwRaw = kwCompletion.choices[0]?.message?.content ?? "{}";
+    const kwParsed = JSON.parse(kwRaw) as { keywords?: unknown };
+    if (Array.isArray(kwParsed.keywords)) {
+      keywords = kwParsed.keywords
+        .filter((k): k is string => typeof k === "string" && k.trim().length > 0)
+        .slice(0, 8);
+    }
+  } catch (e) {
+    console.warn("[scribe] keyword extraction failed, proceeding without RAG:", e);
+  }
+
+  // RAG step 2: retrieve relevant chunks from the cerebro
+  const evidenceMap = new Map<string, EvidenceChunk>();
+  for (const kw of keywords) {
+    for (const hit of searchCerebro(kw, 2)) {
+      if (!evidenceMap.has(hit.doc.id)) {
+        evidenceMap.set(hit.doc.id, {
+          source: hit.doc.source,
+          page: hit.doc.page,
+          title: hit.doc.title,
+          content: hit.doc.content,
+        });
+      }
+    }
+  }
+  const evidencia = Array.from(evidenceMap.values()).slice(0, 6);
+
+  // RAG step 3: generate SOAP grounded in evidence
+  let soap = {
+    subjetivo: "",
+    objetivo: "",
+    analisis: "",
+    plan: "",
+    citas: [] as string[],
+  };
   let completionId = "";
   try {
     const completion = await groq.chat.completions.create({
@@ -152,12 +205,13 @@ export async function generarNotaScribe(
             iniciales: ctx.data.paciente_iniciales,
             edad: ctx.data.paciente_edad,
             sexo: ctx.data.paciente_sexo,
+            evidencia,
           }),
         },
       ],
       response_format: { type: "json_object" },
       temperature: 0.2,
-      max_tokens: 2000,
+      max_tokens: 2400,
     });
     completionId = completion.id ?? "";
     const raw = completion.choices[0]?.message?.content ?? "{}";
@@ -167,6 +221,9 @@ export async function generarNotaScribe(
       objetivo: typeof parsed.objetivo === "string" ? parsed.objetivo : "",
       analisis: typeof parsed.analisis === "string" ? parsed.analisis : "",
       plan: typeof parsed.plan === "string" ? parsed.plan : "",
+      citas: Array.isArray(parsed.citas)
+        ? parsed.citas.filter((c): c is string => typeof c === "string")
+        : [],
     };
   } catch (e: unknown) {
     console.error("[scribe] llama error:", e);
@@ -196,6 +253,9 @@ export async function generarNotaScribe(
         llama_model: GROQ_MODELS.llama,
         groq_completion_id: completionId,
         audio_size_bytes: file.size,
+        rag_keywords: keywords,
+        rag_chunks_used: evidencia.map((c) => `${c.source} pág. ${c.page}`),
+        rag_citas_modelo: soap.citas,
       },
       status: "borrador",
     })
