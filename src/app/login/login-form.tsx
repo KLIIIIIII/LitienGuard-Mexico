@@ -1,21 +1,27 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Mail } from "lucide-react";
 import { requestMagicLink, type LoginState } from "./actions";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export function LoginForm() {
+  const turnstileSiteKey =
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null;
   const [pending, startTransition] = useTransition();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<LoginState>({ status: "idle" });
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  const onToken = useCallback((t: string | null) => setTurnstileToken(t), []);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setState({ status: "idle" });
     startTransition(async () => {
-      const result = await requestMagicLink(email);
+      const result = await requestMagicLink(email, turnstileToken);
       setState(result);
     });
   }
@@ -86,6 +92,10 @@ export function LoginForm() {
               />
             </div>
 
+            {turnstileSiteKey && (
+              <TurnstileWidget siteKey={turnstileSiteKey} onToken={onToken} />
+            )}
+
             {state.status === "error" && (
               <p
                 role="alert"
@@ -97,7 +107,9 @@ export function LoginForm() {
 
             <button
               type="submit"
-              disabled={pending || !email}
+              disabled={
+                pending || !email || (!!turnstileSiteKey && !turnstileToken)
+              }
               className="lg-cta-primary w-full justify-center disabled:opacity-60"
             >
               {pending ? "Enviando…" : "Enviar magic link"}

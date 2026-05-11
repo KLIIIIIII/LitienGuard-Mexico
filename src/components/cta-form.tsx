@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,11 +13,17 @@ import {
 } from "@/lib/preregistro";
 import { submitPreregistro } from "@/app/actions/preregistro";
 import { Eyebrow } from "@/components/eyebrow";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export function CtaForm() {
+  const turnstileSiteKey =
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null;
   const [pending, startTransition] = useTransition();
   const [success, setSuccess] = useState<null | string>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  const onToken = useCallback((t: string | null) => setTurnstileToken(t), []);
 
   const {
     register,
@@ -32,7 +38,7 @@ export function CtaForm() {
   function onSubmit(data: PreregistroInput) {
     setServerError(null);
     startTransition(async () => {
-      const result = await submitPreregistro(data);
+      const result = await submitPreregistro(data, turnstileToken);
       if (result.status === "ok") {
         setSuccess(result.message);
         reset();
@@ -189,6 +195,10 @@ export function CtaForm() {
               />
             </div>
 
+            {turnstileSiteKey && (
+              <TurnstileWidget siteKey={turnstileSiteKey} onToken={onToken} />
+            )}
+
             {serverError && (
               <p
                 role="alert"
@@ -200,7 +210,7 @@ export function CtaForm() {
 
             <button
               type="submit"
-              disabled={pending}
+              disabled={pending || (!!turnstileSiteKey && !turnstileToken)}
               className="lg-cta-primary w-full justify-center disabled:opacity-60"
             >
               {pending ? "Enviando…" : "Solicitar acceso piloto"}
