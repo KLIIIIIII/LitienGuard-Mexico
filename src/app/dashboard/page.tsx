@@ -212,28 +212,55 @@ export default async function DashboardPage() {
             </span>
           </Link>
 
-          <div className="lg-card opacity-70">
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-surface-alt p-2 text-ink-quiet">
-                <BookOpen className="h-5 w-5" />
+          {cerebroUnlocked ? (
+            <Link
+              href="/dashboard/cerebro"
+              className="lg-card group transition-all hover:border-accent hover:shadow-lift"
+            >
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-accent-soft p-2 text-accent">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div>
+                  <Eyebrow tone="accent">Cerebro</Eyebrow>
+                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+                    Búsqueda con evidencia
+                  </h2>
+                </div>
               </div>
-              <div>
-                <Eyebrow tone="accent">Cerebro</Eyebrow>
-                <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                  Búsqueda con evidencia
-                </h2>
+              <p className="mt-3 text-body-sm text-ink-muted">
+                Consulta el cerebro curado en español con citas verbatim de
+                guías oficiales (IMSS, NOM-004, NICE, GINA, Surviving Sepsis).
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-caption text-accent">
+                Disponible · Plan {TIER_LABELS[tier]}
+              </span>
+            </Link>
+          ) : (
+            <div className="lg-card opacity-80">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-surface-alt p-2 text-ink-quiet">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <div>
+                  <Eyebrow tone="accent">Cerebro</Eyebrow>
+                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+                    Búsqueda con evidencia
+                  </h2>
+                </div>
               </div>
+              <p className="mt-3 text-body-sm text-ink-muted">
+                Consulta el cerebro curado en español con citas verbatim de
+                guías oficiales (IMSS, NOM-004, NICE, GINA, Surviving Sepsis).
+              </p>
+              <Link
+                href="/contacto"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-warn hover:bg-warn-soft/80"
+              >
+                Plan Pro o superior →
+              </Link>
             </div>
-            <p className="mt-3 text-body-sm text-ink-muted">
-              Consulta el cerebro curado en español con citas verbatim de guías
-              oficiales (IMSS, NOM-004, NICE, GINA, ADA).
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-ink-muted">
-              {cerebroUnlocked
-                ? "Próximamente · Hito 3.3"
-                : "Plan Pro o superior"}
-            </span>
-          </div>
+          )}
 
           {profile?.role === "admin" && (
             <Link
