@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Save, Trash2, AlertCircle } from "lucide-react";
+import { Check, Save, Trash2, AlertCircle, Download } from "lucide-react";
 import { actualizarNota, eliminarNota } from "../../scribe/actions";
 
 type SoapFields = {
@@ -178,11 +178,22 @@ export function SoapEditor({
           </button>
         )}
 
+        <a
+          href={`/api/notas/${notaId}/pdf`}
+          target="_blank"
+          rel="noopener"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-3 py-1.5 text-caption text-ink-strong shadow-soft hover:border-line-strong"
+          aria-label="Descargar PDF"
+        >
+          <Download className="h-3.5 w-3.5" />
+          PDF
+        </a>
+
         <button
           type="button"
           onClick={onDelete}
           disabled={pending}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-caption text-rose hover:bg-rose-soft"
+          className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-caption text-rose hover:bg-rose-soft"
         >
           <Trash2 className="h-3.5 w-3.5" />
           Eliminar
