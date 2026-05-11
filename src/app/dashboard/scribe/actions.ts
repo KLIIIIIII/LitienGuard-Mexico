@@ -9,7 +9,9 @@ import {
   KEYWORDS_SYSTEM_PROMPT,
   buildSoapUserPrompt,
   type EvidenceChunk,
+  type MemoryChunk,
 } from "@/lib/soap-prompt";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { searchCerebro } from "@/lib/bm25";
 import {
@@ -204,6 +206,9 @@ export async function generarNotaScribe(
   }
   const evidencia = Array.from(evidenceMap.values()).slice(0, 6);
 
+  // RAG step 2b: doctor's own memory — top firmadas notes matching keywords
+  const memoria = await searchDoctorMemory(supa, user.id, keywords);
+
   // RAG step 3: generate SOAP grounded in evidence
   let soap = {
     subjetivo: "",
@@ -226,6 +231,7 @@ export async function generarNotaScribe(
             edad: ctx.data.paciente_edad,
             sexo: ctx.data.paciente_sexo,
             evidencia,
+            memoria,
           }),
         },
       ],
@@ -279,6 +285,7 @@ export async function generarNotaScribe(
         rag_keywords: keywords,
         rag_chunks_used: evidencia.map((c) => `${c.source} pág. ${c.page}`),
         rag_citas_modelo: soap.citas,
+        rag_memoria_usada: memoria.map((m) => m.fecha),
       },
       status: "borrador",
     })
@@ -342,6 +349,68 @@ export async function actualizarNota(
   revalidatePath(`/dashboard/notas/${notaId}`);
   revalidatePath("/dashboard/notas");
   return { status: "ok" };
+}
+
+/**
+ * Search the doctor's own previously signed SOAP notes for cases matching
+ * the current case's clinical keywords. Returns up to 3 short summaries
+ * the model can lean on as a "patrón propio" hint.
+ */
+async function searchDoctorMemory(
+  supa: SupabaseClient,
+  medicoId: string,
+  keywords: string[],
+): Promise<MemoryChunk[]> {
+  if (keywords.length === 0) return [];
+
+  const orFilters = keywords
+    .map((k) => k.replace(/[%,]/g, " ").trim())
+    .filter((k) => k.length >= 3)
+    .flatMap((k) => [
+      `soap_analisis.ilike.%${k}%`,
+      `soap_plan.ilike.%${k}%`,
+    ])
+    .join(",");
+
+  if (!orFilters) return [];
+
+  const { data, error } = await supa
+    .from("notas_scribe")
+    .select(
+      "id,paciente_edad,paciente_sexo,soap_analisis,soap_plan,created_at",
+    )
+    .eq("medico_id", medicoId)
+    .eq("status", "firmada")
+    .or(orFilters)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.warn("[scribe] memory search error:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map((n) => {
+    const fecha = new Date(n.created_at).toLocaleDateString("es-MX", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+    const demog = [
+      n.paciente_edad != null ? `${n.paciente_edad}a` : null,
+      n.paciente_sexo,
+    ]
+      .filter(Boolean)
+      .join("/");
+    const a = (n.soap_analisis ?? "").trim().slice(0, 400);
+    const p = (n.soap_plan ?? "").trim().slice(0, 400);
+    return {
+      fecha: `${fecha}${demog ? ` · ${demog}` : ""}`,
+      resumen: [a && `Análisis: ${a}`, p && `Plan: ${p}`]
+        .filter(Boolean)
+        .join("\n"),
+    };
+  });
 }
 
 export async function eliminarNota(notaId: string): Promise<void> {

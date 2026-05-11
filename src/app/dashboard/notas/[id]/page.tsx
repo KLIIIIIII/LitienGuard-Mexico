@@ -32,6 +32,7 @@ type Nota = {
     rag_keywords?: string[];
     rag_chunks_used?: string[];
     rag_citas_modelo?: string[];
+    rag_memoria_usada?: string[];
   } | null;
   status: "borrador" | "firmada" | "descartada";
   created_at: string;
@@ -129,30 +130,66 @@ export default async function NotaPage({
           />
         </div>
 
-        {(n.soap_metadata?.rag_chunks_used?.length ?? 0) > 0 && (
+        {((n.soap_metadata?.rag_chunks_used?.length ?? 0) > 0 ||
+          (n.soap_metadata?.rag_memoria_usada?.length ?? 0) > 0) && (
           <section className="mt-10 max-w-3xl">
             <h2 className="text-h3 font-semibold text-ink-strong">
               Fuentes consultadas
             </h2>
             <p className="mt-1 text-caption text-ink-muted">
-              El asistente revisó estas guías al proponer análisis y plan. Las
-              sugerencias son herramientas: la decisión clínica es tuya.
+              El asistente revisó estas referencias al proponer análisis y
+              plan. Las sugerencias son herramientas: la decisión clínica es
+              tuya.
             </p>
-            <ul className="mt-3 space-y-2">
-              {n.soap_metadata?.rag_chunks_used?.map((c, i) => (
-                <li
-                  key={`${c}-${i}`}
-                  className="flex items-start gap-2 rounded-lg border border-line bg-surface px-4 py-2 text-body-sm text-ink-strong"
-                >
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-validation-soft text-caption font-semibold text-validation">
-                    {i + 1}
-                  </span>
-                  <span>{c}</span>
-                </li>
-              ))}
-            </ul>
+
+            {(n.soap_metadata?.rag_chunks_used?.length ?? 0) > 0 && (
+              <>
+                <p className="mt-4 text-caption font-medium uppercase tracking-eyebrow text-ink-muted">
+                  Guías oficiales
+                </p>
+                <ul className="mt-2 space-y-2">
+                  {n.soap_metadata?.rag_chunks_used?.map((c, i) => (
+                    <li
+                      key={`${c}-${i}`}
+                      className="flex items-start gap-2 rounded-lg border border-line bg-surface px-4 py-2 text-body-sm text-ink-strong"
+                    >
+                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-validation-soft text-caption font-semibold text-validation">
+                        {i + 1}
+                      </span>
+                      <span>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {(n.soap_metadata?.rag_memoria_usada?.length ?? 0) > 0 && (
+              <>
+                <p className="mt-4 text-caption font-medium uppercase tracking-eyebrow text-ink-muted">
+                  Patrón propio · notas previas firmadas
+                </p>
+                <ul className="mt-2 space-y-2">
+                  {n.soap_metadata?.rag_memoria_usada?.map((m, i) => (
+                    <li
+                      key={`mem-${i}`}
+                      className="flex items-start gap-2 rounded-lg border border-accent-soft bg-accent-soft/40 px-4 py-2 text-body-sm text-ink-strong"
+                    >
+                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-caption font-semibold text-surface">
+                        P{i + 1}
+                      </span>
+                      <span>{m}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-caption text-ink-soft">
+                  Referencia secundaria basada en tus notas firmadas — no
+                  sustituye una guía clínica.
+                </p>
+              </>
+            )}
+
             {(n.soap_metadata?.rag_keywords?.length ?? 0) > 0 && (
-              <p className="mt-3 text-caption text-ink-soft">
+              <p className="mt-4 text-caption text-ink-soft">
                 Conceptos clínicos detectados:{" "}
                 {n.soap_metadata?.rag_keywords?.join(" · ")}
               </p>
