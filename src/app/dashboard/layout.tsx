@@ -14,6 +14,20 @@ export default async function DashboardLayout({
   } = await supa.auth.getUser();
   if (!user) redirect("/login");
 
+  // Enforce AAL2 for users who have MFA enabled. If the session is AAL1
+  // and the account has a verified factor, send them to challenge first.
+  // (Note: keep the redirect outside the try/catch — NEXT_REDIRECT throws.)
+  let needsAal2 = false;
+  try {
+    const { data: aal } =
+      await supa.auth.mfa.getAuthenticatorAssuranceLevel();
+    needsAal2 =
+      aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2";
+  } catch {
+    needsAal2 = false;
+  }
+  if (needsAal2) redirect("/auth/mfa?next=/dashboard");
+
   const { data: profile } = await supa
     .from("profiles")
     .select("role, subscription_tier")
