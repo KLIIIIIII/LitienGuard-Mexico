@@ -91,7 +91,7 @@ export async function enviarFeedback(
   const resend = getResend();
   if (resend) {
     const adminEmail =
-      process.env.ADMIN_NOTIFY_EMAIL ?? "contacto@litienguard.mx";
+      process.env.ADMIN_NOTIFY_EMAIL ?? "compras@grupoprodi.net";
     const esc = (s: string) =>
       s.replace(
         /[&<>"']/g,

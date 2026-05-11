@@ -41,7 +41,7 @@ export default function ContactoPage() {
               <div>
                 <dt className="lg-eyebrow">Correo</dt>
                 <dd className="mt-1.5 text-body-sm text-ink-strong">
-                  contacto@litienguard.mx
+                  compras@grupoprodi.net
                 </dd>
               </div>
               <div>

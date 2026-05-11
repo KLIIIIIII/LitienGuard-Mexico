@@ -58,7 +58,7 @@ export async function submitPreregistro(
     return {
       status: "error",
       message:
-        "Servicio temporalmente no configurado. Escríbenos a contacto@litienguard.mx mientras tanto.",
+        "Servicio temporalmente no configurado. Escríbenos a compras@grupoprodi.net mientras tanto.",
     };
   }
 
@@ -109,7 +109,7 @@ export async function submitPreregistro(
 
     // 2) Admin notification
     const adminEmail =
-      process.env.ADMIN_NOTIFY_EMAIL ?? "contacto@litienguard.mx";
+      process.env.ADMIN_NOTIFY_EMAIL ?? "compras@grupoprodi.net";
     const esc = (s: string | null | undefined): string =>
       (s ?? "—").replace(
         /[&<>"']/g,

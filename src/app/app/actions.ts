@@ -75,7 +75,7 @@ export async function submitAppWaitlist(
     return {
       status: "error",
       message:
-        "Servicio temporalmente no configurado. Escríbenos a contacto@litienguard.mx.",
+        "Servicio temporalmente no configurado. Escríbenos a compras@grupoprodi.net.",
     };
   }
 
