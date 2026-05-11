@@ -34,11 +34,17 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.env.production*
+.env.preview*
 !.env.example
 !.env.local.example
 
 # vercel
 .vercel
+
+# supabase CLI
+supabase/.temp/
+supabase/.branches/
 
 # typescript
 *.tsbuildinfo

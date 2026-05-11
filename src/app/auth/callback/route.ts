@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next") ?? "/dashboard";
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/login?error=missing_code`);
+    return NextResponse.redirect(`${origin}/login?reason=missing_code`);
   }
 
   const supa = await createSupabaseServer();
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error("[auth/callback] exchange error:", error);
-    return NextResponse.redirect(`${origin}/login?error=invalid_link`);
+    return NextResponse.redirect(`${origin}/login?reason=invalid_link`);
   }
 
   return NextResponse.redirect(`${origin}${next}`);
