@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   ShieldCheck,
@@ -23,17 +24,20 @@ export function MfaPanel({
   existingFactorId: string | null;
   existingFactorName: string | null;
 }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [enroll, setEnroll] = useState<EnrollData | null>(null);
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [justActivated, setJustActivated] = useState(false);
+  const [justDisabled, setJustDisabled] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
   const [copied, setCopied] = useState(false);
 
   function onStartEnroll() {
     setError(null);
-    setSuccess(null);
+    setJustActivated(false);
+    setJustDisabled(false);
     startTransition(async () => {
       const r = await enrollMfa();
       if (r.status === "error") setError(r.message);
@@ -46,15 +50,15 @@ export function MfaPanel({
     setError(null);
     startTransition(async () => {
       const r = await verifyMfa(enroll.factorId, code);
-      if (r.status === "error") setError(r.message);
-      else {
+      if (r.status === "error") {
+        setError(r.message);
+      } else {
         setEnroll(null);
         setCode("");
-        setSuccess(
-          "2FA activado. La próxima vez que entres te pediremos un código de 6 dígitos.",
-        );
-        // Refresh page so server props reflect new factor
-        window.location.reload();
+        setJustActivated(true);
+        // Quietly refresh server props in background so the next render
+        // reflects the verified factor — no hard reload, no race condition.
+        router.refresh();
       }
     });
   }
@@ -64,11 +68,12 @@ export function MfaPanel({
     setError(null);
     startTransition(async () => {
       const r = await disableMfa(existingFactorId);
-      if (r.status === "error") setError(r.message);
-      else {
+      if (r.status === "error") {
+        setError(r.message);
+      } else {
         setConfirmDisable(false);
-        setSuccess("2FA desactivado.");
-        window.location.reload();
+        setJustDisabled(true);
+        router.refresh();
       }
     });
   }
@@ -91,16 +96,19 @@ export function MfaPanel({
           </div>
           <div className="flex-1">
             <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
-              2FA activado
+              {justActivated ? "Listo — 2FA activado" : "2FA activado"}
             </h2>
             <p className="mt-1 text-body-sm text-ink-muted">
-              Cuenta protegida con autenticación de dos factores.
-              {existingFactorName ? ` (${existingFactorName})` : ""}
+              {justActivated
+                ? "Tu cuenta ya está protegida con un segundo factor. La próxima vez que entres te pediremos el código de 6 dígitos."
+                : `Cuenta protegida con autenticación de dos factores.${existingFactorName ? ` (${existingFactorName})` : ""}`}
             </p>
-            <p className="mt-3 text-caption text-ink-soft">
-              Para desactivarlo necesitas haber iniciado sesión con tu código
-              MFA. Si pierdes tu celular, contacta al administrador.
-            </p>
+            {!justActivated && (
+              <p className="mt-3 text-caption text-ink-soft">
+                Para desactivarlo necesitas haber iniciado sesión con tu código
+                MFA. Si pierdes tu celular, contacta al administrador.
+              </p>
+            )}
           </div>
         </div>
 
@@ -146,11 +154,6 @@ export function MfaPanel({
         {error && (
           <p className="mt-4 rounded-lg border border-rose-soft bg-rose-soft px-3 py-2 text-caption text-ink-strong">
             {error}
-          </p>
-        )}
-        {success && (
-          <p className="mt-4 rounded-lg border border-validation-soft bg-validation-soft px-3 py-2 text-caption text-validation">
-            {success}
           </p>
         )}
       </div>
@@ -311,9 +314,9 @@ export function MfaPanel({
           {error}
         </p>
       )}
-      {success && (
+      {justDisabled && (
         <p className="mt-4 rounded-lg border border-validation-soft bg-validation-soft px-3 py-2 text-caption text-validation">
-          {success}
+          2FA desactivado. Si cambias de opinión puedes volver a activarlo aquí mismo.
         </p>
       )}
 
