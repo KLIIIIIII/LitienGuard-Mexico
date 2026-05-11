@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { preregistroSchema, type PreregistroInput } from "@/lib/preregistro";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getResend, RESEND_FROM } from "@/lib/resend-client";
+import { checkRateLimit, extractIp } from "@/lib/rate-limit";
 
 export type PreregistroState =
   | { status: "idle" }
@@ -30,10 +31,16 @@ export async function submitPreregistro(
   const data = parsed.data;
   const hdrs = await headers();
   const ua = hdrs.get("user-agent") ?? null;
-  const ip =
-    hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    hdrs.get("x-real-ip") ??
-    null;
+  const ip = extractIp(hdrs);
+
+  const rl = await checkRateLimit(ip, "preregistro");
+  if (!rl.allowed) {
+    return {
+      status: "error",
+      message:
+        "Demasiadas solicitudes desde tu red. Inténtalo de nuevo en unos minutos.",
+    };
+  }
 
   const supabase = getSupabaseAdmin();
   if (!supabase) {
