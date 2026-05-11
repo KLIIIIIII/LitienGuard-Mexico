@@ -168,10 +168,13 @@ export async function generarNotaScribe(
     console.warn("[scribe] keyword extraction failed, proceeding without RAG:", e);
   }
 
-  // RAG step 2: retrieve relevant chunks from the cerebro
+  // RAG step 2: retrieve relevant chunks from the cerebro (parallel)
+  const hitsPerKeyword = await Promise.all(
+    keywords.map((kw) => searchCerebro(kw, 2)),
+  );
   const evidenceMap = new Map<string, EvidenceChunk>();
-  for (const kw of keywords) {
-    for (const hit of searchCerebro(kw, 2)) {
+  for (const hits of hitsPerKeyword) {
+    for (const hit of hits) {
       if (!evidenceMap.has(hit.doc.id)) {
         evidenceMap.set(hit.doc.id, {
           source: hit.doc.source,

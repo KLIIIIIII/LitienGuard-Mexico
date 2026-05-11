@@ -64,7 +64,7 @@ export default async function CerebroPage() {
     );
   }
 
-  const stats = corpusStats();
+  const stats = await corpusStats();
 
   return (
     <div>
