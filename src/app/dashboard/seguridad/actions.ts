@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { recordAudit } from "@/lib/audit";
 
@@ -94,6 +95,7 @@ export async function verifyMfa(
     metadata: { factor_type: "totp", factor_id: factorId },
   });
 
+  revalidatePath("/dashboard/seguridad");
   return { status: "ok" };
 }
 
@@ -123,5 +125,6 @@ export async function disableMfa(factorId: string): Promise<DisableResult> {
     metadata: { factor_id: factorId },
   });
 
+  revalidatePath("/dashboard/seguridad");
   return { status: "ok" };
 }
