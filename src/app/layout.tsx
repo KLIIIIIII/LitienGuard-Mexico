@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { manrope, sourceSerif } from "@/lib/fonts";
 import { SITE_URL } from "@/lib/utils";
 import { TopBar } from "@/components/top-bar";
 import { Footer } from "@/components/footer";
+import { SessionAware } from "@/components/session-aware";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -76,6 +78,9 @@ export default function RootLayout({
         <TopBar />
         <main className="flex-1 pt-[72px]">{children}</main>
         <Footer />
+        <Suspense fallback={null}>
+          <SessionAware />
+        </Suspense>
       </body>
     </html>
   );

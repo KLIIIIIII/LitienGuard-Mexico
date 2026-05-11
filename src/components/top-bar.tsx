@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { UserChip } from "@/components/user-chip";
 
 const navLinks = [
   { href: "/medicos", label: "Médicos" },
@@ -75,9 +76,7 @@ export async function TopBar() {
 
         <div className="flex items-center gap-3">
           {user ? (
-            <Link href="/dashboard" className="lg-cta-primary">
-              Mi dashboard
-            </Link>
+            <UserChip />
           ) : (
             <>
               <Link
