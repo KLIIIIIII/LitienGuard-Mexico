@@ -67,6 +67,35 @@ export function InviteForm() {
             <option value="medico">Médico</option>
             <option value="admin">Admin</option>
           </select>
+          <p className="text-caption text-ink-soft">
+            Admin = puede gestionar invitaciones y ver todas las notas.
+          </p>
+        </div>
+
+        <div className="space-y-1.5 sm:col-span-2">
+          <label
+            htmlFor="subscription_tier"
+            className="block text-caption font-medium text-ink-strong"
+          >
+            Plan / suscripción
+          </label>
+          <select
+            id="subscription_tier"
+            name="subscription_tier"
+            defaultValue="pilot"
+            className="lg-input appearance-none pr-10"
+            disabled={pending}
+          >
+            <option value="free">Gratis — sin Scribe</option>
+            <option value="pilot">Piloto — Scribe gratis durante piloto</option>
+            <option value="pro">Pro — Scribe + Cerebro (comercial)</option>
+            <option value="enterprise">
+              Enterprise — todo + RCM (hospitales)
+            </option>
+          </select>
+          <p className="text-caption text-ink-soft">
+            Define qué funciones puede usar el invitado.
+          </p>
         </div>
 
         <div className="space-y-1.5">

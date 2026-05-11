@@ -7,6 +7,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 const inviteSchema = z.object({
   email: z.string().email("Correo inválido"),
   role: z.enum(["medico", "admin"]),
+  subscription_tier: z.enum(["free", "pilot", "pro", "enterprise"]),
   nombre: z.string().max(120).optional(),
   hospital: z.string().max(120).optional(),
 });
@@ -20,6 +21,7 @@ export async function inviteUser(formData: FormData): Promise<InviteState> {
   const parsed = inviteSchema.safeParse({
     email: formData.get("email"),
     role: formData.get("role"),
+    subscription_tier: formData.get("subscription_tier") ?? "pilot",
     nombre: formData.get("nombre") || undefined,
     hospital: formData.get("hospital") || undefined,
   });
@@ -50,6 +52,7 @@ export async function inviteUser(formData: FormData): Promise<InviteState> {
     {
       email: parsed.data.email.toLowerCase().trim(),
       role: parsed.data.role,
+      subscription_tier: parsed.data.subscription_tier,
       nombre: parsed.data.nombre ?? null,
       hospital: parsed.data.hospital ?? null,
       invitada_por: user.id,

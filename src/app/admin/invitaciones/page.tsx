@@ -3,6 +3,11 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { InviteForm } from "./invite-form";
 import { RevokeButton } from "./revoke-button";
 import { Eyebrow } from "@/components/eyebrow";
+import {
+  TIER_LABELS,
+  tierBadgeClass,
+  type SubscriptionTier,
+} from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +27,9 @@ export default async function InvitacionesPage() {
 
   const { data: invitaciones } = await supa
     .from("invitaciones")
-    .select("id, email, role, nombre, hospital, usada, expires_at, created_at")
+    .select(
+      "id, email, role, subscription_tier, nombre, hospital, usada, expires_at, created_at",
+    )
     .order("created_at", { ascending: false });
 
   return (
@@ -55,52 +62,66 @@ export default async function InvitacionesPage() {
                 <tr>
                   <th className="px-4 py-3 text-left font-medium">Correo</th>
                   <th className="px-4 py-3 text-left font-medium">Rol</th>
+                  <th className="px-4 py-3 text-left font-medium">Plan</th>
                   <th className="px-4 py-3 text-left font-medium">Estado</th>
                   <th className="px-4 py-3 text-left font-medium">Expira</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
-                {(invitaciones ?? []).map((i) => (
-                  <tr
-                    key={i.id}
-                    className="border-t border-line text-ink-strong"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{i.email}</div>
-                      {i.nombre && (
-                        <div className="text-caption text-ink-soft">
-                          {i.nombre}
-                          {i.hospital ? ` · ${i.hospital}` : ""}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 capitalize">{i.role}</td>
-                    <td className="px-4 py-3">
-                      {i.usada ? (
-                        <span className="rounded-full bg-validation-soft px-2 py-0.5 text-caption text-validation">
-                          Activada
+                {(invitaciones ?? []).map((i) => {
+                  const tier =
+                    (i.subscription_tier as SubscriptionTier | null) ?? "pilot";
+                  return (
+                    <tr
+                      key={i.id}
+                      className="border-t border-line text-ink-strong"
+                    >
+                      <td className="px-4 py-3">
+                        <div className="font-medium">{i.email}</div>
+                        {i.nombre && (
+                          <div className="text-caption text-ink-soft">
+                            {i.nombre}
+                            {i.hospital ? ` · ${i.hospital}` : ""}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 capitalize">{i.role}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium ${tierBadgeClass(
+                            tier,
+                          )}`}
+                        >
+                          {TIER_LABELS[tier]}
                         </span>
-                      ) : (
-                        <span className="rounded-full bg-warn-soft px-2 py-0.5 text-caption text-warn">
-                          Pendiente
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-caption text-ink-muted">
-                      {i.expires_at
-                        ? new Date(i.expires_at).toLocaleDateString("es-MX")
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <RevokeButton id={i.id} disabled={i.usada} />
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-4 py-3">
+                        {i.usada ? (
+                          <span className="rounded-full bg-validation-soft px-2 py-0.5 text-caption text-validation">
+                            Activada
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-warn-soft px-2 py-0.5 text-caption text-warn">
+                            Pendiente
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-caption text-ink-muted">
+                        {i.expires_at
+                          ? new Date(i.expires_at).toLocaleDateString("es-MX")
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <RevokeButton id={i.id} disabled={i.usada} />
+                      </td>
+                    </tr>
+                  );
+                })}
                 {(invitaciones?.length ?? 0) === 0 && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-4 py-8 text-center text-body-sm text-ink-soft"
                     >
                       Aún no hay invitaciones. Crea la primera arriba.
