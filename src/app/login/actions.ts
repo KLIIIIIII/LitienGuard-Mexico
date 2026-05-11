@@ -70,7 +70,7 @@ export async function requestMagicLink(email: string): Promise<LoginState> {
     console.error("[login] signInWithOtp error:", error);
     return {
       status: "error",
-      message: "No pudimos enviar el correo. Inténtalo de nuevo.",
+      message: `No pudimos enviar el correo (${error.message}). Inténtalo de nuevo.`,
     };
   }
 
