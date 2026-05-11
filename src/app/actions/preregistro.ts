@@ -5,6 +5,7 @@ import { preregistroSchema, type PreregistroInput } from "@/lib/preregistro";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getResend, RESEND_FROM } from "@/lib/resend-client";
 import { checkRateLimit, extractIp } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export type PreregistroState =
   | { status: "idle" }
@@ -13,6 +14,7 @@ export type PreregistroState =
 
 export async function submitPreregistro(
   input: PreregistroInput,
+  turnstileToken?: string | null,
 ): Promise<PreregistroState> {
   const parsed = preregistroSchema.safeParse(input);
   if (!parsed.success) {
@@ -32,6 +34,15 @@ export async function submitPreregistro(
   const hdrs = await headers();
   const ua = hdrs.get("user-agent") ?? null;
   const ip = extractIp(hdrs);
+
+  const turnstile = await verifyTurnstile(turnstileToken, ip);
+  if (!turnstile.ok) {
+    return {
+      status: "error",
+      message:
+        "No pudimos verificar que eres humano. Recarga la página e inténtalo de nuevo.",
+    };
+  }
 
   const rl = await checkRateLimit(ip, "preregistro");
   if (!rl.allowed) {
