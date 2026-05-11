@@ -239,33 +239,98 @@ export function ScribeForm() {
 
       <section className="lg-card space-y-5">
         <div>
-          <p className="lg-eyebrow-validation">Paso 2 — Contexto del paciente</p>
+          <p className="lg-eyebrow-validation">Paso 2 — Datos del paciente</p>
           <h2 className="mt-2 text-h2 font-semibold tracking-tight text-ink-strong">
-            Datos mínimos (no PII)
+            Identificación clínica
           </h2>
           <p className="mt-1 text-body-sm text-ink-muted">
-            Opcionales pero ayudan a estructurar la nota. NO uses el nombre
-            completo del paciente.
+            Todos los campos son opcionales. Asegúrate de tener consentimiento
+            del paciente para registrar datos personales (NOM-024, LFPDPPP).
           </p>
         </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="paciente_nombre"
+              className="block text-caption font-medium text-ink-strong"
+            >
+              Nombre(s)
+            </label>
+            <input
+              id="paciente_nombre"
+              name="paciente_nombre"
+              type="text"
+              placeholder="Ana María"
+              maxLength={80}
+              className="lg-input"
+              disabled={busy}
+              autoComplete="off"
+              suppressHydrationWarning
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label
+              htmlFor="paciente_apellido_paterno"
+              className="block text-caption font-medium text-ink-strong"
+            >
+              Apellido paterno
+            </label>
+            <input
+              id="paciente_apellido_paterno"
+              name="paciente_apellido_paterno"
+              type="text"
+              placeholder="Hernández"
+              maxLength={80}
+              className="lg-input"
+              disabled={busy}
+              autoComplete="off"
+              suppressHydrationWarning
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label
+              htmlFor="paciente_apellido_materno"
+              className="block text-caption font-medium text-ink-strong"
+            >
+              Apellido materno
+            </label>
+            <input
+              id="paciente_apellido_materno"
+              name="paciente_apellido_materno"
+              type="text"
+              placeholder="López"
+              maxLength={80}
+              className="lg-input"
+              disabled={busy}
+              autoComplete="off"
+              suppressHydrationWarning
+            />
+          </div>
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
             <label
               htmlFor="paciente_iniciales"
               className="block text-caption font-medium text-ink-strong"
             >
-              Iniciales
+              Iniciales <span className="text-ink-soft">(opcional)</span>
             </label>
             <input
               id="paciente_iniciales"
               name="paciente_iniciales"
               type="text"
-              placeholder="A.G."
+              placeholder="AGN"
               maxLength={8}
               className="lg-input"
               disabled={busy}
+              autoComplete="off"
               suppressHydrationWarning
             />
+            <p className="text-caption text-ink-soft">
+              Útil si prefieres anonimizar la nota.
+            </p>
           </div>
           <div className="space-y-1.5">
             <label
@@ -306,6 +371,13 @@ export function ScribeForm() {
               <option value="O">Otro / no especificado</option>
             </select>
           </div>
+        </div>
+
+        <div className="rounded-lg border border-warn-soft bg-warn-soft px-4 py-3 text-caption text-ink-strong">
+          <strong>Privacidad:</strong> los datos del paciente se guardan
+          encriptados en Supabase y el audio se procesa con Whisper/Llama
+          (Groq). El médico es responsable de obtener consentimiento y manejar
+          el expediente conforme a la NOM-024-SSA3-2012 y la LFPDPPP.
         </div>
       </section>
 

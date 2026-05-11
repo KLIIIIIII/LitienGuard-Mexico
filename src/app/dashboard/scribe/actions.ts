@@ -18,12 +18,24 @@ import {
   type SubscriptionTier,
 } from "@/lib/entitlements";
 
+const optionalText = (max: number) =>
+  z
+    .union([z.string().max(max), z.literal(""), z.undefined(), z.null()])
+    .transform((v) => {
+      if (typeof v !== "string") return null;
+      const t = v.trim();
+      return t ? t : null;
+    });
+
 const contextSchema = z.object({
   paciente_iniciales: z
-    .string()
-    .max(8, "Iniciales muy largas")
-    .optional()
-    .transform((v) => (v?.trim() ? v.trim().toUpperCase() : null)),
+    .union([z.string().max(8), z.literal(""), z.undefined()])
+    .transform((v) =>
+      typeof v === "string" && v.trim() ? v.trim().toUpperCase() : null,
+    ),
+  paciente_nombre: optionalText(80),
+  paciente_apellido_paterno: optionalText(80),
+  paciente_apellido_materno: optionalText(80),
   paciente_edad: z
     .union([z.coerce.number().int().min(0).max(130), z.literal(""), z.undefined()])
     .transform((v) => (typeof v === "number" ? v : null)),
@@ -97,6 +109,11 @@ export async function generarNotaScribe(
 
   const ctx = contextSchema.safeParse({
     paciente_iniciales: formData.get("paciente_iniciales") ?? undefined,
+    paciente_nombre: formData.get("paciente_nombre") ?? undefined,
+    paciente_apellido_paterno:
+      formData.get("paciente_apellido_paterno") ?? undefined,
+    paciente_apellido_materno:
+      formData.get("paciente_apellido_materno") ?? undefined,
     paciente_edad: formData.get("paciente_edad") ?? undefined,
     paciente_sexo: formData.get("paciente_sexo") ?? undefined,
   });
@@ -243,6 +260,9 @@ export async function generarNotaScribe(
     .insert({
       medico_id: user.id,
       paciente_iniciales: ctx.data.paciente_iniciales,
+      paciente_nombre: ctx.data.paciente_nombre,
+      paciente_apellido_paterno: ctx.data.paciente_apellido_paterno,
+      paciente_apellido_materno: ctx.data.paciente_apellido_materno,
       paciente_edad: ctx.data.paciente_edad,
       paciente_sexo: ctx.data.paciente_sexo,
       audio_filename: file.name,

@@ -17,6 +17,9 @@ type Nota = {
   id: string;
   medico_id: string;
   paciente_iniciales: string | null;
+  paciente_nombre: string | null;
+  paciente_apellido_paterno: string | null;
+  paciente_apellido_materno: string | null;
   paciente_edad: number | null;
   paciente_sexo: string | null;
   audio_filename: string | null;
@@ -50,7 +53,7 @@ export default async function NotaPage({
   const { data: nota } = await supa
     .from("notas_scribe")
     .select(
-      "id,medico_id,paciente_iniciales,paciente_edad,paciente_sexo,audio_filename,transcripcion,soap_subjetivo,soap_objetivo,soap_analisis,soap_plan,soap_metadata,status,created_at,updated_at",
+      "id,medico_id,paciente_iniciales,paciente_nombre,paciente_apellido_paterno,paciente_apellido_materno,paciente_edad,paciente_sexo,audio_filename,transcripcion,soap_subjetivo,soap_objetivo,soap_analisis,soap_plan,soap_metadata,status,created_at,updated_at",
     )
     .eq("id", id)
     .single();
@@ -58,8 +61,16 @@ export default async function NotaPage({
   if (!nota) notFound();
   const n = nota as Nota;
 
+  const fullName = [
+    n.paciente_nombre,
+    n.paciente_apellido_paterno,
+    n.paciente_apellido_materno,
+  ]
+    .filter((v): v is string => Boolean(v && v.trim()))
+    .join(" ");
+  const identifier = fullName || n.paciente_iniciales || "Sin nombre";
   const ctx = [
-    n.paciente_iniciales,
+    identifier,
     n.paciente_edad != null ? `${n.paciente_edad} años` : null,
     n.paciente_sexo === "F"
       ? "Femenino"
