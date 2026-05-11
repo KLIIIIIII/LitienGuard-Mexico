@@ -4,6 +4,8 @@ import { z } from "zod";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { searchCerebro } from "@/lib/bm25";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
+import { strictTierCheck } from "@/lib/security";
+import { recordAudit } from "@/lib/audit";
 
 const querySchema = z.object({
   q: z.string().min(2, "Consulta muy corta").max(500),
@@ -54,6 +56,19 @@ export async function buscarCerebro(input: {
       status: "error",
       message:
         "El Cerebro está disponible en plan Pro o Enterprise. Solicita acceso.",
+    };
+  }
+  const reauth = await strictTierCheck(user.id, ["pro", "enterprise"]);
+  if (!reauth) {
+    void recordAudit({
+      userId: user.id,
+      action: "security.tier_mismatch_detected",
+      resource: "cerebro.buscarCerebro",
+      metadata: { client_tier: tier },
+    });
+    return {
+      status: "error",
+      message: "No pudimos validar tu plan. Vuelve a iniciar sesión.",
     };
   }
 

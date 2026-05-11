@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { getGroq, GROQ_MODELS, SCRIBE_LIMITS } from "@/lib/groq";
 import { checkRateLimit, extractIp } from "@/lib/rate-limit";
 import { recordAudit } from "@/lib/audit";
+import { strictTierCheck } from "@/lib/security";
 import {
   SOAP_SYSTEM_PROMPT,
   KEYWORDS_SYSTEM_PROMPT,
@@ -76,6 +77,7 @@ export async function generarNotaScribe(
   }
 
   // Entitlement check — Scribe is a paid/pilot feature
+  // Layer 1: regular client check (subject to RLS)
   const { data: profile } = await supa
     .from("profiles")
     .select("subscription_tier")
@@ -87,6 +89,23 @@ export async function generarNotaScribe(
       status: "error",
       message:
         "Tu plan actual no incluye el Scribe. Solicita acceso al piloto o suscríbete al plan Pro.",
+    };
+  }
+  // Layer 2: redundant service-role check that bypasses RLS to detect
+  // tier-spoofing attempts (e.g., a compromised JWT trying to read its
+  // own profile after an unauthorized tier downgrade race).
+  const reauth = await strictTierCheck(user.id, ["pilot", "pro", "enterprise"]);
+  if (!reauth) {
+    void recordAudit({
+      userId: user.id,
+      action: "security.tier_mismatch_detected",
+      resource: "scribe.generarNotaScribe",
+      metadata: { client_tier: tier },
+      ip,
+    });
+    return {
+      status: "error",
+      message: "No pudimos validar tu plan. Vuelve a iniciar sesión.",
     };
   }
 

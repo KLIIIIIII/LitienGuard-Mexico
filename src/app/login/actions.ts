@@ -6,6 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit, extractIp } from "@/lib/rate-limit";
 import { recordAudit } from "@/lib/audit";
+import { checkIpLockout, recordKnownDevice } from "@/lib/security";
 
 const emailSchema = z.string().email("Correo inválido");
 
@@ -23,6 +24,16 @@ export async function requestMagicLink(email: string): Promise<LoginState> {
 
   const hdrs = await headers();
   const ip = extractIp(hdrs);
+
+  const lockout = await checkIpLockout(ip);
+  if (lockout.locked) {
+    return {
+      status: "error",
+      message:
+        "Tu IP está temporalmente bloqueada por demasiados intentos. Inténtalo más tarde.",
+    };
+  }
+
   const rl = await checkRateLimit(ip, "login");
   if (!rl.allowed) {
     return {
@@ -93,6 +104,13 @@ export async function requestMagicLink(email: string): Promise<LoginState> {
     resource: normalized,
     ip,
     userAgent: hdrs.get("user-agent"),
+  });
+
+  // Best-effort known-device detection + alert email (non-blocking)
+  void recordKnownDevice({
+    email: normalized,
+    ip,
+    userAgent: hdrs.get("user-agent") ?? "",
   });
 
   return {

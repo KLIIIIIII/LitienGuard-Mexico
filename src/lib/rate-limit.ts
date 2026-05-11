@@ -16,6 +16,9 @@ const DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
   exportar: { action: "exportar", windowSec: 3600, max: 10 }, // 10 dumps / hour
 };
 
+const LOCKOUT_THRESHOLD = 3; // burning through limit N times → IP lockout
+const LOCKOUT_MINUTES = 60;
+
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
@@ -52,6 +55,25 @@ export async function checkRateLimit(
 
   const used = count ?? 0;
   if (used >= cfg.max) {
+    // How many times has this IP been at the cap in the last 24h?
+    const burnsSince = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    const { count: totalBurns } = await supa
+      .from("rate_limit_log")
+      .select("*", { count: "exact", head: true })
+      .eq("action", cfg.action)
+      .eq("ip", ip)
+      .gte("created_at", burnsSince);
+    if ((totalBurns ?? 0) >= cfg.max * LOCKOUT_THRESHOLD) {
+      const until = new Date(
+        Date.now() + LOCKOUT_MINUTES * 60_000,
+      ).toISOString();
+      await supa.from("login_lockouts").insert({
+        ip,
+        user_email: null,
+        locked_until: until,
+        reason: `rate_limit_abuse:${cfg.action}`,
+      });
+    }
     return { allowed: false, remaining: 0, resetSec: cfg.windowSec };
   }
 
