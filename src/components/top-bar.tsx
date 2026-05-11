@@ -2,11 +2,9 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { UserChip } from "@/components/user-chip";
+import { SolucionesMenu } from "@/components/soluciones-menu";
 
-const navLinks = [
-  { href: "/medicos", label: "Médicos" },
-  { href: "/pacientes", label: "Pacientes" },
-  { href: "/hospitales", label: "Hospitales" },
+const secondaryLinks = [
   { href: "/app", label: "App" },
   { href: "/contacto", label: "Contacto" },
 ];
@@ -78,7 +76,8 @@ export async function TopBar() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {navLinks.map((link) => (
+          <SolucionesMenu />
+          {secondaryLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
