@@ -11,6 +11,7 @@ import {
   Lock,
   Settings,
   Download,
+  MessageCircle,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -95,6 +96,13 @@ export function DashboardSidebar({
       label: "Curar cerebro",
       icon: BookOpen,
       match: (p) => p.startsWith("/admin/cerebro"),
+      admin: true,
+    });
+    items.push({
+      href: "/admin/feedback",
+      label: "Feedback & errores",
+      icon: MessageCircle,
+      match: (p) => p.startsWith("/admin/feedback"),
       admin: true,
     });
   }
