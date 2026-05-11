@@ -57,7 +57,7 @@ export async function buscarCerebro(input: {
   }
 
   const t0 = performance.now();
-  const hits = searchCerebro(parsed.data.q, 6).map((h) => ({
+  const hits = (await searchCerebro(parsed.data.q, 6)).map((h) => ({
     id: h.doc.id,
     source: h.doc.source,
     page: h.doc.page,

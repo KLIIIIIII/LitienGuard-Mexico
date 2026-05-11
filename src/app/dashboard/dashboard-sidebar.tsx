@@ -76,6 +76,13 @@ export function DashboardSidebar({
       match: (p) => p.startsWith("/admin/invitaciones"),
       admin: true,
     });
+    items.push({
+      href: "/admin/cerebro",
+      label: "Curar cerebro",
+      icon: BookOpen,
+      match: (p) => p.startsWith("/admin/cerebro"),
+      admin: true,
+    });
   }
 
   return (
