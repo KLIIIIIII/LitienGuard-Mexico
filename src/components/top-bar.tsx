@@ -8,11 +8,26 @@ const navLinks = [
   { href: "/contacto", label: "Contacto" },
 ];
 
+async function tryGetUser() {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return null;
+  }
+  try {
+    const supa = await createSupabaseServer();
+    const {
+      data: { user },
+    } = await supa.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 export async function TopBar() {
-  const supa = await createSupabaseServer();
-  const {
-    data: { user },
-  } = await supa.auth.getUser();
+  const user = await tryGetUser();
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-line bg-surface/95 backdrop-blur-sm">
