@@ -57,6 +57,47 @@ export default async function ConfiguracionPage() {
                 : "Médico — puedes crear y firmar tus propias notas SOAP."}
             </p>
           </div>
+
+          <div className="lg-card border-warn-soft">
+            <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
+              Derechos ARCO (LFPDPPP)
+            </h2>
+            <p className="mt-2 text-body-sm text-ink-muted">
+              Acceso · Rectificación · Cancelación · Oposición. Tienes derecho
+              de ejercer estas acciones sobre tus datos en cualquier momento.
+            </p>
+            <ul className="mt-3 space-y-2 text-body-sm text-ink-strong">
+              <li>
+                <strong>Acceso:</strong> descarga tu información completa desde{" "}
+                <a
+                  href="/dashboard/exportar"
+                  className="text-validation underline"
+                >
+                  Exportar datos
+                </a>
+                .
+              </li>
+              <li>
+                <strong>Rectificación:</strong> edita o firma cada nota desde
+                Mis notas.
+              </li>
+              <li>
+                <strong>Cancelación:</strong> elimina tu cuenta y todos tus
+                datos —{" "}
+                <a
+                  href="/dashboard/cancelar"
+                  className="text-rose underline"
+                >
+                  ir al flujo de cancelación
+                </a>
+                .
+              </li>
+              <li>
+                <strong>Oposición:</strong> el opt-out del cerebro colectivo
+                ya cumple este derecho parcialmente.
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
