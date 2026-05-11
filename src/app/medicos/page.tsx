@@ -6,6 +6,8 @@ import { FinalCta } from "@/components/final-cta";
 import { TiltCard } from "@/components/tilt-card";
 import { Eyebrow } from "@/components/eyebrow";
 import { FloatingMockup } from "@/components/floating-mockup";
+import { ComplianceStrip } from "@/components/compliance-strip";
+import { DiferenciadorStrip } from "@/components/diferenciador-strip";
 
 export const metadata: Metadata = {
   title: "Para médicos",
@@ -47,6 +49,8 @@ export default function MedicosPage() {
         description="Decisiones clínicas con evidencia citada, scribe ambient que libera 4-6 horas al día y loop de calidad sobre tus propias consultas. Sin enviar PII a un LLM externo."
         variant="alt"
       />
+
+      <ComplianceStrip />
 
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell grid gap-12 lg:grid-cols-[1fr_minmax(0,440px)] lg:items-start">
@@ -96,6 +100,8 @@ export default function MedicosPage() {
           </div>
         </div>
       </section>
+
+      <DiferenciadorStrip />
 
       <TrustRow />
       <FinalCta

@@ -4,6 +4,7 @@ import { FeatureList } from "@/components/feature-list";
 import { FinalCta } from "@/components/final-cta";
 import { TiltCard } from "@/components/tilt-card";
 import { Eyebrow } from "@/components/eyebrow";
+import { ComplianceStrip } from "@/components/compliance-strip";
 
 export const metadata: Metadata = {
   title: "Para hospitales — Recupera ingresos y reduce DSO",
@@ -87,6 +88,8 @@ export default function HospitalesPage() {
         description="Validación de pólizas, predicción de denegaciones, automatización de facturación y un EHR ligero que cumple con la Reforma de Salud Digital 2026. Empezamos por el ciclo de ingresos donde la inversión se paga sola, y crecemos contigo a EHR completo cuando ya hay resultados visibles."
         variant="alt"
       />
+
+      <ComplianceStrip />
 
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">

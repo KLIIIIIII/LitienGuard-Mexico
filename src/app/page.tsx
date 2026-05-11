@@ -5,11 +5,13 @@ import { HowItWorks } from "@/components/how-it-works";
 import { TrustRow } from "@/components/trust-row";
 import { ReformBanner } from "@/components/reform-banner";
 import { CtaForm } from "@/components/cta-form";
+import { ComplianceStrip } from "@/components/compliance-strip";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
+      <ComplianceStrip />
       <StatsBanner />
       <ForWhomGrid />
       <HowItWorks />
