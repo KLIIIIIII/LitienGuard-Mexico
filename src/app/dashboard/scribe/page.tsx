@@ -1,7 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Lock, Mic } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
+import {
+  canUseScribe,
+  TIER_LABELS,
+  type SubscriptionTier,
+} from "@/lib/entitlements";
 import { ScribeForm } from "./scribe-form";
 
 export const dynamic = "force-dynamic";
@@ -18,12 +24,56 @@ export default async function ScribePage() {
   } = await supa.auth.getUser();
   if (!user) redirect("/login");
 
+  const { data: profile } = await supa
+    .from("profiles")
+    .select("subscription_tier")
+    .eq("id", user.id)
+    .single();
+  const tier = profile?.subscription_tier as SubscriptionTier | undefined;
+
+  if (!canUseScribe(tier)) {
+    return (
+      <main className="min-h-[calc(100vh-72px)] bg-canvas">
+        <div className="lg-shell py-16 lg:py-24">
+          <div className="mx-auto max-w-xl text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-warn-soft">
+              <Lock className="h-6 w-6 text-warn" />
+            </div>
+            <Eyebrow tone="accent">Acceso restringido</Eyebrow>
+            <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink">
+              El Scribe es una función de suscripción
+            </h1>
+            <p className="mt-3 max-w-prose text-body text-ink-muted">
+              Tu plan actual es <strong>{TIER_LABELS[tier ?? "free"]}</strong>.
+              Para usar el Scribe necesitas plan Piloto, Pro o Enterprise.
+              Escríbenos para solicitar acceso al piloto cerrado.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link href="/contacto" className="lg-cta-primary">
+                Solicitar acceso al piloto
+              </Link>
+              <Link href="/dashboard" className="lg-cta-ghost">
+                Volver al panel
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-[calc(100vh-72px)] bg-canvas">
       <div className="lg-shell py-10 lg:py-14">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <Eyebrow tone="accent">Scribe</Eyebrow>
+            <div className="flex items-center gap-2">
+              <Eyebrow tone="accent">Scribe</Eyebrow>
+              <span className="inline-flex items-center gap-1 rounded-full bg-validation-soft px-2 py-0.5 text-caption text-validation">
+                <Mic className="h-3 w-3" strokeWidth={2.2} />
+                Plan {TIER_LABELS[tier ?? "free"]}
+              </span>
+            </div>
             <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink">
               Nueva nota SOAP
             </h1>

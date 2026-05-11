@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getGroq, GROQ_MODELS, SCRIBE_LIMITS } from "@/lib/groq";
 import { SOAP_SYSTEM_PROMPT, buildSoapUserPrompt } from "@/lib/soap-prompt";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { canUseScribe, type SubscriptionTier } from "@/lib/entitlements";
 
 const contextSchema = z.object({
   paciente_iniciales: z
@@ -34,6 +35,21 @@ export async function generarNotaScribe(
   } = await supa.auth.getUser();
   if (!user) {
     return { status: "error", message: "No autenticado." };
+  }
+
+  // Entitlement check — Scribe is a paid/pilot feature
+  const { data: profile } = await supa
+    .from("profiles")
+    .select("subscription_tier")
+    .eq("id", user.id)
+    .single();
+  const tier = profile?.subscription_tier as SubscriptionTier | undefined;
+  if (!canUseScribe(tier)) {
+    return {
+      status: "error",
+      message:
+        "Tu plan actual no incluye el Scribe. Solicita acceso al piloto o suscríbete al plan Pro.",
+    };
   }
 
   const file = formData.get("audio");

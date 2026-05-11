@@ -1,9 +1,24 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileText, Mic, BookOpen, ShieldCheck, Plus } from "lucide-react";
+import {
+  FileText,
+  Mic,
+  BookOpen,
+  ShieldCheck,
+  Plus,
+  Lock,
+} from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { NoteStatusBadge } from "@/components/note-status-badge";
+import {
+  canUseScribe,
+  canUseCerebro,
+  TIER_LABELS,
+  TIER_DESCRIPTIONS,
+  tierBadgeClass,
+  type SubscriptionTier,
+} from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -32,9 +47,13 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("nombre, role, hospital, especialidad")
+    .select("nombre, role, hospital, especialidad, subscription_tier")
     .eq("id", user.id)
     .single();
+
+  const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const scribeUnlocked = canUseScribe(tier);
+  const cerebroUnlocked = canUseCerebro(tier);
 
   const [{ data: recent }, { count: totalNotas }, { count: firmadas }] =
     await Promise.all([
@@ -73,10 +92,17 @@ export default async function DashboardPage() {
               {profile?.hospital ? ` · ${profile.hospital}` : ""}
             </p>
           </div>
-          <Link href="/dashboard/scribe" className="lg-cta-primary">
-            <Plus className="h-4 w-4" />
-            Nueva nota
-          </Link>
+          {scribeUnlocked ? (
+            <Link href="/dashboard/scribe" className="lg-cta-primary">
+              <Plus className="h-4 w-4" />
+              Nueva nota
+            </Link>
+          ) : (
+            <Link href="/contacto" className="lg-cta-ghost">
+              <Lock className="h-4 w-4" />
+              Solicitar acceso piloto
+            </Link>
+          )}
         </div>
 
         {/* Stats */}
@@ -92,42 +118,75 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="lg-card">
-            <p className="text-caption text-ink-muted">Plan piloto</p>
-            <p className="mt-1 text-h2 font-semibold text-ink-strong">
-              Ilimitado
-            </p>
-            <p className="mt-1 text-caption text-ink-soft">
-              Sin costo durante el piloto
+            <p className="text-caption text-ink-muted">Plan actual</p>
+            <div className="mt-1 flex items-center gap-2">
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-body-sm font-semibold ${tierBadgeClass(
+                  tier,
+                )}`}
+              >
+                {TIER_LABELS[tier]}
+              </span>
+            </div>
+            <p className="mt-2 text-caption text-ink-soft">
+              {TIER_DESCRIPTIONS[tier]}
             </p>
           </div>
         </section>
 
         {/* Tools */}
         <section className="mt-10 grid gap-4 lg:grid-cols-2">
-          <Link
-            href="/dashboard/scribe"
-            className="lg-card group transition-all hover:border-validation hover:shadow-lift"
-          >
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-validation-soft p-2 text-validation">
-                <Mic className="h-5 w-5" />
+          {scribeUnlocked ? (
+            <Link
+              href="/dashboard/scribe"
+              className="lg-card group transition-all hover:border-validation hover:shadow-lift"
+            >
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-validation-soft p-2 text-validation">
+                  <Mic className="h-5 w-5" />
+                </div>
+                <div>
+                  <Eyebrow tone="validation">Scribe</Eyebrow>
+                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+                    Notas SOAP automáticas
+                  </h2>
+                </div>
               </div>
-              <div>
-                <Eyebrow tone="validation">Scribe</Eyebrow>
-                <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                  Notas SOAP automáticas
-                </h2>
+              <p className="mt-3 text-body-sm text-ink-muted">
+                Graba o sube el audio de la consulta. Whisper transcribe en
+                español, Llama 3.3 70B estructura en formato SOAP. Tú firmas la
+                versión final.
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
+                Disponible · Plan {TIER_LABELS[tier]}
+              </span>
+            </Link>
+          ) : (
+            <div className="lg-card opacity-80">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-surface-alt p-2 text-ink-quiet">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <div>
+                  <Eyebrow tone="validation">Scribe</Eyebrow>
+                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+                    Notas SOAP automáticas
+                  </h2>
+                </div>
               </div>
+              <p className="mt-3 text-body-sm text-ink-muted">
+                Función de suscripción. Solicita acceso al piloto cerrado o al
+                plan Pro para grabar consultas y obtener notas SOAP
+                estructuradas en segundos.
+              </p>
+              <Link
+                href="/contacto"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-warn hover:bg-warn-soft/80"
+              >
+                Solicitar acceso →
+              </Link>
             </div>
-            <p className="mt-3 text-body-sm text-ink-muted">
-              Graba o sube el audio de la consulta. Whisper transcribe en
-              español, Llama 3.3 70B estructura en formato SOAP. Tú firmas la
-              versión final.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
-              Disponible
-            </span>
-          </Link>
+          )}
 
           <Link
             href="/dashboard/notas"
@@ -170,7 +229,9 @@ export default async function DashboardPage() {
               oficiales (IMSS, NOM-004, NICE, GINA, ADA).
             </p>
             <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-ink-muted">
-              Próximamente · Hito 3.3
+              {cerebroUnlocked
+                ? "Próximamente · Hito 3.3"
+                : "Plan Pro o superior"}
             </span>
           </div>
 
