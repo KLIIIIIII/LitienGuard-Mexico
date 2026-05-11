@@ -13,7 +13,7 @@ async function loadDocs(): Promise<CerebroDoc[]> {
   const supa = admin ?? (await createSupabaseServer());
   const { data, error } = await supa
     .from("cerebro_chunks")
-    .select("id,source,page,title,content,meta")
+    .select("id,source,page,title,content,meta,tipo")
     .eq("is_active", true);
 
   if (error) {
@@ -28,6 +28,7 @@ async function loadDocs(): Promise<CerebroDoc[]> {
     title: string;
     content: string;
     meta: Record<string, string> | null;
+    tipo: "evidencia_academica" | "practica_observada" | null;
   };
   return (data as Row[]).map((d) => ({
     id: d.id,
@@ -36,6 +37,7 @@ async function loadDocs(): Promise<CerebroDoc[]> {
     title: d.title,
     content: d.content,
     meta: d.meta ?? undefined,
+    tipo: d.tipo ?? "evidencia_academica",
   }));
 }
 

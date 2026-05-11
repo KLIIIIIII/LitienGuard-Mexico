@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search, Loader2, BookOpen, AlertCircle } from "lucide-react";
+import { Search, Loader2, BookOpen, AlertCircle, Users } from "lucide-react";
 import { buscarCerebro, type CerebroSearchResult } from "./actions";
 
 type Hit = Extract<CerebroSearchResult, { status: "ok" }>["hits"][number];
@@ -111,41 +111,74 @@ export function CerebroSearch() {
           ) : (
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
               <ul className="space-y-3">
-                {state.hits.map((hit) => (
-                  <li key={hit.id}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveHit(hit)}
-                      className={`w-full rounded-xl border bg-surface px-4 py-3 text-left transition-all hover:shadow-soft ${
-                        activeHit?.id === hit.id
-                          ? "border-validation shadow-soft"
-                          : "border-line hover:border-line-strong"
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-validation" />
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-body-sm font-semibold text-ink-strong">
-                            {hit.title}
-                          </h3>
-                          <p className="mt-0.5 text-caption text-ink-muted">
-                            {hit.source} · pág. {hit.page}
-                          </p>
-                          <p className="mt-2 text-body-sm leading-relaxed text-ink-muted">
-                            {hit.snippet}
-                          </p>
+                {state.hits.map((hit) => {
+                  const isPractice = hit.tipo === "practica_observada";
+                  const Icon = isPractice ? Users : BookOpen;
+                  return (
+                    <li key={hit.id}>
+                      <button
+                        type="button"
+                        onClick={() => setActiveHit(hit)}
+                        className={`w-full rounded-xl border bg-surface px-4 py-3 text-left transition-all hover:shadow-soft ${
+                          activeHit?.id === hit.id
+                            ? isPractice
+                              ? "border-accent shadow-soft"
+                              : "border-validation shadow-soft"
+                            : "border-line hover:border-line-strong"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <Icon
+                            className={`mt-0.5 h-4 w-4 shrink-0 ${
+                              isPractice ? "text-accent" : "text-validation"
+                            }`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <h3 className="text-body-sm font-semibold text-ink-strong">
+                                {hit.title}
+                              </h3>
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-caption font-medium ${
+                                  isPractice
+                                    ? "bg-accent-soft text-accent"
+                                    : "bg-validation-soft text-validation"
+                                }`}
+                              >
+                                {isPractice
+                                  ? "Práctica observada"
+                                  : "Guía oficial"}
+                              </span>
+                            </div>
+                            <p className="mt-0.5 text-caption text-ink-muted">
+                              {hit.source} · pág. {hit.page}
+                            </p>
+                            <p className="mt-2 text-body-sm leading-relaxed text-ink-muted">
+                              {hit.snippet}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
-                  </li>
-                ))}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
 
               <aside className="lg:sticky lg:top-[88px] lg:self-start">
                 {activeHit ? (
                   <div className="lg-card space-y-4">
                     <div>
-                      <p className="lg-eyebrow-validation">Cita verbatim</p>
+                      <p
+                        className={
+                          activeHit.tipo === "practica_observada"
+                            ? "lg-eyebrow-accent"
+                            : "lg-eyebrow-validation"
+                        }
+                      >
+                        {activeHit.tipo === "practica_observada"
+                          ? "Práctica observada"
+                          : "Guía oficial · cita verbatim"}
+                      </p>
                       <h3 className="mt-2 text-h2 font-semibold tracking-tight text-ink-strong">
                         {activeHit.title}
                       </h3>
@@ -156,13 +189,19 @@ export function CerebroSearch() {
                           : ""}
                       </p>
                     </div>
-                    <blockquote className="border-l-2 border-validation pl-4 text-body leading-relaxed text-ink-strong">
+                    <blockquote
+                      className={`border-l-2 pl-4 text-body leading-relaxed text-ink-strong ${
+                        activeHit.tipo === "practica_observada"
+                          ? "border-accent"
+                          : "border-validation"
+                      }`}
+                    >
                       {activeHit.snippet.replace(/^…|…$/g, "")}
                     </blockquote>
                     <p className="text-caption text-ink-soft">
-                      Cita exactamente como aparece en la fuente. Verifica
-                      contexto completo en el documento original antes de usar
-                      en consulta.
+                      {activeHit.tipo === "practica_observada"
+                        ? "Práctica observada en la red LitienGuard. NO es evidencia clínica — referencia secundaria que requiere verificación contra guía oficial."
+                        : "Cita exactamente como aparece en la fuente. Verifica contexto completo en el documento original antes de usar en consulta."}
                     </p>
                   </div>
                 ) : (

@@ -194,6 +194,12 @@ export async function generarNotaScribe(
   const evidenceMap = new Map<string, EvidenceChunk>();
   for (const hits of hitsPerKeyword) {
     for (const hit of hits) {
+      // The RAG-injected "evidencia" block only carries academic chunks.
+      // Practice-observed chunks are useful for human-facing exploration in
+      // /dashboard/cerebro but would risk reinforcing colleagues' errors if
+      // we let the model cite them as authority — we deliberately exclude
+      // them here.
+      if (hit.doc.tipo && hit.doc.tipo !== "evidencia_academica") continue;
       if (!evidenceMap.has(hit.doc.id)) {
         evidenceMap.set(hit.doc.id, {
           source: hit.doc.source,
