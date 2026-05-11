@@ -6,6 +6,7 @@ const navLinks = [
   { href: "/medicos", label: "Médicos" },
   { href: "/pacientes", label: "Pacientes" },
   { href: "/hospitales", label: "Hospitales" },
+  { href: "/app", label: "App" },
   { href: "/contacto", label: "Contacto" },
 ];
 

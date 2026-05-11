@@ -5,6 +5,8 @@ import { SITE_URL } from "@/lib/utils";
 import { TopBar } from "@/components/top-bar";
 import { Footer } from "@/components/footer";
 import { SessionAware } from "@/components/session-aware";
+import { PWARegister } from "@/components/pwa-register";
+import { PWAInstallBanner } from "@/components/pwa-install-banner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -56,6 +58,15 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
+  appleWebApp: {
+    capable: true,
+    title: "LitienGuard",
+    statusBarStyle: "default",
+  },
+  applicationName: "LitienGuard",
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -81,6 +92,8 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <SessionAware />
         </Suspense>
+        <PWARegister />
+        <PWAInstallBanner />
       </body>
     </html>
   );
