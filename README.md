@@ -78,7 +78,7 @@ Abre http://localhost:3000
 
 ## Setup Vercel (deploy)
 
-1. Push del repo a GitHub (Carlos lo hace con su PAT, ver sección "Push remoto").
+1. Push del repo a GitHub (ver sección "Push remoto").
 2. Entra a https://vercel.com → **Add New Project** → importa `KLIIIIIII/LitienGuard-Mexico`.
 3. Vercel detecta Next.js automáticamente. Antes de hacer deploy, ve a **Environment Variables** y agrega:
    - `NEXT_PUBLIC_SUPABASE_URL`
@@ -91,7 +91,7 @@ Abre http://localhost:3000
 
 ---
 
-## Push remoto (solo Carlos, primera vez)
+## Push remoto (primera vez)
 
 ```bash
 cd C:\Users\ro-g9\litienguard-web

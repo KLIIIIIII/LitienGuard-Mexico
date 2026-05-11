@@ -280,7 +280,7 @@ export function ScribeForm() {
               id="paciente_apellido_paterno"
               name="paciente_apellido_paterno"
               type="text"
-              placeholder="García"
+              placeholder="Hernández"
               maxLength={80}
               className="lg-input"
               disabled={busy}
@@ -299,7 +299,7 @@ export function ScribeForm() {
               id="paciente_apellido_materno"
               name="paciente_apellido_materno"
               type="text"
-              placeholder="Noriega"
+              placeholder="López"
               maxLength={80}
               className="lg-input"
               disabled={busy}

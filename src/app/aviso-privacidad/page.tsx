@@ -30,10 +30,10 @@ export default function AvisoPrivacidadPage() {
             Para cualquier asunto relacionado con datos personales, puede
             contactarnos en:{" "}
             <a
-              href="mailto:carlos.gnoriega@gmail.com"
+              href="mailto:contacto@litienguard.mx"
               className="text-accent underline"
             >
-              carlos.gnoriega@gmail.com
+              contacto@litienguard.mx
             </a>
             .
           </p>
@@ -116,10 +116,10 @@ export default function AvisoPrivacidadPage() {
             Para ejercer cualquiera de estos derechos, envíe una solicitud por
             escrito al correo{" "}
             <a
-              href="mailto:carlos.gnoriega@gmail.com"
+              href="mailto:contacto@litienguard.mx"
               className="text-accent underline"
             >
-              carlos.gnoriega@gmail.com
+              contacto@litienguard.mx
             </a>{" "}
             indicando: (i) su nombre, (ii) documentos que acrediten su
             identidad, (iii) descripción clara del derecho que desea ejercer y

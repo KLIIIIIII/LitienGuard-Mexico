@@ -39,15 +39,9 @@ export default function ContactoPage() {
 
             <dl className="mt-10 space-y-6">
               <div>
-                <dt className="lg-eyebrow">Founder</dt>
-                <dd className="mt-1.5 text-body-sm text-ink-strong">
-                  Carlos García Noriega
-                </dd>
-              </div>
-              <div>
                 <dt className="lg-eyebrow">Correo</dt>
                 <dd className="mt-1.5 text-body-sm text-ink-strong">
-                  carlos.gnoriega@gmail.com
+                  contacto@litienguard.mx
                 </dd>
               </div>
               <div>

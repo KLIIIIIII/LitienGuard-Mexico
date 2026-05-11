@@ -109,7 +109,7 @@ export async function submitPreregistro(
 
     // 2) Admin notification
     const adminEmail =
-      process.env.ADMIN_NOTIFY_EMAIL ?? "carlos.gnoriega@gmail.com";
+      process.env.ADMIN_NOTIFY_EMAIL ?? "contacto@litienguard.mx";
     const esc = (s: string | null | undefined): string =>
       (s ?? "—").replace(
         /[&<>"']/g,

@@ -59,16 +59,20 @@ end;
 $$;
 
 -- 5) Backfill: bring existing records up to tier (this section is data-safe)
---    Carlos = pro (the operator gets full access)
-update public.profiles
-  set subscription_tier = 'pro'
-  where lower(email) = 'carlos.gnoriega@gmail.com'
-    and subscription_tier = 'free';
-
-update public.invitaciones
-  set subscription_tier = 'pro'
-  where lower(email) = 'carlos.gnoriega@gmail.com';
-
+--    Set the operator/owner account to 'pro'. The production database has
+--    already had this backfill applied for the original admin; this block
+--    stays as a template for fresh deployments — fill in the operator email
+--    or run the equivalent UPDATE manually after seeding the admin invite.
+--
+-- update public.profiles
+--   set subscription_tier = 'pro'
+--   where lower(email) = '<admin-email>'
+--     and subscription_tier = 'free';
+--
+-- update public.invitaciones
+--   set subscription_tier = 'pro'
+--   where lower(email) = '<admin-email>';
+--
 --    Any other already-issued invitations stay as 'pilot' (the column default).
 
 -- 6) Helper: entitlement check for the Scribe feature
