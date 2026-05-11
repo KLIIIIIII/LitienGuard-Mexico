@@ -7,6 +7,8 @@ import { Footer } from "@/components/footer";
 import { SessionAware } from "@/components/session-aware";
 import { PWARegister } from "@/components/pwa-register";
 import { PWAInstallBanner } from "@/components/pwa-install-banner";
+import { FeedbackFab } from "@/components/feedback-fab";
+import { ErrorReporter } from "@/components/error-reporter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -94,6 +96,8 @@ export default function RootLayout({
         </Suspense>
         <PWARegister />
         <PWAInstallBanner />
+        <FeedbackFab />
+        <ErrorReporter />
       </body>
     </html>
   );
