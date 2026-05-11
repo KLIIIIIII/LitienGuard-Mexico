@@ -8,73 +8,85 @@ import { Eyebrow } from "@/components/eyebrow";
 export const metadata: Metadata = {
   title: "Para pacientes — LitienGuard Asistencia",
   description:
-    "Triaje, comparador de cobertura, recursos cercanos y plan integrado en PDF. Funciona con IMSS, ISSSTE, IMSS-Bienestar, Pemex, SEDENA, SEMAR, privado y sin seguro.",
+    "Sabe qué hacer cuando tienes un síntoma, qué cubre tu seguro y dónde te conviene atenderte. Funciona con IMSS, ISSSTE, IMSS-Bienestar, Pemex, SEDENA, SEMAR, privado o sin seguro.",
 };
 
 const FEATURES = [
   {
-    title: "Triaje rápido — Manchester + NOM-027",
-    desc: "Seis preguntas. Te decimos si vas a urgencias hoy, agendas con tu médico esta semana, o esperas y observas.",
+    title: "Sabes qué hacer hoy mismo",
+    desc: "Seis preguntas y te decimos si conviene urgencias hoy, una cita con tu médico esta semana, o esperar y observar — basado en el método Manchester y la NOM-027.",
   },
   {
-    title: "Comparador clínico — IMSS, privado, INSABI",
-    desc: "Para tu padecimiento exacto: qué cubre cada esquema, cuánto pagas de tu bolsillo, cuánto tarda y dónde te conviene.",
+    title: "Compara qué te cubre cada esquema",
+    desc: "Para tu padecimiento específico: qué cubre IMSS, IMSS-Bienestar, INSABI o el seguro privado, cuánto pagarías de tu bolsillo, cuánto tarda cada uno.",
   },
   {
-    title: "Recursos cercanos en tiempo real",
-    desc: "Unidades médicas filtradas por estado, esquema y especialidad. Dirección, teléfono y cómo llegar.",
+    title: "Encuentra dónde atenderte cerca",
+    desc: "Hospitales, clínicas y centros de salud filtrados por tu estado, tu esquema y la especialidad que necesitas. Con dirección, teléfono y cómo llegar.",
   },
   {
-    title: "Plan integrado en PDF",
-    desc: "Llevalo a tu cita. Incluye urgencia, cobertura, comparativa, top 5 unidades y pasos numerados.",
+    title: "Llévate un plan en PDF a tu cita",
+    desc: "Urgencia, cobertura, comparativa y los siguientes pasos numerados — listo para mostrarle al médico o al personal administrativo.",
   },
   {
-    title: "Mis derechos, en simple",
-    desc: "12 derechos clave del paciente. Atención oportuna, segunda opinión, expediente, queja sin represalias.",
+    title: "Conoce tus derechos como paciente",
+    desc: "Atención oportuna, segunda opinión, acceso a tu expediente, queja sin represalias. Doce derechos explicados en lenguaje claro.",
   },
 ];
 
-const SUB_TABS = [
-  { n: "01", label: "¿Qué hago ahora?", desc: "Wizard guiado paso a paso." },
-  { n: "02", label: "Triaje rápido", desc: "Manchester + NOM-027." },
+const STEPS = [
   {
-    n: "03",
-    label: "¿Qué cubre mi seguro?",
-    desc: "Coverage finder por esquema.",
+    label: "Cuéntanos qué te pasa",
+    desc: "Describe el síntoma en tus palabras. Sin tecnicismos.",
   },
   {
-    n: "04",
-    label: "Comparador clínico",
-    desc: "Qué te conviene por padecimiento.",
+    label: "Te orientamos sobre la urgencia",
+    desc: "Sabrás si esperar, llamar al médico o ir a urgencias.",
   },
-  { n: "05", label: "Recursos cercanos", desc: "Unidades médicas con cita." },
-  { n: "06", label: "Mis derechos", desc: "12 derechos clave del paciente." },
-  { n: "07", label: "Trámites", desc: "9 guías paso a paso." },
+  {
+    label: "Te mostramos qué cubre tu seguro",
+    desc: "Cobertura real para tu caso, no para casos generales.",
+  },
+  {
+    label: "Comparas opciones de atención",
+    desc: "Tiempo, costo y conveniencia para tu padecimiento.",
+  },
+  {
+    label: "Encuentras dónde ir",
+    desc: "Unidades médicas reales, con cómo llegar y cómo agendar.",
+  },
+  {
+    label: "Conoces tus derechos",
+    desc: "Lo que la ley te garantiza al recibir atención.",
+  },
+  {
+    label: "Aprendes a hacer trámites",
+    desc: "Reembolsos, traslados, expedientes — paso a paso.",
+  },
 ];
 
 export default function PacientesPage() {
   return (
     <>
       <PageHero
-        eyebrow="Capa C · LitienGuard Asistencia"
+        eyebrow="LitienGuard Asistencia"
         title={
           <>
-            Tu navegador del{" "}
-            <span className="lg-serif-italic text-validation">sistema</span> de
-            salud mexicano.
+            Sabe qué hacer{" "}
+            <span className="lg-serif-italic text-validation">antes</span> de
+            ir al médico.
           </>
         }
-        description="Diseñado para todos los esquemas: IMSS, ISSSTE, IMSS-Bienestar, Pemex, SEDENA, SEMAR, privado o sin seguro. Lenguaje simple, sin jerga médica."
+        description="Cuando aparece un síntoma, no necesitas a Google. Necesitas saber qué tan urgente es, qué te cubre tu seguro y dónde te conviene atenderte. Funciona con IMSS, ISSSTE, IMSS-Bienestar, Pemex, SEDENA, SEMAR, seguro privado o sin seguro."
         variant="alt"
       />
 
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
           <div className="mb-12 max-w-2xl">
-            <Eyebrow>Lo que resuelve</Eyebrow>
+            <Eyebrow>Lo que te ayudamos a resolver</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Cuando tienes un síntoma, no necesitas Google. Necesitas saber qué
-              hacer.
+              Cinco cosas concretas, en lenguaje claro.
             </h2>
           </div>
           <FeatureList items={FEATURES} />
@@ -83,20 +95,20 @@ export default function PacientesPage() {
 
       <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
-          <Eyebrow>Siete sub-tabs en orden de flujo natural</Eyebrow>
+          <Eyebrow>Cómo funciona</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            De síntoma a trámite, sin perderte.
+            De duda a decisión, sin perderte en el camino.
           </h2>
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {SUB_TABS.map((t) => (
-              <TiltCard key={t.n} className="p-5">
+            {STEPS.map((s, i) => (
+              <TiltCard key={s.label} className="p-5">
                 <p className="font-mono text-caption font-semibold text-ink-soft">
-                  {t.n}
+                  {String(i + 1).padStart(2, "0")}
                 </p>
                 <h3 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
-                  {t.label}
+                  {s.label}
                 </h3>
-                <p className="mt-1 text-body-sm text-ink-muted">{t.desc}</p>
+                <p className="mt-1 text-body-sm text-ink-muted">{s.desc}</p>
               </TiltCard>
             ))}
           </div>
@@ -105,18 +117,18 @@ export default function PacientesPage() {
 
       <section className="border-b border-line bg-warn-soft py-14">
         <div className="lg-shell">
-          <Eyebrow tone="warn">Disclaimer importante</Eyebrow>
+          <Eyebrow tone="warn">Importante</Eyebrow>
           <p className="mt-3 max-w-3xl text-body text-ink-strong">
-            LitienGuard Asistencia te ayuda a navegar el sistema de salud, no
-            sustituye atención médica profesional. Si tienes una emergencia,
-            llama al 911 inmediatamente.
+            LitienGuard Asistencia te orienta para navegar el sistema de salud,
+            no sustituye la atención médica profesional. Si crees que estás
+            ante una emergencia, llama al 911 inmediatamente.
           </p>
         </div>
       </section>
 
       <FinalCta
-        title="¿Listo para tomar control de tu salud?"
-        description="Pre-regístrate y te avisamos cuando Asistencia esté abierto al público."
+        title="Tu salud merece decisiones informadas."
+        description="Pre-regístrate y te avisamos cuando Asistencia esté disponible. Cuando lo lances, querrás tenerlo desde el primer día."
       />
     </>
   );
