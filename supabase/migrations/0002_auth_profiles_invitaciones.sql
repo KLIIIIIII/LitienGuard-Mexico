@@ -128,7 +128,12 @@ create policy "admins delete invitaciones"
   using (public.is_admin());
 
 -- 7) Seed initial admin invite -----------------------------------------------
-insert into public.invitaciones (email, role, nombre)
-values ('contacto@litienguard.mx', 'admin', 'LitienGuard')
-on conflict (email) do update
-  set role = 'admin', usada = false, expires_at = now() + interval '60 days';
+-- For fresh deployments: replace the placeholder values below with the real
+-- admin email + name before running this migration, OR insert the row
+-- manually via Supabase Studio after the schema is up. The production
+-- database already has this record seeded from the original deployment.
+--
+-- insert into public.invitaciones (email, role, nombre)
+-- values ('<admin-email>', 'admin', '<admin-name>')
+-- on conflict (email) do update
+--   set role = 'admin', usada = false, expires_at = now() + interval '60 days';
