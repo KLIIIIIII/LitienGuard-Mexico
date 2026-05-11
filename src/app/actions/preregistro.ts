@@ -65,9 +65,10 @@ export async function submitPreregistro(
     };
   }
 
-  // Email confirmation (best-effort, do not block ok response)
+  // Emails (best-effort, do not block ok response)
   const resend = getResend();
   if (resend) {
+    // 1) Confirmation to the requester
     try {
       await resend.emails.send({
         from: RESEND_FROM,
@@ -85,7 +86,58 @@ export async function submitPreregistro(
         `,
       });
     } catch (e) {
-      console.error("[preregistro] resend error:", e);
+      console.error("[preregistro] resend (user) error:", e);
+    }
+
+    // 2) Admin notification
+    const adminEmail =
+      process.env.ADMIN_NOTIFY_EMAIL ?? "carlos.gnoriega@gmail.com";
+    const esc = (s: string | null | undefined): string =>
+      (s ?? "—").replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          })[c] as string,
+      );
+    const tipoLabel: Record<string, string> = {
+      medico: "Médico",
+      paciente: "Paciente",
+      hospital: "Hospital",
+      otro: "Otro",
+    };
+    try {
+      await resend.emails.send({
+        from: RESEND_FROM,
+        to: [adminEmail],
+        replyTo: data.email,
+        subject: `Nueva solicitud piloto: ${tipoLabel[data.tipo] ?? data.tipo} — ${data.email}`,
+        html: `
+          <div style="font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: #2C2B27; max-width: 600px;">
+            <p style="font-size: 0.78rem; letter-spacing: 0.11em; text-transform: uppercase; color: #4A6B5B; margin: 0 0 12px 0;">LitienGuard · Admin</p>
+            <h1 style="font-size: 1.3rem; font-weight: 600; margin: 0 0 20px 0; line-height: 1.25;">Nueva solicitud de pre-registro</h1>
+            <div style="background: #F4F2EB; border-radius: 8px; padding: 18px 20px; margin: 0 0 18px 0;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem;">
+                <tr><td style="padding: 6px 0; color: #57554F; width: 130px;">Tipo</td><td style="padding: 6px 0;"><strong>${esc(tipoLabel[data.tipo] ?? data.tipo)}</strong></td></tr>
+                <tr><td style="padding: 6px 0; color: #57554F;">Correo</td><td style="padding: 6px 0;"><a href="mailto:${esc(data.email)}" style="color: #2D3E50;">${esc(data.email)}</a></td></tr>
+                <tr><td style="padding: 6px 0; color: #57554F;">Nombre</td><td style="padding: 6px 0;">${esc(data.nombre)}</td></tr>
+                <tr><td style="padding: 6px 0; color: #57554F; vertical-align: top;">Mensaje</td><td style="padding: 6px 0; white-space: pre-wrap;">${esc(data.mensaje)}</td></tr>
+              </table>
+            </div>
+            <p style="font-size: 0.82rem; color: #8B887F; margin: 0 0 4px 0;"><strong>UTM:</strong> ${esc(data.utm_source)} / ${esc(data.utm_medium)} / ${esc(data.utm_campaign)}</p>
+            <p style="font-size: 0.82rem; color: #8B887F; margin: 0 0 4px 0;"><strong>IP:</strong> ${esc(ip)}</p>
+            <p style="font-size: 0.82rem; color: #8B887F; margin: 0 0 4px 0;"><strong>User-agent:</strong> ${esc(ua)}</p>
+            <hr style="border: 0; height: 1px; background: #E5E2DA; margin: 20px 0;">
+            <p style="font-size: 0.78rem; color: #8B887F;">Responde este correo para contestar directamente al solicitante. El registro completo está en Supabase, tabla <code>preregistros</code>.</p>
+          </div>
+        `,
+      });
+    } catch (e) {
+      console.error("[preregistro] resend (admin) error:", e);
     }
   }
 
