@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createSupabaseServer } from "@/lib/supabase-server";
 
 const navLinks = [
   { href: "/medicos", label: "Médicos" },
@@ -7,7 +8,12 @@ const navLinks = [
   { href: "/contacto", label: "Contacto" },
 ];
 
-export function TopBar() {
+export async function TopBar() {
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-line bg-surface/95 backdrop-blur-sm">
       <div className="lg-shell flex h-[72px] items-center justify-between gap-6">
@@ -52,9 +58,25 @@ export function TopBar() {
           ))}
         </nav>
 
-        <Link href="/contacto#piloto" className="lg-cta-primary">
-          Solicita acceso piloto
-        </Link>
+        <div className="flex items-center gap-3">
+          {user ? (
+            <Link href="/dashboard" className="lg-cta-primary">
+              Mi dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="hidden text-body-sm font-medium text-ink-muted transition-colors hover:text-accent md:inline"
+              >
+                Entrar
+              </Link>
+              <Link href="/contacto#piloto" className="lg-cta-primary">
+                Solicita acceso piloto
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );
