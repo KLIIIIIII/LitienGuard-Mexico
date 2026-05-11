@@ -12,6 +12,7 @@ import {
   Settings,
   Download,
   MessageCircle,
+  Smile,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -61,6 +62,12 @@ export function DashboardSidebar({
       label: "Mis notas",
       icon: FileText,
       match: (p) => p.startsWith("/dashboard/notas"),
+    },
+    {
+      href: "/dashboard/odontograma",
+      label: "Odontograma",
+      icon: Smile,
+      match: (p) => p.startsWith("/dashboard/odontograma"),
     },
     {
       href: "/dashboard/cerebro",
