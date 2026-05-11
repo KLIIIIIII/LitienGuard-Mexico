@@ -95,50 +95,56 @@ export function SolucionesMenu() {
         {open && (
           <motion.div
             key="panel"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6, transition: { duration: 0.18 } }}
-            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: -12, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{
+              opacity: 0,
+              y: -8,
+              scale: 0.99,
+              transition: { duration: 0.24, ease: [0.4, 0, 1, 1] },
+            }}
+            transition={{ duration: 0.46, ease: [0.16, 1, 0.3, 1] }}
+            style={{ transformOrigin: "top center" }}
             className="fixed inset-x-0 top-[72px] z-40"
           >
             {/* Backdrop to catch hovers leaving the menu */}
             <div
-              className="absolute inset-0 -z-10 bg-canvas/0"
+              className="absolute inset-0 -z-10"
               onMouseEnter={onEnter}
             />
-            <div className="border-b border-line bg-surface/98 backdrop-blur-sm shadow-deep">
-              <div className="lg-shell py-7">
-                <p className="text-caption uppercase tracking-eyebrow text-ink-soft">
+            <div className="border-b border-line bg-surface shadow-deep">
+              <div className="lg-shell py-6">
+                <p className="text-caption uppercase tracking-eyebrow text-ink-muted">
                   Una plataforma · varias audiencias
                 </p>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {SOLUCIONES.map((s, i) => {
                     const Icon = s.icon;
                     return (
                       <motion.div
                         key={s.href}
-                        initial={{ opacity: 0, y: 12 }}
+                        initial={{ opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{
-                          delay: 0.06 + i * 0.08,
-                          duration: 0.32,
-                          ease: [0.22, 1, 0.36, 1],
+                          delay: 0.1 + i * 0.06,
+                          duration: 0.56,
+                          ease: [0.16, 1, 0.3, 1],
                         }}
                       >
                         <Link
                           href={s.href}
                           onClick={() => setOpen(false)}
-                          className="group flex h-full flex-col gap-2 rounded-xl border border-line bg-surface px-4 py-4 transition-all hover:border-validation hover:bg-validation-soft/40 hover:shadow-lift"
+                          className="group flex h-full flex-col gap-1.5 rounded-lg border border-line bg-surface px-3 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-validation hover:bg-surface hover:shadow-lift"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-validation-soft text-validation group-hover:bg-validation group-hover:text-surface">
-                              <Icon className="h-4.5 w-4.5" strokeWidth={2} />
+                            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-validation-soft text-validation transition-colors duration-300 group-hover:bg-validation group-hover:text-surface">
+                              <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
                             </span>
                             <span className="text-body-sm font-semibold text-ink-strong">
                               {s.label}
                             </span>
                           </div>
-                          <p className="text-caption leading-relaxed text-ink-muted">
+                          <p className="text-caption leading-snug text-ink-muted line-clamp-2">
                             {s.description}
                           </p>
                         </Link>
