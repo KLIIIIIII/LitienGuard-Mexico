@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   const { data: nota, error } = await supa
     .from("notas_scribe")
     .select(
-      "id,medico_id,paciente_iniciales,paciente_edad,paciente_sexo,soap_subjetivo,soap_objetivo,soap_analisis,soap_plan,status,created_at,updated_at",
+      "id,medico_id,paciente_iniciales,paciente_nombre,paciente_apellido_paterno,paciente_apellido_materno,paciente_edad,paciente_sexo,soap_subjetivo,soap_objetivo,soap_analisis,soap_plan,status,created_at,updated_at",
     )
     .eq("id", id)
     .single();
@@ -40,6 +40,9 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   const data: SoapPdfData = {
     id: nota.id,
     paciente_iniciales: nota.paciente_iniciales,
+    paciente_nombre: nota.paciente_nombre,
+    paciente_apellido_paterno: nota.paciente_apellido_paterno,
+    paciente_apellido_materno: nota.paciente_apellido_materno,
     paciente_edad: nota.paciente_edad,
     paciente_sexo: nota.paciente_sexo,
     soap_subjetivo: nota.soap_subjetivo ?? "",

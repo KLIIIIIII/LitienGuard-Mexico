@@ -15,6 +15,9 @@ export const metadata = {
 type NotaRow = {
   id: string;
   paciente_iniciales: string | null;
+  paciente_nombre: string | null;
+  paciente_apellido_paterno: string | null;
+  paciente_apellido_materno: string | null;
   paciente_edad: number | null;
   paciente_sexo: string | null;
   status: "borrador" | "firmada" | "descartada";
@@ -48,7 +51,7 @@ export default async function NotasPage() {
   const { data: notas } = await supa
     .from("notas_scribe")
     .select(
-      "id,paciente_iniciales,paciente_edad,paciente_sexo,status,soap_subjetivo,soap_analisis,created_at",
+      "id,paciente_iniciales,paciente_nombre,paciente_apellido_paterno,paciente_apellido_materno,paciente_edad,paciente_sexo,status,soap_subjetivo,soap_analisis,created_at",
     )
     .order("created_at", { ascending: false })
     .limit(50);
@@ -93,8 +96,17 @@ export default async function NotasPage() {
         ) : (
           <div className="mt-8 space-y-3">
             {rows.map((n) => {
+              const fullName = [
+                n.paciente_nombre,
+                n.paciente_apellido_paterno,
+                n.paciente_apellido_materno,
+              ]
+                .filter((v): v is string => Boolean(v && v.trim()))
+                .join(" ");
+              const identifier =
+                fullName || n.paciente_iniciales || "Sin nombre";
               const ctx = [
-                n.paciente_iniciales,
+                identifier,
                 n.paciente_edad != null ? `${n.paciente_edad}a` : null,
                 n.paciente_sexo,
               ]

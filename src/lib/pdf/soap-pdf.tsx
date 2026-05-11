@@ -182,6 +182,9 @@ const styles = StyleSheet.create({
 export type SoapPdfData = {
   id: string;
   paciente_iniciales: string | null;
+  paciente_nombre: string | null;
+  paciente_apellido_paterno: string | null;
+  paciente_apellido_materno: string | null;
   paciente_edad: number | null;
   paciente_sexo: string | null;
   soap_subjetivo: string;
@@ -196,6 +199,17 @@ export type SoapPdfData = {
   medico_hospital: string | null;
   medico_especialidad: string | null;
 };
+
+function patientFullName(d: SoapPdfData): string {
+  const parts = [
+    d.paciente_nombre,
+    d.paciente_apellido_paterno,
+    d.paciente_apellido_materno,
+  ].filter((p): p is string => Boolean(p && p.trim()));
+  if (parts.length > 0) return parts.join(" ");
+  if (d.paciente_iniciales) return d.paciente_iniciales;
+  return "—";
+}
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -264,11 +278,14 @@ export function SoapPdf({ nota }: { nota: SoapPdfData }) {
         <Text style={styles.sectionTitle}>Consulta médica</Text>
 
         <View style={styles.patientBlock}>
-          <View style={styles.patientField}>
-            <Text style={styles.patientLabel}>Iniciales</Text>
-            <Text style={styles.patientValue}>
-              {nota.paciente_iniciales ?? "—"}
-            </Text>
+          <View
+            style={[
+              styles.patientField,
+              { minWidth: 220, flexGrow: 1 } as never,
+            ]}
+          >
+            <Text style={styles.patientLabel}>Paciente</Text>
+            <Text style={styles.patientValue}>{patientFullName(nota)}</Text>
           </View>
           <View style={styles.patientField}>
             <Text style={styles.patientLabel}>Edad</Text>

@@ -26,6 +26,8 @@ export const dynamic = "force-dynamic";
 type RecentNota = {
   id: string;
   paciente_iniciales: string | null;
+  paciente_nombre: string | null;
+  paciente_apellido_paterno: string | null;
   paciente_edad: number | null;
   status: "borrador" | "firmada" | "descartada";
   soap_analisis: string | null;
@@ -69,7 +71,7 @@ export default async function DashboardPage() {
     supa
       .from("notas_scribe")
       .select(
-        "id,paciente_iniciales,paciente_edad,status,soap_analisis,soap_subjetivo,created_at",
+        "id,paciente_iniciales,paciente_nombre,paciente_apellido_paterno,paciente_edad,status,soap_analisis,soap_subjetivo,created_at",
       )
       .order("created_at", { ascending: false })
       .limit(5),
@@ -336,8 +338,13 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-5 space-y-3">
               {recentRows.map((n) => {
+                const fullName = [n.paciente_nombre, n.paciente_apellido_paterno]
+                  .filter((v): v is string => Boolean(v && v.trim()))
+                  .join(" ");
+                const identifier =
+                  fullName || n.paciente_iniciales || "Sin nombre";
                 const ctx = [
-                  n.paciente_iniciales,
+                  identifier,
                   n.paciente_edad != null ? `${n.paciente_edad}a` : null,
                 ]
                   .filter(Boolean)
