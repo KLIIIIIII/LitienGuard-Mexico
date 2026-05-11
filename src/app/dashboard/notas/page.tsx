@@ -56,8 +56,8 @@ export default async function NotasPage() {
   const rows = (notas as NotaRow[] | null) ?? [];
 
   return (
-    <main className="min-h-[calc(100vh-72px)] bg-canvas">
-      <div className="lg-shell py-10 lg:py-14">
+    <div>
+      <div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Eyebrow tone="validation">Notas</Eyebrow>
@@ -128,6 +128,6 @@ export default async function NotasPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

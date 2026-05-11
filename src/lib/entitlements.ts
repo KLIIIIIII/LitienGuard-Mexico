@@ -35,6 +35,26 @@ export function canUseRcm(tier: SubscriptionTier | null | undefined): boolean {
   return RCM_TIERS.includes(tier);
 }
 
+/**
+ * Monthly Scribe note limit per tier. Returns Infinity for unlimited.
+ * Free returns 0 — Scribe is gated upstream anyway.
+ */
+export function scribeMonthlyLimit(
+  tier: SubscriptionTier | null | undefined,
+): number {
+  switch (tier) {
+    case "pilot":
+      return 100;
+    case "pro":
+      return 300;
+    case "enterprise":
+      return Infinity;
+    case "free":
+    default:
+      return 0;
+  }
+}
+
 export function tierBadgeClass(tier: SubscriptionTier | null | undefined): string {
   switch (tier) {
     case "pro":

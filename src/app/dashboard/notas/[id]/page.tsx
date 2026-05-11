@@ -68,8 +68,8 @@ export default async function NotaPage({
     .join(" · ");
 
   return (
-    <main className="min-h-[calc(100vh-72px)] bg-canvas">
-      <div className="lg-shell py-10 lg:py-14">
+    <div>
+      <div>
         <Link
           href="/dashboard/notas"
           className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -124,6 +124,6 @@ export default async function NotaPage({
           </details>
         )}
       </div>
-    </main>
+    </div>
   );
 }

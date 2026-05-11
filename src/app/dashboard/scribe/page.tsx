@@ -33,8 +33,8 @@ export default async function ScribePage() {
 
   if (!canUseScribe(tier)) {
     return (
-      <main className="min-h-[calc(100vh-72px)] bg-canvas">
-        <div className="lg-shell py-16 lg:py-24">
+      <div>
+        <div className="py-12 lg:py-16">
           <div className="mx-auto max-w-xl text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-warn-soft">
               <Lock className="h-6 w-6 text-warn" />
@@ -58,13 +58,13 @@ export default async function ScribePage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-[calc(100vh-72px)] bg-canvas">
-      <div className="lg-shell py-10 lg:py-14">
+    <div>
+      <div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -92,6 +92,6 @@ export default async function ScribePage() {
           <ScribeForm />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

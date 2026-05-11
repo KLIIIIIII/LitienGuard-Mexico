@@ -1,0 +1,124 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Mic,
+  FileText,
+  BookOpen,
+  ShieldCheck,
+  Lock,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  TIER_LABELS,
+  type SubscriptionTier,
+} from "@/lib/entitlements";
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  match: (pathname: string) => boolean;
+  locked?: boolean;
+  badge?: string;
+  admin?: boolean;
+};
+
+export function DashboardSidebar({
+  tier,
+  isAdmin,
+  canScribe,
+  canCerebro,
+}: {
+  tier: SubscriptionTier;
+  isAdmin: boolean;
+  canScribe: boolean;
+  canCerebro: boolean;
+}) {
+  const pathname = usePathname();
+
+  const items: NavItem[] = [
+    {
+      href: "/dashboard",
+      label: "Inicio",
+      icon: LayoutDashboard,
+      match: (p) => p === "/dashboard",
+    },
+    {
+      href: "/dashboard/scribe",
+      label: "Scribe",
+      icon: Mic,
+      match: (p) => p.startsWith("/dashboard/scribe"),
+      locked: !canScribe,
+    },
+    {
+      href: "/dashboard/notas",
+      label: "Mis notas",
+      icon: FileText,
+      match: (p) => p.startsWith("/dashboard/notas"),
+    },
+    {
+      href: "/dashboard/cerebro",
+      label: "Cerebro",
+      icon: BookOpen,
+      match: (p) => p.startsWith("/dashboard/cerebro"),
+      locked: !canCerebro,
+    },
+  ];
+
+  if (isAdmin) {
+    items.push({
+      href: "/admin/invitaciones",
+      label: "Invitaciones",
+      icon: ShieldCheck,
+      match: (p) => p.startsWith("/admin/invitaciones"),
+      admin: true,
+    });
+  }
+
+  return (
+    <aside className="lg:sticky lg:top-[88px] lg:self-start">
+      <div className="rounded-2xl border border-line bg-surface px-3 py-4 shadow-soft">
+        <div className="px-3 pb-3">
+          <p className="text-caption uppercase tracking-eyebrow text-ink-soft">
+            Plan
+          </p>
+          <p className="mt-1 text-body-sm font-semibold text-ink-strong">
+            {TIER_LABELS[tier]}
+          </p>
+        </div>
+        <nav className="space-y-0.5">
+          {items.map((it) => {
+            const active = it.match(pathname);
+            const Icon = it.icon;
+            return (
+              <Link
+                key={it.href}
+                href={it.href}
+                aria-current={active ? "page" : undefined}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-body-sm transition-colors ${
+                  active
+                    ? "bg-validation-soft text-validation"
+                    : "text-ink-strong hover:bg-surface-alt"
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
+                <span className="flex-1">{it.label}</span>
+                {it.locked && (
+                  <Lock className="h-3 w-3 text-ink-quiet" strokeWidth={2.2} />
+                )}
+                {it.admin && (
+                  <span className="rounded-full bg-warn-soft px-1.5 py-0.5 text-[0.65rem] text-warn">
+                    admin
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+    </aside>
+  );
+}

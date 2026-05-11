@@ -6,7 +6,11 @@ import { redirect } from "next/navigation";
 import { getGroq, GROQ_MODELS, SCRIBE_LIMITS } from "@/lib/groq";
 import { SOAP_SYSTEM_PROMPT, buildSoapUserPrompt } from "@/lib/soap-prompt";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { canUseScribe, type SubscriptionTier } from "@/lib/entitlements";
+import {
+  canUseScribe,
+  scribeMonthlyLimit,
+  type SubscriptionTier,
+} from "@/lib/entitlements";
 
 const contextSchema = z.object({
   paciente_iniciales: z
@@ -50,6 +54,25 @@ export async function generarNotaScribe(
       message:
         "Tu plan actual no incluye el Scribe. Solicita acceso al piloto o suscríbete al plan Pro.",
     };
+  }
+
+  // Monthly rate limit
+  const limit = scribeMonthlyLimit(tier);
+  if (Number.isFinite(limit)) {
+    const startOfMonth = new Date();
+    startOfMonth.setUTCDate(1);
+    startOfMonth.setUTCHours(0, 0, 0, 0);
+    const { count: usedThisMonth } = await supa
+      .from("notas_scribe")
+      .select("*", { count: "exact", head: true })
+      .eq("medico_id", user.id)
+      .gte("created_at", startOfMonth.toISOString());
+    if ((usedThisMonth ?? 0) >= limit) {
+      return {
+        status: "error",
+        message: `Llegaste al límite mensual de tu plan (${limit} notas). Habla con admin para subir de plan o espera al inicio del próximo mes.`,
+      };
+    }
   }
 
   const file = formData.get("audio");

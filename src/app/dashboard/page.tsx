@@ -14,6 +14,7 @@ import { NoteStatusBadge } from "@/components/note-status-badge";
 import {
   canUseScribe,
   canUseCerebro,
+  scribeMonthlyLimit,
   TIER_LABELS,
   TIER_DESCRIPTIONS,
   tierBadgeClass,
@@ -55,29 +56,46 @@ export default async function DashboardPage() {
   const scribeUnlocked = canUseScribe(tier);
   const cerebroUnlocked = canUseCerebro(tier);
 
-  const [{ data: recent }, { count: totalNotas }, { count: firmadas }] =
-    await Promise.all([
-      supa
-        .from("notas_scribe")
-        .select(
-          "id,paciente_iniciales,paciente_edad,status,soap_analisis,soap_subjetivo,created_at",
-        )
-        .order("created_at", { ascending: false })
-        .limit(5),
-      supa.from("notas_scribe").select("*", { count: "exact", head: true }),
-      supa
-        .from("notas_scribe")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "firmada"),
-    ]);
+  const startOfMonth = new Date();
+  startOfMonth.setUTCDate(1);
+  startOfMonth.setUTCHours(0, 0, 0, 0);
+
+  const [
+    { data: recent },
+    { count: totalNotas },
+    { count: firmadas },
+    { count: notasMes },
+  ] = await Promise.all([
+    supa
+      .from("notas_scribe")
+      .select(
+        "id,paciente_iniciales,paciente_edad,status,soap_analisis,soap_subjetivo,created_at",
+      )
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supa.from("notas_scribe").select("*", { count: "exact", head: true }),
+    supa
+      .from("notas_scribe")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "firmada"),
+    supa
+      .from("notas_scribe")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", startOfMonth.toISOString()),
+  ]);
 
   const recentRows = (recent as RecentNota[] | null) ?? [];
   const total = totalNotas ?? 0;
   const signed = firmadas ?? 0;
+  const usedThisMonth = notasMes ?? 0;
+  const limit = scribeMonthlyLimit(tier);
+  const usagePct = Number.isFinite(limit) && limit > 0
+    ? Math.min(100, Math.round((usedThisMonth / limit) * 100))
+    : 0;
 
   return (
-    <main className="min-h-[calc(100vh-72px)] bg-canvas">
-      <div className="lg-shell py-12 lg:py-16">
+    <div>
+      <div>
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
             <Eyebrow tone="validation">
@@ -118,16 +136,30 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="lg-card">
-            <p className="text-caption text-ink-muted">Plan actual</p>
-            <div className="mt-1 flex items-center gap-2">
+            <div className="flex items-baseline justify-between">
+              <p className="text-caption text-ink-muted">Uso este mes</p>
               <span
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-body-sm font-semibold ${tierBadgeClass(
+                className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium ${tierBadgeClass(
                   tier,
                 )}`}
               >
                 {TIER_LABELS[tier]}
               </span>
             </div>
+            <p className="mt-1 text-h1 font-semibold text-ink-strong">
+              {usedThisMonth}
+              <span className="ml-1 text-body-sm font-normal text-ink-muted">
+                / {Number.isFinite(limit) ? limit : "∞"}
+              </span>
+            </p>
+            {Number.isFinite(limit) && limit > 0 && (
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-alt">
+                <div
+                  className="h-full rounded-full bg-validation transition-all"
+                  style={{ width: `${usagePct}%` }}
+                />
+              </div>
+            )}
             <p className="mt-2 text-caption text-ink-soft">
               {TIER_DESCRIPTIONS[tier]}
             </p>
@@ -289,7 +321,6 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        {/* Recent notes */}
         {recentRows.length > 0 && (
           <section className="mt-12">
             <div className="flex items-center justify-between">
@@ -343,6 +374,6 @@ export default async function DashboardPage() {
           </section>
         )}
       </div>
-    </main>
+    </div>
   );
 }
