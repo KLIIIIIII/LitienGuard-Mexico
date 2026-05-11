@@ -5,6 +5,7 @@ import { UserChip } from "@/components/user-chip";
 import { SolucionesMenu } from "@/components/soluciones-menu";
 
 const secondaryLinks = [
+  { href: "/gobernanza", label: "Gobernanza" },
   { href: "/app", label: "Próximamente" },
   { href: "/contacto", label: "Contacto" },
 ];
