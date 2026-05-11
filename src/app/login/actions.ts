@@ -2,11 +2,14 @@
 
 import { z } from "zod";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit, extractIp } from "@/lib/rate-limit";
 import { recordAudit } from "@/lib/audit";
 import { checkIpLockout, recordKnownDevice } from "@/lib/security";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 const emailSchema = z.string().email("Correo inválido");
 
@@ -15,7 +18,10 @@ export type LoginState =
   | { status: "ok"; message: string }
   | { status: "error"; message: string };
 
-export async function requestMagicLink(email: string): Promise<LoginState> {
+export async function requestMagicLink(
+  email: string,
+  turnstileToken?: string | null,
+): Promise<LoginState> {
   const parsed = emailSchema.safeParse(email);
   if (!parsed.success) {
     return { status: "error", message: parsed.error.issues[0].message };
@@ -24,6 +30,15 @@ export async function requestMagicLink(email: string): Promise<LoginState> {
 
   const hdrs = await headers();
   const ip = extractIp(hdrs);
+
+  const turnstile = await verifyTurnstile(turnstileToken, ip);
+  if (!turnstile.ok) {
+    return {
+      status: "error",
+      message:
+        "No pudimos verificar que eres humano. Recarga la página e inténtalo de nuevo.",
+    };
+  }
 
   const lockout = await checkIpLockout(ip);
   if (lockout.locked) {
@@ -122,5 +137,11 @@ export async function requestMagicLink(email: string): Promise<LoginState> {
 
 export async function signOut(): Promise<void> {
   const supa = await createSupabaseServer();
+  const { data: { user } } = await supa.auth.getUser();
   await supa.auth.signOut();
+  if (user) {
+    void recordAudit({ userId: user.id, action: "auth.signed_out" });
+  }
+  revalidatePath("/", "layout");
+  redirect("/");
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -10,7 +10,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { signOut } from "@/app/login/actions";
-import { useRouter } from "next/navigation";
 
 type Role = "medico" | "admin" | null;
 
@@ -25,8 +24,8 @@ export function UserChipClient({
   email: string;
   role: Role;
 }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,11 +44,11 @@ export function UserChipClient({
     };
   }, []);
 
-  async function onSignOut() {
+  function onSignOut() {
     setOpen(false);
-    await signOut();
-    router.refresh();
-    router.push("/");
+    startTransition(() => {
+      void signOut();
+    });
   }
 
   return (
@@ -151,11 +150,12 @@ export function UserChipClient({
             <button
               type="button"
               onClick={onSignOut}
-              className="flex w-full items-center gap-2 border-t border-line-soft px-4 py-2 text-left text-ink-muted hover:bg-rose-soft hover:text-rose"
+              disabled={pending}
+              className="flex w-full items-center gap-2 border-t border-line-soft px-4 py-2 text-left text-ink-muted hover:bg-rose-soft hover:text-rose disabled:opacity-50"
               role="menuitem"
             >
               <LogOut className="h-4 w-4" />
-              Cerrar sesión
+              {pending ? "Cerrando…" : "Cerrar sesión"}
             </button>
           </nav>
         </div>
