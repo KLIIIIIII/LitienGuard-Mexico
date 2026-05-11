@@ -36,6 +36,14 @@
     @apply text-eyebrow font-semibold uppercase tracking-eyebrow text-validation;
   }
 
+  .lg-eyebrow-accent {
+    @apply text-eyebrow font-semibold uppercase tracking-eyebrow text-accent;
+  }
+
+  .lg-eyebrow-warn {
+    @apply text-eyebrow font-semibold uppercase tracking-eyebrow text-warn;
+  }
+
   .lg-shell {
     @apply mx-auto w-full max-w-shell px-6 lg:px-10;
   }

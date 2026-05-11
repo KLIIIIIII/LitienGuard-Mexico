@@ -20,6 +20,7 @@ export type CerebroSearchResult =
         snippet: string;
         score: number;
         meta?: Record<string, string>;
+        tipo: "evidencia_academica" | "practica_observada";
       }>;
       tookMs: number;
     }
@@ -57,7 +58,7 @@ export async function buscarCerebro(input: {
   }
 
   const t0 = performance.now();
-  const hits = (await searchCerebro(parsed.data.q, 6)).map((h) => ({
+  const hits = (await searchCerebro(parsed.data.q, 8)).map((h) => ({
     id: h.doc.id,
     source: h.doc.source,
     page: h.doc.page,
@@ -65,6 +66,9 @@ export async function buscarCerebro(input: {
     snippet: h.snippet,
     score: Number(h.score.toFixed(3)),
     meta: h.doc.meta,
+    tipo: (h.doc.tipo ?? "evidencia_academica") as
+      | "evidencia_academica"
+      | "practica_observada",
   }));
   const tookMs = Math.round(performance.now() - t0);
 

@@ -36,6 +36,10 @@ export function tokenize(text: string): string[] {
     .filter((t) => t.length >= 2 && !STOPWORDS.has(t));
 }
 
+export type CerebroChunkType =
+  | "evidencia_academica"
+  | "practica_observada";
+
 export interface CerebroDoc {
   id: string;
   source: string;
@@ -44,6 +48,7 @@ export interface CerebroDoc {
   content: string;
   /** Optional metadata for filtering / display (e.g. specialty, year). */
   meta?: Record<string, string>;
+  tipo?: CerebroChunkType;
 }
 
 export interface BM25Index {
