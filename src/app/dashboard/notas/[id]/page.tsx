@@ -25,6 +25,11 @@ type Nota = {
   soap_objetivo: string | null;
   soap_analisis: string | null;
   soap_plan: string | null;
+  soap_metadata: {
+    rag_keywords?: string[];
+    rag_chunks_used?: string[];
+    rag_citas_modelo?: string[];
+  } | null;
   status: "borrador" | "firmada" | "descartada";
   created_at: string;
   updated_at: string;
@@ -45,7 +50,7 @@ export default async function NotaPage({
   const { data: nota } = await supa
     .from("notas_scribe")
     .select(
-      "id,medico_id,paciente_iniciales,paciente_edad,paciente_sexo,audio_filename,transcripcion,soap_subjetivo,soap_objetivo,soap_analisis,soap_plan,status,created_at,updated_at",
+      "id,medico_id,paciente_iniciales,paciente_edad,paciente_sexo,audio_filename,transcripcion,soap_subjetivo,soap_objetivo,soap_analisis,soap_plan,soap_metadata,status,created_at,updated_at",
     )
     .eq("id", id)
     .single();
@@ -112,6 +117,37 @@ export default async function NotaPage({
             readOnly={n.status === "firmada"}
           />
         </div>
+
+        {(n.soap_metadata?.rag_chunks_used?.length ?? 0) > 0 && (
+          <section className="mt-10 max-w-3xl">
+            <h2 className="text-h3 font-semibold text-ink-strong">
+              Fuentes consultadas
+            </h2>
+            <p className="mt-1 text-caption text-ink-muted">
+              El asistente revisó estas guías al proponer análisis y plan. Las
+              sugerencias son herramientas: la decisión clínica es tuya.
+            </p>
+            <ul className="mt-3 space-y-2">
+              {n.soap_metadata?.rag_chunks_used?.map((c, i) => (
+                <li
+                  key={`${c}-${i}`}
+                  className="flex items-start gap-2 rounded-lg border border-line bg-surface px-4 py-2 text-body-sm text-ink-strong"
+                >
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-validation-soft text-caption font-semibold text-validation">
+                    {i + 1}
+                  </span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+            {(n.soap_metadata?.rag_keywords?.length ?? 0) > 0 && (
+              <p className="mt-3 text-caption text-ink-soft">
+                Conceptos clínicos detectados:{" "}
+                {n.soap_metadata?.rag_keywords?.join(" · ")}
+              </p>
+            )}
+          </section>
+        )}
 
         {n.transcripcion && (
           <details className="mt-10 max-w-3xl">
