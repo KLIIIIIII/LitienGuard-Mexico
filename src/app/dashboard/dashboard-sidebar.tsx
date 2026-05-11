@@ -76,6 +76,12 @@ export function DashboardSidebar({
       match: (p) => p.startsWith("/dashboard/exportar"),
     },
     {
+      href: "/dashboard/seguridad",
+      label: "Seguridad",
+      icon: Lock,
+      match: (p) => p.startsWith("/dashboard/seguridad"),
+    },
+    {
       href: "/dashboard/configuracion",
       label: "Configuración",
       icon: Settings,
