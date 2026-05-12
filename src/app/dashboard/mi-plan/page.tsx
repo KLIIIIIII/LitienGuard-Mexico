@@ -466,19 +466,19 @@ export default async function MiPlanPage() {
             Gestiona tu suscripción y descarga facturas fiscales con tu RFC.
           </p>
         </Link>
-        <a
-          href="mailto:compras@grupoprodi.net?subject=Consulta%20sobre%20mi%20plan%20LitienGuard"
+        <Link
+          href="/contacto?asunto=mi-plan"
           className="lg-card transition-all hover:border-line-strong hover:shadow-lift"
         >
           <Eyebrow tone="accent">¿Dudas?</Eyebrow>
           <p className="mt-2 text-body-sm font-semibold text-ink-strong">
-            Escríbenos
+            Hablemos
           </p>
           <p className="mt-1 text-caption text-ink-muted">
-            compras@grupoprodi.net · Te respondemos en el mismo día hábil con
-            recomendaciones específicas para tu práctica.
+            Escríbenos desde el formulario de contacto. Te respondemos en el
+            mismo día hábil con recomendaciones específicas para tu práctica.
           </p>
-        </a>
+        </Link>
       </section>
     </div>
   );

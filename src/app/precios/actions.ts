@@ -34,7 +34,7 @@ export async function startCheckout(
     return {
       status: "error",
       message:
-        "El checkout aún no está habilitado. Escríbenos a compras@grupoprodi.net para suscribirte mientras se configura.",
+        "El checkout aún no está habilitado. Escríbenos desde el formulario de contacto para suscribirte manualmente mientras se configura.",
     };
   }
 

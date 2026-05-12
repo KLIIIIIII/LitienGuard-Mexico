@@ -34,7 +34,7 @@ export function CheckoutButton({
   if (!enabled) {
     return (
       <a
-        href={`mailto:compras@grupoprodi.net?subject=Solicitud%20de%20suscripci%C3%B3n%20${plan}%20${cycle}`}
+        href={`/contacto?plan=${plan}&cycle=${cycle}`}
         className={baseCls}
       >
         {label}

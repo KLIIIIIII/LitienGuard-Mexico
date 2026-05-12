@@ -58,7 +58,7 @@ export async function submitPreregistro(
     return {
       status: "error",
       message:
-        "Servicio temporalmente no configurado. Escríbenos a compras@grupoprodi.net mientras tanto.",
+        "Servicio temporalmente no configurado. Vuelve a intentarlo en unos minutos.",
     };
   }
 

@@ -30,10 +30,10 @@ export default function AvisoPrivacidadPage() {
             Para cualquier asunto relacionado con datos personales, puede
             contactarnos en:{" "}
             <a
-              href="mailto:compras@grupoprodi.net"
+              href="mailto:privacidad@litienguard.mx"
               className="text-accent underline"
             >
-              compras@grupoprodi.net
+              privacidad@litienguard.mx
             </a>
             .
           </p>
@@ -116,10 +116,10 @@ export default function AvisoPrivacidadPage() {
             Para ejercer cualquiera de estos derechos, envíe una solicitud por
             escrito al correo{" "}
             <a
-              href="mailto:compras@grupoprodi.net"
+              href="mailto:privacidad@litienguard.mx"
               className="text-accent underline"
             >
-              compras@grupoprodi.net
+              privacidad@litienguard.mx
             </a>{" "}
             indicando: (i) su nombre, (ii) documentos que acrediten su
             identidad, (iii) descripción clara del derecho que desea ejercer y

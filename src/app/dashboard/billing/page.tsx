@@ -160,13 +160,13 @@ export default async function BillingPage({
           Facturas fiscales
         </p>
         <p className="mt-2 text-body-sm text-ink-muted leading-relaxed">
-          ¿Necesitas factura con tus datos fiscales? Escríbenos a{" "}
-          <a
-            href="mailto:compras@grupoprodi.net?subject=Factura%20LitienGuard"
+          ¿Necesitas factura con tus datos fiscales? Solicítala desde el{" "}
+          <Link
+            href="/contacto?asunto=factura"
             className="font-semibold text-warn underline"
           >
-            compras@grupoprodi.net
-          </a>{" "}
+            formulario de contacto
+          </Link>{" "}
           con tu RFC y razón social. La emitimos el mismo día hábil.
         </p>
       </div>
@@ -183,16 +183,9 @@ export default async function BillingPage({
           . Esto elimina tu información clínica conforme al derecho de
           Cancelación de la LFPDPPP, no solo tu suscripción.
           <br />
-          Para hablar con el equipo, escríbenos a{" "}
-          <a
-            href="mailto:compras@grupoprodi.net"
-            className="text-validation underline"
-          >
-            compras@grupoprodi.net
-          </a>
-          {" "}o agenda una llamada desde{" "}
+          Para hablar con el equipo, escríbenos desde el{" "}
           <Link href="/contacto" className="text-validation underline">
-            /contacto
+            formulario de contacto
           </Link>
           .
         </p>

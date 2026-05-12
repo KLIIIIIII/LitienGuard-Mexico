@@ -39,9 +39,9 @@ export default function ContactoPage() {
 
             <dl className="mt-10 space-y-6">
               <div>
-                <dt className="lg-eyebrow">Correo</dt>
+                <dt className="lg-eyebrow">Respuesta</dt>
                 <dd className="mt-1.5 text-body-sm text-ink-strong">
-                  compras@grupoprodi.net
+                  Menos de 48 horas hábiles
                 </dd>
               </div>
               <div>

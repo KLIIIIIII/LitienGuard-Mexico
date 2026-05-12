@@ -450,10 +450,10 @@ export default async function ExpedientePage({
                   Para ejercer Rectificación, Cancelación u Oposición, envía un
                   correo a{" "}
                   <a
-                    href="mailto:compras@grupoprodi.net?subject=Solicitud%20ARCO%20%C2%B7%20LitienGuard"
+                    href="mailto:privacidad@litienguard.mx?subject=Solicitud%20ARCO%20%C2%B7%20LitienGuard"
                     className="font-semibold text-accent underline"
                   >
-                    compras@grupoprodi.net
+                    privacidad@litienguard.mx
                   </a>{" "}
                   con tu nombre completo, descripción clara del derecho que
                   deseas ejercer y los datos involucrados. Responderemos en

@@ -154,13 +154,13 @@ export default async function PreciosPage({
               <p className="font-semibold">Suscripciones próximamente</p>
               <p className="mt-1 text-caption text-ink-muted">
                 Estamos en la última fase de configuración de pagos. Mientras
-                tanto, contáctanos a{" "}
-                <a
-                  href="mailto:compras@grupoprodi.net"
+                tanto,{" "}
+                <Link
+                  href="/contacto"
                   className="font-semibold text-accent underline"
                 >
-                  compras@grupoprodi.net
-                </a>{" "}
+                  escríbenos desde el formulario
+                </Link>{" "}
                 y te activamos el plan manualmente sin costo durante el piloto.
               </p>
             </div>
