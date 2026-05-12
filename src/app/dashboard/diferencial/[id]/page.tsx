@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, Calendar, User } from "lucide-react";
+import { ArrowLeft, Calendar, User, Download } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
@@ -111,6 +111,15 @@ export default async function DiferencialDetailPage({
             ID {id.slice(0, 8).toUpperCase()}
           </p>
         </div>
+        <a
+          href={`/api/diferencial/${id}/pdf`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-caption font-semibold text-ink-strong hover:bg-surface-alt transition-colors shrink-0"
+        >
+          <Download className="h-3.5 w-3.5" strokeWidth={2.2} />
+          Exportar PDF
+        </a>
       </header>
 
       <div className="lg-card space-y-2">

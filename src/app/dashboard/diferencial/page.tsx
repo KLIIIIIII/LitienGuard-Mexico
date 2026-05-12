@@ -105,17 +105,25 @@ export default async function DiferencialPage({
 
   return (
     <div className="space-y-6">
-      <header>
-        <Eyebrow tone="validation">Diferencial diagnóstico</Eyebrow>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          Razonamiento bayesiano multi-señal
-        </h1>
-        <p className="mt-2 max-w-prose text-body-sm text-ink-muted">
-          Marca los findings clínicos que observas en el paciente. El motor
-          actualiza el diferencial en tiempo real combinando likelihood
-          ratios publicados con la prevalencia poblacional. Cada
-          recomendación viene con la cita verbatim de la fuente.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <Eyebrow tone="validation">Diferencial diagnóstico</Eyebrow>
+          <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+            Razonamiento bayesiano multi-señal
+          </h1>
+          <p className="mt-2 max-w-prose text-body-sm text-ink-muted">
+            Marca los findings clínicos que observas en el paciente. El motor
+            actualiza el diferencial en tiempo real combinando likelihood
+            ratios publicados con la prevalencia poblacional. Cada
+            recomendación viene con la cita verbatim de la fuente.
+          </p>
+        </div>
+        <Link
+          href="/dashboard/diferencial/calidad"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-caption font-semibold text-ink-strong hover:bg-surface-alt transition-colors"
+        >
+          Mi calidad →
+        </Link>
       </header>
 
       {recentSessions && recentSessions.length > 0 && (
