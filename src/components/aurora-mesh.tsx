@@ -40,8 +40,15 @@ export function AuroraMesh() {
           display: block;
           border-radius: 50%;
           filter: blur(48px);
-          opacity: 0;
-          will-change: transform, opacity;
+          /*
+           * iOS Safari bug: animation sobre elementos con filter:blur
+           * puede no disparar y dejarlos atrapados en el estado from.
+           * Iniciamos opacity:1 directo — el keyframe aurora-fade
+           * desaparece como "ease-in" (de invisible a visible) pero si
+           * no corre, los blobs siguen visibles igual.
+           */
+          opacity: 1;
+          will-change: transform;
         }
 
         /* Validation green — más saturado */
@@ -55,9 +62,7 @@ export function AuroraMesh() {
             rgba(74, 107, 91, 1),
             rgba(74, 107, 91, 0) 65%
           );
-          animation:
-            aurora-fade 1.6s ease-out forwards,
-            aurora-drift-a 14s ease-in-out 1.6s infinite;
+          animation: aurora-drift-a 14s ease-in-out infinite;
         }
         /* Deep slate blue */
         .aurora-blob-b {
@@ -70,9 +75,7 @@ export function AuroraMesh() {
             rgba(45, 62, 95, 0.95),
             rgba(45, 62, 95, 0) 65%
           );
-          animation:
-            aurora-fade 1.8s ease-out forwards,
-            aurora-drift-b 17s ease-in-out 1.8s infinite;
+          animation: aurora-drift-b 17s ease-in-out infinite;
         }
         /* Warm amber */
         .aurora-blob-c {
@@ -85,9 +88,7 @@ export function AuroraMesh() {
             rgba(180, 135, 70, 0.82),
             rgba(180, 135, 70, 0) 65%
           );
-          animation:
-            aurora-fade 2.2s ease-out forwards,
-            aurora-drift-c 15s ease-in-out 2.2s infinite;
+          animation: aurora-drift-c 15s ease-in-out infinite;
         }
         /* Teal */
         .aurora-blob-d {
@@ -100,9 +101,7 @@ export function AuroraMesh() {
             rgba(60, 120, 115, 0.9),
             rgba(60, 120, 115, 0) 65%
           );
-          animation:
-            aurora-fade 2.4s ease-out forwards,
-            aurora-drift-d 12s ease-in-out 2.4s infinite;
+          animation: aurora-drift-d 12s ease-in-out infinite;
         }
         /* Slate blue accent */
         .aurora-blob-e {
@@ -115,9 +114,7 @@ export function AuroraMesh() {
             rgba(70, 90, 130, 0.85),
             rgba(70, 90, 130, 0) 65%
           );
-          animation:
-            aurora-fade 2.6s ease-out forwards,
-            aurora-drift-e 19s ease-in-out 2.6s infinite;
+          animation: aurora-drift-e 19s ease-in-out infinite;
         }
         /* Forest green */
         .aurora-blob-f {
@@ -130,9 +127,7 @@ export function AuroraMesh() {
             rgba(90, 130, 105, 0.78),
             rgba(90, 130, 105, 0) 65%
           );
-          animation:
-            aurora-fade 2.8s ease-out forwards,
-            aurora-drift-f 16s ease-in-out 2.8s infinite;
+          animation: aurora-drift-f 16s ease-in-out infinite;
         }
         /* Soft rose */
         .aurora-blob-g {
@@ -145,9 +140,7 @@ export function AuroraMesh() {
             rgba(165, 105, 110, 0.65),
             rgba(165, 105, 110, 0) 65%
           );
-          animation:
-            aurora-fade 3s ease-out forwards,
-            aurora-drift-g 18s ease-in-out 3s infinite;
+          animation: aurora-drift-g 18s ease-in-out infinite;
         }
         /* Dusty plum */
         .aurora-blob-h {
@@ -160,9 +153,7 @@ export function AuroraMesh() {
             rgba(110, 85, 130, 0.62),
             rgba(110, 85, 130, 0) 65%
           );
-          animation:
-            aurora-fade 3.2s ease-out forwards,
-            aurora-drift-h 20s ease-in-out 3.2s infinite;
+          animation: aurora-drift-h 20s ease-in-out infinite;
         }
         /* Soft gold */
         .aurora-blob-i {
@@ -175,9 +166,7 @@ export function AuroraMesh() {
             rgba(195, 165, 95, 0.7),
             rgba(195, 165, 95, 0) 65%
           );
-          animation:
-            aurora-fade 3.4s ease-out forwards,
-            aurora-drift-i 13s ease-in-out 3.4s infinite;
+          animation: aurora-drift-i 13s ease-in-out infinite;
         }
         /* Validation soft accent — center */
         .aurora-blob-j {
@@ -190,9 +179,7 @@ export function AuroraMesh() {
             rgba(120, 160, 140, 0.55),
             rgba(120, 160, 140, 0) 65%
           );
-          animation:
-            aurora-fade 3.6s ease-out forwards,
-            aurora-drift-j 22s ease-in-out 3.6s infinite;
+          animation: aurora-drift-j 22s ease-in-out infinite;
         }
 
         /* Frosted glass más translúcido para dejar ver más la aurora */
@@ -206,14 +193,8 @@ export function AuroraMesh() {
         }
 
         .aurora-static .aurora-blob {
-          animation: aurora-fade 1s ease-out forwards;
+          animation: none;
           opacity: 1;
-        }
-
-        @keyframes aurora-fade {
-          to {
-            opacity: 1;
-          }
         }
         @keyframes aurora-drift-a {
           0% {
@@ -388,7 +369,7 @@ export function AuroraMesh() {
 
         @media (prefers-reduced-motion: reduce) {
           .aurora-blob {
-            animation: aurora-fade 1s ease-out forwards !important;
+            animation: none !important;
             opacity: 1 !important;
           }
         }
