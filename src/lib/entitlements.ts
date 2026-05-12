@@ -17,6 +17,7 @@ export type SubscriptionTier = keyof typeof TIER_LABELS;
 const SCRIBE_TIERS: SubscriptionTier[] = ["pilot", "pro", "enterprise"];
 const CEREBRO_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RECETAS_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
+const AGENDA_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RCM_TIERS: SubscriptionTier[] = ["enterprise"];
 
 export function canUseScribe(tier: SubscriptionTier | null | undefined): boolean {
@@ -36,6 +37,13 @@ export function canUseRecetas(
 ): boolean {
   if (!tier) return false;
   return RECETAS_TIERS.includes(tier);
+}
+
+export function canUseAgenda(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  if (!tier) return false;
+  return AGENDA_TIERS.includes(tier);
 }
 
 export function canUseRcm(tier: SubscriptionTier | null | undefined): boolean {

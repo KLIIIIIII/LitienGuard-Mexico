@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Smile,
   Pill,
+  Calendar,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -37,12 +38,14 @@ export function DashboardSidebar({
   canScribe,
   canCerebro,
   canRecetas,
+  canAgenda,
 }: {
   tier: SubscriptionTier;
   isAdmin: boolean;
   canScribe: boolean;
   canCerebro: boolean;
   canRecetas: boolean;
+  canAgenda: boolean;
 }) {
   const pathname = usePathname();
 
@@ -78,6 +81,13 @@ export function DashboardSidebar({
       icon: Pill,
       match: (p) => p.startsWith("/dashboard/recetas"),
       locked: !canRecetas,
+    },
+    {
+      href: "/dashboard/agenda",
+      label: "Agenda",
+      icon: Calendar,
+      match: (p) => p.startsWith("/dashboard/agenda"),
+      locked: !canAgenda,
     },
     {
       href: "/dashboard/cerebro",
