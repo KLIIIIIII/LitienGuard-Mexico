@@ -117,7 +117,7 @@ export default function PacientesPage() {
       </section>
 
       <section className="border-b border-line bg-canvas py-14">
-        <div className="lg-shell">
+        <div className="lg-shell space-y-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <Eyebrow>¿Ya tienes cita pendiente?</Eyebrow>
@@ -128,6 +128,19 @@ export default function PacientesPage() {
             </div>
             <Link href="/agendar" className="lg-cta-ghost shrink-0">
               Agendar cita
+            </Link>
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <Eyebrow>Ya eres paciente</Eyebrow>
+              <p className="mt-2 max-w-2xl text-body text-ink-strong">
+                Accede a tu expediente: citas, recetas firmadas y derechos
+                ARCO sobre tu información clínica.
+              </p>
+            </div>
+            <Link href="/paciente" className="lg-cta-ghost shrink-0">
+              Entrar a mi expediente
             </Link>
           </div>
         </div>
