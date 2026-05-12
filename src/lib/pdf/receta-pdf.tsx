@@ -42,160 +42,287 @@ export interface RecetaPdfData {
   };
 }
 
+// Editorial palette: ink, cream, parchment, single restrained green accent.
+const INK = "#1F1E1B";
+const INK_MUTED = "#57554F";
+const INK_SOFT = "#8B887F";
+const INK_QUIET = "#B8B4A8";
+const RULE = "#D8D4C8";
+const ACCENT = "#274B39";
+
 const styles = StyleSheet.create({
   page: {
-    padding: 36,
-    paddingBottom: 90,
+    paddingTop: 60,
+    paddingBottom: 84,
+    paddingHorizontal: 64,
     fontSize: 10,
-    color: "#2C2B27",
+    color: INK,
     fontFamily: "Helvetica",
+    lineHeight: 1.5,
   },
-  headerWrap: {
+
+  // Masthead -------------------------------------------------------------
+  mastheadBrandRow: { flexDirection: "row", justifyContent: "center" },
+  mastheadBrand: {
+    fontFamily: "Times-Italic",
+    fontSize: 9,
+    color: ACCENT,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+  },
+  mastheadTitle: {
+    marginTop: 8,
+    textAlign: "center",
+    fontFamily: "Times-Roman",
+    fontSize: 24,
+    color: INK,
+    letterSpacing: 0.5,
+  },
+  mastheadRule: {
+    marginTop: 14,
+    marginBottom: 22,
+    height: 0.6,
+    backgroundColor: RULE,
+  },
+
+  // Practitioner block (two columns) ------------------------------------
+  practitionerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2C2B27",
+    marginBottom: 28,
   },
-  brand: { flexDirection: "column" },
-  brandEyebrow: {
-    fontSize: 7,
-    color: "#4A6B5B",
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
-    marginBottom: 2,
-  },
-  brandName: { fontSize: 18, fontWeight: 700 },
-  brandTagline: { fontSize: 8, color: "#8B887F", marginTop: 2 },
-
-  consultorio: { flexDirection: "column", alignItems: "flex-end" },
-  consultLine: { fontSize: 9, color: "#57554F", marginBottom: 1 },
-
-  watermark: {
-    position: "absolute",
-    top: 280,
-    left: 80,
-    right: 0,
-    textAlign: "center",
-    fontSize: 56,
-    fontWeight: 700,
-    color: "#E1D8C8",
-    transform: "rotate(-30deg)",
-    opacity: 0.4,
-  },
-
-  metaWrap: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: "#F4F2EB",
-    borderRadius: 4,
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  metaCell: {
+  practitionerLeft: { flexDirection: "column", maxWidth: 280 },
+  practitionerRight: {
     flexDirection: "column",
-    marginRight: 24,
-    marginBottom: 6,
+    maxWidth: 220,
+    alignItems: "flex-end",
   },
-  metaLabel: {
-    fontSize: 7,
-    color: "#8B887F",
-    textTransform: "uppercase",
-    letterSpacing: 1,
+  practitionerName: {
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
+    color: INK,
     marginBottom: 2,
   },
-  metaValue: { fontSize: 10, fontWeight: 700 },
-
-  sectionTitle: {
+  practitionerSpecialty: {
+    fontFamily: "Times-Italic",
+    fontSize: 10,
+    color: INK_MUTED,
+    marginBottom: 4,
+  },
+  practitionerCedula: {
     fontSize: 8,
-    color: "#4A6B5B",
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
-    marginTop: 18,
-    marginBottom: 6,
+    color: INK_SOFT,
+    letterSpacing: 0.4,
   },
 
-  diagBody: { fontSize: 11, fontWeight: 700, marginBottom: 3 },
-  diagCie10: { fontSize: 9, color: "#57554F" },
+  metaLabel: {
+    fontSize: 6.5,
+    color: INK_SOFT,
+    letterSpacing: 1.6,
+    textTransform: "uppercase",
+    marginBottom: 1,
+  },
+  metaValue: {
+    fontSize: 10,
+    color: INK,
+    marginBottom: 8,
+  },
+  metaValueMuted: {
+    fontSize: 9,
+    color: INK_MUTED,
+    marginBottom: 2,
+  },
 
-  itemsList: { marginTop: 10 },
+  // Patient table -------------------------------------------------------
+  patientRow: {
+    flexDirection: "row",
+    paddingBottom: 14,
+    marginBottom: 22,
+    borderBottomWidth: 0.6,
+    borderBottomColor: RULE,
+  },
+  patientCol: { flexDirection: "column", marginRight: 36 },
+
+  // Section headings ----------------------------------------------------
+  sectionLabel: {
+    fontSize: 7.5,
+    color: ACCENT,
+    letterSpacing: 1.8,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 8,
+  },
+
+  // Diagnóstico ----------------------------------------------------------
+  diagnosticoBlock: { marginBottom: 26 },
+  diagnosticoBody: {
+    fontSize: 11,
+    color: INK,
+    lineHeight: 1.45,
+    marginBottom: 4,
+  },
+  diagnosticoCie: {
+    fontSize: 8.5,
+    fontFamily: "Times-Italic",
+    color: INK_MUTED,
+    marginTop: 2,
+  },
+
+  // Items ---------------------------------------------------------------
+  itemsBlock: { marginBottom: 26 },
   itemRow: {
     flexDirection: "row",
-    marginBottom: 10,
-    paddingBottom: 8,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#E5E2DA",
+    marginBottom: 14,
+    paddingBottom: 12,
+    borderBottomWidth: 0.4,
+    borderBottomColor: RULE,
+  },
+  itemRowLast: {
+    flexDirection: "row",
+    marginBottom: 4,
   },
   itemNumber: {
-    fontSize: 10,
-    fontWeight: 700,
-    color: "#4A6B5B",
-    marginRight: 8,
-    width: 16,
+    fontFamily: "Times-Italic",
+    fontSize: 13,
+    color: ACCENT,
+    width: 22,
+    marginTop: 0,
   },
   itemBody: { flex: 1 },
-  itemPrincipal: { fontSize: 11, fontWeight: 700, marginBottom: 3 },
-  itemPresentacion: { fontSize: 9, color: "#57554F", marginBottom: 3 },
-  itemDetail: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    fontSize: 9,
-    color: "#57554F",
+  itemMedicamento: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: INK,
+    marginBottom: 2,
   },
-  itemPair: { marginRight: 14, marginBottom: 2 },
-  itemPairLabel: { fontWeight: 700, color: "#2C2B27" },
+  itemPresentacion: {
+    fontFamily: "Times-Italic",
+    fontSize: 9.5,
+    color: INK_MUTED,
+    marginBottom: 5,
+  },
+  itemPosology: {
+    fontSize: 9.5,
+    color: INK,
+    lineHeight: 1.45,
+    marginBottom: 2,
+  },
+  itemPosologyLabel: {
+    fontSize: 6.5,
+    color: INK_SOFT,
+    letterSpacing: 1.4,
+    textTransform: "uppercase",
+  },
   itemIndicaciones: {
+    fontFamily: "Times-Italic",
+    fontSize: 9.5,
+    color: INK_MUTED,
     marginTop: 4,
-    fontSize: 9,
-    fontStyle: "italic",
-    color: "#57554F",
   },
 
-  indicaciones: {
+  // Indicaciones generales ---------------------------------------------
+  indicacionesBlock: { marginBottom: 26 },
+  indicacionesBody: {
     fontSize: 10,
-    color: "#2C2B27",
-    marginTop: 4,
+    color: INK,
+    lineHeight: 1.55,
   },
 
-  anulada: {
-    marginTop: 14,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#C45A4A",
-    borderRadius: 4,
+  // Anulada -------------------------------------------------------------
+  anuladaBlock: {
+    marginTop: 18,
+    paddingTop: 14,
+    paddingBottom: 14,
+    borderTopWidth: 0.6,
+    borderBottomWidth: 0.6,
+    borderColor: RULE,
   },
-  anuladaTitle: { fontSize: 11, fontWeight: 700, color: "#C45A4A", marginBottom: 4 },
-  anuladaBody: { fontSize: 9, color: "#57554F" },
+  anuladaLabel: {
+    fontSize: 7.5,
+    color: "#8B2C2C",
+    letterSpacing: 1.8,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 6,
+  },
+  anuladaBody: {
+    fontFamily: "Times-Italic",
+    fontSize: 10,
+    color: INK_MUTED,
+  },
 
+  // Signature -----------------------------------------------------------
   signatureWrap: {
-    marginTop: 38,
+    marginTop: 60,
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "center",
   },
-  signatureBox: { width: 240, alignItems: "center" },
+  signatureBox: { width: 280, alignItems: "center" },
   signatureLine: {
     width: "100%",
-    borderBottomWidth: 1,
-    borderBottomColor: "#2C2B27",
-    marginBottom: 6,
-    height: 30,
+    borderBottomWidth: 0.8,
+    borderBottomColor: INK,
+    marginBottom: 8,
+    height: 36,
   },
-  signatureLabel: { fontSize: 9, fontWeight: 700, color: "#2C2B27" },
-  signatureSubLabel: { fontSize: 8, color: "#57554F", marginTop: 1 },
-  signatureCedula: { fontSize: 8, color: "#57554F", marginTop: 1 },
+  signatureName: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: INK,
+    textAlign: "center",
+  },
+  signatureSpecialty: {
+    fontSize: 9,
+    fontFamily: "Times-Italic",
+    color: INK_MUTED,
+    textAlign: "center",
+    marginTop: 1,
+  },
+  signatureCedula: {
+    fontSize: 7.5,
+    color: INK_SOFT,
+    letterSpacing: 0.4,
+    textAlign: "center",
+    marginTop: 2,
+  },
 
+  // Footer --------------------------------------------------------------
   footer: {
     position: "absolute",
-    bottom: 28,
-    left: 36,
-    right: 36,
-    paddingTop: 8,
-    borderTopWidth: 0.5,
-    borderTopColor: "#E5E2DA",
+    bottom: 36,
+    left: 64,
+    right: 64,
+    paddingTop: 10,
+    borderTopWidth: 0.4,
+    borderTopColor: RULE,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  footerLeft: {
+    fontFamily: "Times-Italic",
+    fontSize: 7.5,
+    color: INK_SOFT,
+  },
+  footerRight: {
     fontSize: 7,
-    color: "#8B887F",
+    color: INK_SOFT,
+    letterSpacing: 0.4,
+  },
+
+  // Watermark for borrador / anulada ------------------------------------
+  watermark: {
+    position: "absolute",
+    top: 340,
+    left: 0,
+    right: 0,
     textAlign: "center",
+    fontFamily: "Times-Italic",
+    fontSize: 88,
+    color: INK_QUIET,
+    transform: "rotate(-26deg)",
+    opacity: 0.18,
+    letterSpacing: 6,
   },
 });
 
@@ -229,159 +356,191 @@ export function RecetaPdf({ receta, items, medico }: RecetaPdfData) {
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
-        {isAnulada && <Text style={styles.watermark}>ANULADA</Text>}
-        {isBorrador && <Text style={styles.watermark}>BORRADOR</Text>}
+        {isAnulada && <Text style={styles.watermark}>Anulada</Text>}
+        {isBorrador && <Text style={styles.watermark}>Borrador</Text>}
 
-        <View style={styles.headerWrap}>
-          <View style={styles.brand}>
-            <Text style={styles.brandEyebrow}>Receta médica</Text>
-            <Text style={styles.brandName}>{medico.nombre ?? "—"}</Text>
+        {/* Masthead */}
+        <View style={styles.mastheadBrandRow}>
+          <Text style={styles.mastheadBrand}>LitienGuard</Text>
+        </View>
+        <Text style={styles.mastheadTitle}>Receta Médica</Text>
+        <View style={styles.mastheadRule} />
+
+        {/* Practitioner block */}
+        <View style={styles.practitionerRow}>
+          <View style={styles.practitionerLeft}>
+            <Text style={styles.practitionerName}>{medico.nombre ?? "—"}</Text>
             {medico.especialidad && (
-              <Text style={styles.brandTagline}>{medico.especialidad}</Text>
+              <Text style={styles.practitionerSpecialty}>{medico.especialidad}</Text>
             )}
             {medico.cedula_profesional && (
-              <Text style={styles.brandTagline}>
-                Cédula profesional: {medico.cedula_profesional}
+              <Text style={styles.practitionerCedula}>
+                Cédula profesional · {medico.cedula_profesional}
               </Text>
             )}
           </View>
 
-          <View style={styles.consultorio}>
+          <View style={styles.practitionerRight}>
             {medico.consultorio_nombre && (
-              <Text style={styles.consultLine}>{medico.consultorio_nombre}</Text>
+              <Text style={styles.metaValueMuted}>{medico.consultorio_nombre}</Text>
             )}
             {medico.consultorio_direccion && (
-              <Text style={styles.consultLine}>{medico.consultorio_direccion}</Text>
+              <Text style={styles.metaValueMuted}>{medico.consultorio_direccion}</Text>
             )}
             {medico.consultorio_telefono && (
-              <Text style={styles.consultLine}>Tel. {medico.consultorio_telefono}</Text>
+              <Text style={styles.metaValueMuted}>Tel. {medico.consultorio_telefono}</Text>
             )}
           </View>
         </View>
 
-        <View style={styles.metaWrap}>
-          <View style={styles.metaCell}>
+        {/* Patient meta row */}
+        <View style={styles.patientRow}>
+          <View style={[styles.patientCol, { flex: 1 }]}>
             <Text style={styles.metaLabel}>Paciente</Text>
             <Text style={styles.metaValue}>{fullName}</Text>
           </View>
           {receta.paciente_edad !== null && (
-            <View style={styles.metaCell}>
+            <View style={styles.patientCol}>
               <Text style={styles.metaLabel}>Edad</Text>
               <Text style={styles.metaValue}>{receta.paciente_edad} años</Text>
             </View>
           )}
           {receta.paciente_sexo && (
-            <View style={styles.metaCell}>
+            <View style={styles.patientCol}>
               <Text style={styles.metaLabel}>Sexo</Text>
               <Text style={styles.metaValue}>
                 {SEXO_LABEL[receta.paciente_sexo] ?? receta.paciente_sexo}
               </Text>
             </View>
           )}
-          <View style={styles.metaCell}>
-            <Text style={styles.metaLabel}>Fecha de emisión</Text>
+          <View style={styles.patientCol}>
+            <Text style={styles.metaLabel}>Fecha</Text>
             <Text style={styles.metaValue}>{fechaStr}</Text>
           </View>
-          <View style={styles.metaCell}>
+          <View style={[styles.patientCol, { marginRight: 0 }]}>
             <Text style={styles.metaLabel}>Folio</Text>
             <Text style={styles.metaValue}>{folio}</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Diagnóstico</Text>
-        <Text style={styles.diagBody}>{receta.diagnostico}</Text>
-        {receta.diagnostico_cie10 && (
-          <Text style={styles.diagCie10}>CIE-10: {receta.diagnostico_cie10}</Text>
-        )}
-
-        <Text style={styles.sectionTitle}>Tratamiento prescrito</Text>
-        <View style={styles.itemsList}>
-          {items.map((it) => (
-            <View key={it.orden} style={styles.itemRow}>
-              <Text style={styles.itemNumber}>{it.orden}.</Text>
-              <View style={styles.itemBody}>
-                <Text style={styles.itemPrincipal}>{it.medicamento}</Text>
-                {it.presentacion && (
-                  <Text style={styles.itemPresentacion}>{it.presentacion}</Text>
-                )}
-                <View style={styles.itemDetail}>
-                  {it.dosis && (
-                    <Text style={styles.itemPair}>
-                      <Text style={styles.itemPairLabel}>Dosis: </Text>
-                      {it.dosis}
-                    </Text>
-                  )}
-                  {it.frecuencia && (
-                    <Text style={styles.itemPair}>
-                      <Text style={styles.itemPairLabel}>Frecuencia: </Text>
-                      {it.frecuencia}
-                    </Text>
-                  )}
-                  {it.duracion && (
-                    <Text style={styles.itemPair}>
-                      <Text style={styles.itemPairLabel}>Duración: </Text>
-                      {it.duracion}
-                    </Text>
-                  )}
-                  {it.via_administracion && (
-                    <Text style={styles.itemPair}>
-                      <Text style={styles.itemPairLabel}>Vía: </Text>
-                      {it.via_administracion}
-                    </Text>
-                  )}
-                </View>
-                {it.indicaciones && (
-                  <Text style={styles.itemIndicaciones}>
-                    Indicaciones: {it.indicaciones}
-                  </Text>
-                )}
-              </View>
-            </View>
-          ))}
+        {/* Diagnóstico */}
+        <View style={styles.diagnosticoBlock}>
+          <Text style={styles.sectionLabel}>Diagnóstico clínico</Text>
+          <Text style={styles.diagnosticoBody}>{receta.diagnostico}</Text>
+          {receta.diagnostico_cie10 && (
+            <Text style={styles.diagnosticoCie}>CIE-10 · {receta.diagnostico_cie10}</Text>
+          )}
         </View>
 
-        {receta.indicaciones_generales && (
-          <>
-            <Text style={styles.sectionTitle}>Indicaciones generales</Text>
-            <Text style={styles.indicaciones}>{receta.indicaciones_generales}</Text>
-          </>
-        )}
+        {/* Items */}
+        <View style={styles.itemsBlock}>
+          <Text style={styles.sectionLabel}>Tratamiento prescrito</Text>
+          {items.map((it, idx) => {
+            const isLast = idx === items.length - 1;
+            return (
+              <View
+                key={it.orden}
+                style={isLast ? styles.itemRowLast : styles.itemRow}
+              >
+                <Text style={styles.itemNumber}>{it.orden}.</Text>
+                <View style={styles.itemBody}>
+                  <Text style={styles.itemMedicamento}>{it.medicamento}</Text>
+                  {it.presentacion && (
+                    <Text style={styles.itemPresentacion}>{it.presentacion}</Text>
+                  )}
+                  <PosologyLine
+                    dosis={it.dosis}
+                    frecuencia={it.frecuencia}
+                    duracion={it.duracion}
+                    via={it.via_administracion}
+                  />
+                  {it.indicaciones && (
+                    <Text style={styles.itemIndicaciones}>« {it.indicaciones} »</Text>
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
 
-        {isAnulada && receta.motivo_anulacion && (
-          <View style={styles.anulada}>
-            <Text style={styles.anuladaTitle}>Receta anulada</Text>
-            <Text style={styles.anuladaBody}>
-              Motivo: {receta.motivo_anulacion}
+        {/* Indicaciones generales */}
+        {receta.indicaciones_generales && (
+          <View style={styles.indicacionesBlock}>
+            <Text style={styles.sectionLabel}>Indicaciones generales</Text>
+            <Text style={styles.indicacionesBody}>
+              {receta.indicaciones_generales}
             </Text>
           </View>
         )}
 
+        {/* Anulada */}
+        {isAnulada && receta.motivo_anulacion && (
+          <View style={styles.anuladaBlock}>
+            <Text style={styles.anuladaLabel}>Receta anulada</Text>
+            <Text style={styles.anuladaBody}>{receta.motivo_anulacion}</Text>
+          </View>
+        )}
+
+        {/* Signature */}
         {!isAnulada && (
           <View style={styles.signatureWrap}>
             <View style={styles.signatureBox}>
               <View style={styles.signatureLine} />
-              <Text style={styles.signatureLabel}>
-                {medico.nombre ?? "—"}
-              </Text>
+              <Text style={styles.signatureName}>{medico.nombre ?? "—"}</Text>
               {medico.especialidad && (
-                <Text style={styles.signatureSubLabel}>
-                  {medico.especialidad}
-                </Text>
+                <Text style={styles.signatureSpecialty}>{medico.especialidad}</Text>
               )}
               {medico.cedula_profesional && (
                 <Text style={styles.signatureCedula}>
-                  Cédula profesional: {medico.cedula_profesional}
+                  Cédula profesional · {medico.cedula_profesional}
                 </Text>
               )}
             </View>
           </View>
         )}
 
-        <Text style={styles.footer} fixed>
-          Documento generado por LitienGuard · Cumplimiento NOM-024-SSA3-2012 +
-          LFPDPPP · Retención mínima 5 años · Folio {folio}
-        </Text>
+        {/* Footer */}
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerLeft}>
+            LitienGuard · Documento conforme a NOM-024-SSA3 · LFPDPPP
+          </Text>
+          <Text style={styles.footerRight}>
+            Folio {folio} · Retención mínima 5 años
+          </Text>
+        </View>
       </Page>
     </Document>
+  );
+}
+
+function PosologyLine({
+  dosis,
+  frecuencia,
+  duracion,
+  via,
+}: {
+  dosis: string | null;
+  frecuencia: string | null;
+  duracion: string | null;
+  via: string | null;
+}) {
+  const parts: Array<{ label: string; value: string }> = [];
+  if (dosis) parts.push({ label: "Dosis", value: dosis });
+  if (frecuencia) parts.push({ label: "Frecuencia", value: frecuencia });
+  if (duracion) parts.push({ label: "Duración", value: duracion });
+  if (via) parts.push({ label: "Vía", value: via });
+
+  if (parts.length === 0) return null;
+
+  return (
+    <Text style={styles.itemPosology}>
+      {parts.map((p, i) => (
+        <Text key={p.label}>
+          <Text style={styles.itemPosologyLabel}>{p.label} · </Text>
+          {p.value}
+          {i < parts.length - 1 ? "    " : ""}
+        </Text>
+      ))}
+    </Text>
   );
 }
