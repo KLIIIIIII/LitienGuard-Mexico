@@ -492,8 +492,8 @@ export function DiferencialPdf({
           <Text style={{ marginTop: 2 }}>
             LitienGuard es herramienta de apoyo a la decisión. No sustituye
             criterio clínico ni acto médico. Datos del paciente anonimizados
-            por iniciales. Conforme LFPDPPP, NOM-024-SSA3 y Reforma LGS
-            Salud Digital DOF 2026.
+            por iniciales. Estructura conforme LFPDPPP, NOM-024-SSA3 y
+            Reforma LGS Salud Digital DOF 2026.
           </Text>
         </View>
 

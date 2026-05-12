@@ -389,7 +389,7 @@ export function OdontogramPdf({
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
-            LitienGuard · NOM-024-SSA3 · LFPDPPP
+            LitienGuard · Estructura conforme NOM-024-SSA3 · LFPDPPP
           </Text>
           <Text style={styles.footerText}>
             Contiene únicamente información clínica

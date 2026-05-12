@@ -26,13 +26,13 @@ const FEATURES_BY_TIER: Record<
     { label: "Cerebro lectura — búsqueda en guías", ok: true },
     { label: "Scribe ambient con transcripción y SOAP automático", ok: false },
     { label: "Diferencial diagnóstico bayesiano", ok: false },
-    { label: "Recetas electrónicas NOM-024", ok: false },
+    { label: "Recetas digitales con estructura NOM-024", ok: false },
     { label: "Agenda de citas", ok: false },
   ],
   esencial: [
     { label: "100 SOAPs al mes (cargados manual)", ok: true },
     { label: "Cerebro lectura — IMSS, CENETEC, KDIGO, ESC, AHA", ok: true },
-    { label: "Recetas electrónicas NOM-024", ok: true },
+    { label: "Recetas digitales con estructura NOM-024", ok: true },
     { label: "Odontograma + export PDF", ok: true },
     { label: "MFA opcional y audit log", ok: true },
     { label: "Diferencial bayesiano", ok: false },
@@ -57,7 +57,7 @@ const FEATURES_BY_TIER: Record<
     { label: "Integración con sistemas existentes", ok: true },
     { label: "SLA 99.5% y soporte dedicado", ok: true },
     { label: "Onboarding personalizado + capacitación", ok: true },
-    { label: "Compatible Reforma LGS 2026 + NOM-024", ok: true },
+    { label: "Arquitectura compatible Reforma LGS 2026 + NOM-024", ok: true },
   ],
 };
 
@@ -76,7 +76,7 @@ const FAQ = [
   },
   {
     q: "¿Emiten factura fiscal?",
-    a: "Sí. Una vez completado el pago, escríbenos con tus datos fiscales y emitimos la factura correspondiente. Próximamente quedará automatizado.",
+    a: "La emisión automatizada de facturas fiscales (CFDI 4.0) se habilita al cierre del piloto, cuando integremos al PAC autorizado por SAT. Mientras tanto, contáctanos al cerrar tu plan y coordinamos la emisión con tu proveedor fiscal o el nuestro.",
   },
   {
     q: "¿Hay periodo de prueba?",

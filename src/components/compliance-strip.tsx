@@ -60,11 +60,12 @@ export function ComplianceStrip() {
           })}
         </div>
         <p className="mt-4 max-w-prose text-caption text-ink-soft leading-relaxed">
-          LitienGuard cumple con los requerimientos técnicos de la NOM-024-SSA3-2012,
-          la Ley Federal de Protección de Datos Personales en Posesión de los
-          Particulares y los lineamientos de la Reforma General de Salud Digital 2026.
-          Certificación formal por la Secretaría de Salud y aval COFEPRIS en
-          proceso conforme avanzamos en el piloto clínico.
+          LitienGuard está construido siguiendo los requerimientos técnicos
+          de la NOM-024-SSA3-2012, la Ley Federal de Protección de Datos
+          Personales en Posesión de los Particulares y los lineamientos de la
+          Reforma General de Salud Digital 2026. Certificación formal por la
+          Secretaría de Salud y aval COFEPRIS en proceso conforme avanzamos
+          en el piloto clínico.
         </p>
       </div>
     </section>

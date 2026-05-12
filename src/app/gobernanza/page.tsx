@@ -29,7 +29,7 @@ const RETOS = [
   },
   {
     title: "Credencial Paciente 2026",
-    desc: "Identidad clínica unificada federal en camino. Los sistemas que no estén listos para emparejarla tendrán fricción para operar.",
+    desc: "Identidad clínica unificada federal anunciada en la Reforma LGS. La especificación técnica formal aún se publicará — diseñamos la arquitectura para integrarla en cuanto exista.",
   },
   {
     title: "LFPDPPP y derechos ARCO digitales",
@@ -78,7 +78,7 @@ const AUDIENCIAS = [
   {
     icon: Building2,
     title: "Hospitales y redes de salud",
-    desc: "La gobernanza incluida desde día uno te ahorra el costo de retrofit cuando la auditoría llegue. NOM-024, LFPDPPP y reporteo SINBA construidos en la arquitectura, no agregados encima.",
+    desc: "La gobernanza incluida desde día uno te ahorra el costo de retrofit cuando la auditoría llegue. NOM-024, LFPDPPP y el conector SINBA están en la arquitectura desde el diseño — listos para activarse cuando los habilites en tu operación.",
   },
   {
     icon: ShieldCheck,
@@ -88,7 +88,7 @@ const AUDIENCIAS = [
   {
     icon: Stethoscope,
     title: "Profesionales de la salud",
-    desc: "Tus expedientes viven en una arquitectura que cumple con la norma vigente y se anticipa a la próxima. Sin sustos cuando cambien las reglas — la base ya lo soportaba.",
+    desc: "Tus expedientes viven en una arquitectura construida siguiendo la norma vigente y diseñada para la próxima. Sin sustos cuando cambien las reglas — la base ya lo soportaba.",
   },
 ];
 

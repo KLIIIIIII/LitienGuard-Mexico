@@ -8,7 +8,7 @@ import { OperationsTabs } from "@/components/hospitales/operations-tabs";
 export const metadata: Metadata = {
   title: "Para hospitales — Plataforma operativa hospitalaria",
   description:
-    "Contabilización inteligente de CFDIs, dashboard financiero en tiempo real, gestor documental con audit log NOM-024. Recupera 5-15% de ingresos. Compatible con la Reforma LGS Salud Digital 2026.",
+    "Contabilización inteligente de CFDIs, dashboard financiero en tiempo real, gestor documental con trazabilidad NOM-024. Diseñada para recuperar 5-15% de ingresos perdidos. Arquitectura compatible con la Reforma LGS Salud Digital 2026.",
 };
 
 export default function HospitalesPage() {
@@ -23,7 +23,7 @@ export default function HospitalesPage() {
             sobre un mismo cerebro clínico.
           </>
         }
-        description="Contabilización inteligente de CFDIs, dashboard financiero en tiempo real para el CFO y gestor documental con audit log NOM-024. Tres módulos que recuperan 5-15% de ingresos perdidos en fugas administrativas. Compatibles con la Reforma LGS Salud Digital 2026 desde el primer día."
+        description="Contabilización inteligente de CFDIs, dashboard financiero en tiempo real para el CFO y gestor documental con trazabilidad NOM-024. Tres módulos diseñados para recuperar 5-15% de ingresos perdidos en fugas administrativas. Arquitectura compatible con la Reforma LGS Salud Digital 2026 desde el primer día."
         variant="alt"
       />
 

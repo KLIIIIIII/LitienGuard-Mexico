@@ -179,8 +179,9 @@ export function LiveAppDemos() {
         </div>
 
         <p className="mt-6 text-caption text-ink-soft text-center">
-          Caso ilustrativo con datos anonimizados. La app real respeta
-          LFPDPPP, NOM-024 y la Reforma LGS Salud Digital 2026.
+          Caso ilustrativo con datos anonimizados. La app real está construida
+          siguiendo los lineamientos de LFPDPPP, NOM-024 y la Reforma LGS
+          Salud Digital 2026.
         </p>
       </div>
     </section>

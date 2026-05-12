@@ -32,7 +32,7 @@ const MODULES: Module[] = [
     description:
       "Web, email automático a buzón fiscal, app móvil o drag-and-drop. La IA reconoce el XML CFDI 4.0, valida el sello SAT, categoriza por centro de costo hospitalario y detecta duplicados. Tu equipo deja de capturar a mano y se enfoca en lo que importa.",
     bullets: [
-      "96% precisión extracción de XML CFDI 4.0",
+      "Objetivo de precisión >95% en extracción XML CFDI 4.0",
       "Categorización automática por centro de costo (urgencias, quirófano, farmacia, etc.)",
       "Detección de duplicados y reclasificación inteligente",
       "Integración bidireccional con Contpaqi, Aspel COI, Microsip",
@@ -63,10 +63,10 @@ const MODULES: Module[] = [
     icon: FolderKanban,
     title: "Auditoría SAT o COFEPRIS en 5 minutos, no en 5 semanas.",
     description:
-      "Consentimientos informados, contratos con aseguradoras, CFDIs, licencias sanitarias, hojas COFEPRIS — todo centralizado con búsqueda full-text. Audit log inmutable NOM-024 + LFPDPPP. Alertas de vencimiento de cada documento crítico.",
+      "Consentimientos informados, contratos con aseguradoras, CFDIs, licencias sanitarias, hojas COFEPRIS — todo centralizado con búsqueda full-text. Audit log con trazabilidad NOM-024 + LFPDPPP. Alertas de vencimiento de cada documento crítico.",
     bullets: [
       "Búsqueda full-text + facetas (tipo, paciente, médico, aseguradora, fecha)",
-      "Audit log inmutable NOM-024-SSA3 + LFPDPPP",
+      "Audit log con trazabilidad NOM-024-SSA3 + LFPDPPP",
       "Alertas 30/60/90 días antes del vencimiento legal/fiscal",
       "Export auditoría SAT/COFEPRIS en menos de 5 minutos",
       "OCR de documentos legacy escaneados",
@@ -89,9 +89,9 @@ export function HospitalPlatformPreview() {
           </h2>
           <p className="mt-4 max-w-prose text-body text-ink-muted">
             Diseñada específicamente para el hospital privado mexicano:
-            cumplimiento CFDI 4.0 + NOM-024 + Reforma LGS Salud Digital 2026
-            desde el primer día. Sin reemplazar tu HIS, sin proyectos de
-            migración de un año.
+            arquitectura compatible con CFDI 4.0 + NOM-024 + Reforma LGS
+            Salud Digital 2026 desde el primer día. Sin reemplazar tu HIS,
+            sin proyectos de migración de un año.
           </p>
         </div>
 

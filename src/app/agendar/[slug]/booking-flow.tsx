@@ -264,8 +264,8 @@ export function BookingFlow({ slug, slotsByDay, slotMinutes }: BookingFlowProps)
             <a href="/aviso-privacidad" className="underline">
               aviso de privacidad
             </a>
-            . Tus datos clínicos viven en una arquitectura conforme a la
-            LFPDPPP.
+            . Tus datos clínicos viven en una arquitectura construida
+            siguiendo los lineamientos de la LFPDPPP.
           </p>
         </div>
       </form>

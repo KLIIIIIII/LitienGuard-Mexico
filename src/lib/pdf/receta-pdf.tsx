@@ -520,7 +520,7 @@ export function RecetaPdf({ receta, items, medico }: RecetaPdfData) {
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
-            LitienGuard · NOM-024-SSA3 · LFPDPPP
+            LitienGuard · Estructura conforme NOM-024-SSA3 · LFPDPPP
           </Text>
           <Text style={styles.footerText}>
             Folio {folio} · Retención mínima 5 años

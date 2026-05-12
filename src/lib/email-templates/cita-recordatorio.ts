@@ -201,7 +201,7 @@ export function buildRecordatorioHtml(data: RecordatorioData): string {
             <tr>
               <td style="padding: 18px 32px 26px 32px; border-top: 1px solid ${PALETTE.rule}; background:${PALETTE.surfaceAlt};">
                 <p style="margin: 0; font-size: 11px; color:${PALETTE.inkSoft}; line-height: 1.6;">
-                  Este recordatorio fue enviado automáticamente por <strong style="color:${PALETTE.ink};">LitienGuard</strong>, plataforma clínica conforme a la NOM-024-SSA3 y la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.
+                  Este recordatorio fue enviado automáticamente por <strong style="color:${PALETTE.ink};">LitienGuard</strong>, plataforma clínica construida siguiendo los requerimientos técnicos de la NOM-024-SSA3 y la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.
                 </p>
                 <p style="margin: 8px 0 0 0; font-size: 11px; color:${PALETTE.inkSoft}; line-height: 1.6;">
                   En caso de emergencia médica, llama al 911. Esta plataforma no sustituye atención de urgencia.
@@ -246,7 +246,7 @@ export function buildRecordatorioText(data: RecordatorioData): string {
     data.cancelacionUrl,
     ``,
     `—`,
-    `LitienGuard · NOM-024-SSA3 · LFPDPPP`,
+    `LitienGuard · Estructura conforme NOM-024-SSA3 · LFPDPPP`,
     `En caso de emergencia médica, llama al 911.`,
   );
 

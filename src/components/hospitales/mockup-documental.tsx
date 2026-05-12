@@ -154,8 +154,8 @@ export function MockupDocumental() {
         <div className="flex items-center gap-2 rounded-lg border border-validation-soft bg-validation-soft/30 px-3 py-2">
           <Shield className="h-3.5 w-3.5 text-validation" strokeWidth={2} />
           <p className="text-[0.65rem] text-ink-strong flex-1">
-            <span className="font-semibold">Audit log activo</span> · NOM-024-SSA3
-            · LFPDPPP · Reforma LGS Salud Digital 2026
+            <span className="font-semibold">Audit log con trazabilidad</span> ·
+            NOM-024-SSA3 · LFPDPPP · Reforma LGS Salud Digital 2026
           </p>
         </div>
       </div>
