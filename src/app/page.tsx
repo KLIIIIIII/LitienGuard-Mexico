@@ -6,11 +6,8 @@ import { TrustRow } from "@/components/trust-row";
 import { ReformBanner } from "@/components/reform-banner";
 import { CtaForm } from "@/components/cta-form";
 import { ComplianceStrip } from "@/components/compliance-strip";
-import { CaseContext } from "@/components/demos/case-context";
-import { DecisionSupportDemo } from "@/components/demos/decision-support-demo";
-import { AmyloidDetectionDemo } from "@/components/demos/amyloid-detection-demo";
+import { LiveAppDemos } from "@/components/demos/live-app-demos";
 import { ImpactTable } from "@/components/demos/impact-table";
-import { CaseStudy } from "@/components/demos/case-study";
 import { Eyebrow } from "@/components/eyebrow";
 
 export default function HomePage() {
@@ -22,57 +19,11 @@ export default function HomePage() {
       <ForWhomGrid />
       <HowItWorks />
 
-      {/* Soporte a la decisión con cita verbatim (HFrEF) */}
-      <section className="border-b border-line bg-canvas py-20">
-        <div className="lg-shell">
-          <div className="max-w-3xl">
-            <Eyebrow tone="validation">
-              Optimización terapéutica guiada
-            </Eyebrow>
-            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Cita verbatim, hazard ratios, override registrado.
-            </h2>
-            <p className="mt-3 max-w-prose text-body text-ink-muted">
-              El cerebro no prescribe — propone, con texto literal de KDIGO,
-              ESC y AHA con número de página. El médico decide y firma; si
-              se aparta, su razonamiento queda en el expediente para el
-              loop de calidad.
-            </p>
-          </div>
-
-          <div className="mt-10 space-y-6">
-            <CaseContext />
-            <DecisionSupportDemo />
-          </div>
-        </div>
-      </section>
-
-      {/* Detección multi-señal de enfermedad compleja (ATTR-CM) */}
-      <section className="border-b border-line bg-surface-alt py-20">
-        <div className="lg-shell">
-          <div className="max-w-3xl">
-            <Eyebrow tone="validation">
-              Convergencia diagnóstica multi-señal
-            </Eyebrow>
-            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Donde una sola señal nunca alcanza, las seis sí.
-            </h2>
-            <p className="mt-3 max-w-prose text-body text-ink-muted">
-              Enfermedades como la amiloidosis cardíaca por transtiretina
-              tienen 4 años promedio de retraso diagnóstico. Mira cómo la
-              probabilidad cambia en tiempo real conforme el cerebro
-              incorpora cada señal.
-            </p>
-          </div>
-
-          <div className="mt-10">
-            <AmyloidDetectionDemo />
-          </div>
-        </div>
-      </section>
+      {/* Live demos en tabs — los 3 flujos del producto en uso */}
+      <LiveAppDemos />
 
       {/* Impacto clínico medible */}
-      <section className="border-b border-line bg-canvas py-20">
+      <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
           <div className="max-w-2xl">
             <Eyebrow>Impacto clínico medible</Eyebrow>
@@ -89,22 +40,6 @@ export default function HomePage() {
 
           <div className="mt-10">
             <ImpactTable />
-          </div>
-        </div>
-      </section>
-
-      {/* Case study */}
-      <section className="border-b border-line bg-surface-alt py-20">
-        <div className="lg-shell">
-          <div className="max-w-2xl">
-            <Eyebrow tone="validation">Cómo lo vive un cardiólogo</Eyebrow>
-            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Semana 9 del piloto, su cohorte propia.
-            </h2>
-          </div>
-
-          <div className="mt-10">
-            <CaseStudy />
           </div>
         </div>
       </section>
