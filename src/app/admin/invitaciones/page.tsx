@@ -2,12 +2,14 @@ import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { InviteForm } from "./invite-form";
 import { RevokeButton } from "./revoke-button";
+import { ApprovePreregistroRow } from "./approve-preregistro-row";
 import { Eyebrow } from "@/components/eyebrow";
 import {
   TIER_LABELS,
   tierBadgeClass,
   type SubscriptionTier,
 } from "@/lib/entitlements";
+import { Inbox } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,13 @@ export default async function InvitacionesPage() {
     )
     .order("created_at", { ascending: false });
 
+  const { data: preregistrosPendientes } = await supa
+    .from("preregistros")
+    .select("id, email, tipo, nombre, mensaje, created_at")
+    .eq("status", "nuevo")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
   return (
     <main className="min-h-[calc(100vh-72px)] bg-canvas">
       <div className="lg-shell py-12 lg:py-16">
@@ -40,13 +49,56 @@ export default async function InvitacionesPage() {
           Invitaciones al piloto
         </h1>
         <p className="mt-2 max-w-prose text-body text-ink-muted">
-          Agrega los correos que pueden entrar. Cuando el invitado pide su magic
-          link desde /login, valida contra esta tabla.
+          Aprueba solicitudes recibidas o crea invitaciones manuales. Cuando un
+          invitado pide su magic link desde /login, el sistema valida contra
+          esta tabla.
         </p>
 
-        <div className="mt-10">
-          <InviteForm />
-        </div>
+        {/* Solicitudes pendientes (preregistros) */}
+        <section className="mt-10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
+                Solicitudes recibidas
+              </h2>
+              <p className="mt-1 text-body-sm text-ink-muted">
+                {preregistrosPendientes?.length ?? 0} sin atender · cada una se
+                puede aprobar con un plan asignado o descartar.
+              </p>
+            </div>
+          </div>
+
+          {preregistrosPendientes && preregistrosPendientes.length > 0 ? (
+            <div className="mt-5 space-y-3">
+              {preregistrosPendientes.map((p) => (
+                <ApprovePreregistroRow key={p.id} prereg={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-xl border border-line bg-surface p-8 text-center">
+              <Inbox
+                className="mx-auto h-8 w-8 text-ink-quiet"
+                strokeWidth={1.5}
+              />
+              <p className="mt-3 text-body-sm text-ink-muted">
+                Sin solicitudes nuevas por revisar.
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* Crear invitación manual */}
+        <section className="mt-12">
+          <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
+            Crear invitación manual
+          </h2>
+          <p className="mt-1 text-body-sm text-ink-muted">
+            Útil cuando alguien te contacta fuera del formulario público.
+          </p>
+          <div className="mt-5">
+            <InviteForm />
+          </div>
+        </section>
 
         <div className="mt-12">
           <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
