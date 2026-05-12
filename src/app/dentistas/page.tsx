@@ -7,6 +7,8 @@ import { TiltCard } from "@/components/tilt-card";
 import { Eyebrow } from "@/components/eyebrow";
 import { ComplianceStrip } from "@/components/compliance-strip";
 import { DiferenciadorStrip } from "@/components/diferenciador-strip";
+import { DentalOdontogramDemo } from "@/components/dentistas/dental-odontogram-demo";
+import { DentalPdfPreview } from "@/components/dentistas/dental-pdf-preview";
 import { Printer, ShieldCheck, FileText, Layers } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -105,6 +107,46 @@ export default function DentistasPage() {
             </h2>
           </div>
           <FeatureList items={FEATURES} />
+        </div>
+      </section>
+
+      {/* Demo 1 — Odontograma interactivo */}
+      <section className="border-b border-line bg-canvas py-20">
+        <div className="lg-shell">
+          <div className="mb-10 max-w-3xl">
+            <Eyebrow tone="validation">Cómo se ve en la app</Eyebrow>
+            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+              Odontograma interactivo + plan de tratamiento sugerido.
+            </h2>
+            <p className="mt-3 max-w-prose text-body text-ink-muted">
+              Esta es una captura real del odontograma de LitienGuard tal como
+              se ve dentro de la app. Marca cada pieza con su estado clínico,
+              genera el plan de tratamiento priorizado y deja la nota firmada
+              lista para exportar.
+            </p>
+          </div>
+          <DentalOdontogramDemo />
+        </div>
+      </section>
+
+      {/* Demo 2 — PDF firmable */}
+      <section className="border-b border-line bg-surface-alt py-20">
+        <div className="lg-shell">
+          <div className="mb-10 max-w-3xl">
+            <Eyebrow tone="accent">Lo que el paciente firma</Eyebrow>
+            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+              Plan de tratamiento listo para imprimir y firmar.
+            </h2>
+            <p className="mt-3 max-w-prose text-body text-ink-muted">
+              Un solo PDF — datos del paciente, diagnóstico, procedimientos
+              numerados con su pieza, consentimiento informado y bloque de
+              firmas. Imprime, firma con el paciente y archiva. Mismo
+              documento que exporta la app real.
+            </p>
+          </div>
+          <div className="mx-auto max-w-3xl">
+            <DentalPdfPreview />
+          </div>
         </div>
       </section>
 
