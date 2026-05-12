@@ -188,6 +188,69 @@ export async function approvePreregistro(
   };
 }
 
+const tierUpdateSchema = z.object({
+  inviteId: z.string().uuid(),
+  tier: z.enum(["free", "pilot", "pro", "enterprise"]),
+});
+
+export async function updateInvitationTier(
+  inviteId: string,
+  tier: "free" | "pilot" | "pro" | "enterprise",
+): Promise<{ status: "ok" } | { status: "error"; message: string }> {
+  const parsed = tierUpdateSchema.safeParse({ inviteId, tier });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Datos inválidos",
+    };
+  }
+
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado" };
+
+  const { data: me } = await supa
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  if (me?.role !== "admin") {
+    return { status: "error", message: "Solo admins pueden cambiar planes" };
+  }
+
+  // Update the invitation tier first
+  const { data: invite, error: inviteErr } = await supa
+    .from("invitaciones")
+    .update({ subscription_tier: parsed.data.tier })
+    .eq("id", parsed.data.inviteId)
+    .select("email")
+    .single();
+
+  if (inviteErr || !invite) {
+    console.error("[admin/invitaciones] tier update error:", inviteErr);
+    return { status: "error", message: "No pudimos actualizar la invitación" };
+  }
+
+  // Sync the profile too if the user already exists (already activated)
+  // The audit_profile_privilege_change trigger logs the change automatically.
+  const { error: profileErr } = await supa
+    .from("profiles")
+    .update({ subscription_tier: parsed.data.tier })
+    .ilike("email", invite.email);
+
+  if (profileErr) {
+    console.warn(
+      "[admin/invitaciones] profile sync warn (invitation updated OK):",
+      profileErr,
+    );
+  }
+
+  revalidatePath("/admin/invitaciones");
+  return { status: "ok" };
+}
+
 export async function dismissPreregistro(
   preregistroId: string,
 ): Promise<{ status: "ok" } | { status: "error"; message: string }> {

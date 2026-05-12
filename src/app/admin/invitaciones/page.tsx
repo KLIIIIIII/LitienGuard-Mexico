@@ -3,12 +3,9 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { InviteForm } from "./invite-form";
 import { RevokeButton } from "./revoke-button";
 import { ApprovePreregistroRow } from "./approve-preregistro-row";
+import { TierSelect } from "./tier-select";
 import { Eyebrow } from "@/components/eyebrow";
-import {
-  TIER_LABELS,
-  tierBadgeClass,
-  type SubscriptionTier,
-} from "@/lib/entitlements";
+import { type SubscriptionTier } from "@/lib/entitlements";
 import { Inbox } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -140,13 +137,7 @@ export default async function InvitacionesPage() {
                       </td>
                       <td className="px-4 py-3 capitalize">{i.role}</td>
                       <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium ${tierBadgeClass(
-                            tier,
-                          )}`}
-                        >
-                          {TIER_LABELS[tier]}
-                        </span>
+                        <TierSelect inviteId={i.id} current={tier} />
                       </td>
                       <td className="px-4 py-3">
                         {i.usada ? (
