@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function DiferencialPage() {
+export default async function DiferencialPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from_nota?: string }>;
+}) {
   const supa = await createSupabaseServer();
   const {
     data: { user },
@@ -27,6 +31,50 @@ export default async function DiferencialPage() {
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+
+  const params = await searchParams;
+  let initialClinicalText: string | undefined;
+  let fromNotaContext: {
+    iniciales: string | null;
+    edad: number | null;
+    sexo: "M" | "F" | "O" | null;
+  } | null = null;
+
+  if (params.from_nota && canUseCerebro(tier)) {
+    const { data: nota } = await supa
+      .from("notas_scribe")
+      .select(
+        "paciente_iniciales,paciente_edad,paciente_sexo,soap_subjetivo,soap_objetivo,soap_analisis,transcripcion",
+      )
+      .eq("id", params.from_nota)
+      .eq("medico_id", user.id)
+      .single();
+    if (nota) {
+      const parts: string[] = [];
+      if (nota.soap_subjetivo?.trim()) {
+        parts.push(`[Subjetivo]\n${nota.soap_subjetivo.trim()}`);
+      }
+      if (nota.soap_objetivo?.trim()) {
+        parts.push(`[Objetivo]\n${nota.soap_objetivo.trim()}`);
+      }
+      if (nota.soap_analisis?.trim()) {
+        parts.push(`[Análisis]\n${nota.soap_analisis.trim()}`);
+      }
+      if (parts.length === 0 && nota.transcripcion?.trim()) {
+        parts.push(nota.transcripcion.trim());
+      }
+      const combined = parts.join("\n\n").slice(0, 8000);
+      if (combined.length >= 20) {
+        initialClinicalText = combined;
+        fromNotaContext = {
+          iniciales: nota.paciente_iniciales ?? null,
+          edad: nota.paciente_edad ?? null,
+          sexo:
+            (nota.paciente_sexo as "M" | "F" | "O" | null) ?? null,
+        };
+      }
+    }
+  }
 
   if (!canUseCerebro(tier)) {
     return (
@@ -91,9 +139,12 @@ export default async function DiferencialPage() {
 
       <section>
         <h2 className="text-h3 font-semibold tracking-tight text-ink-strong mb-4">
-          Nuevo caso
+          {fromNotaContext ? "Caso desde nota SOAP" : "Nuevo caso"}
         </h2>
-        <DiferencialEngine />
+        <DiferencialEngine
+          initialClinicalText={initialClinicalText}
+          initialPatient={fromNotaContext ?? undefined}
+        />
       </section>
 
       <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">

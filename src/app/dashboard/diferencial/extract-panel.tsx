@@ -24,12 +24,16 @@ type ExtractedItem = {
 export function ExtractPanel({
   onApply,
   hasExistingFindings,
+  initialText,
+  autoOpen,
 }: {
   onApply: (extractions: Map<string, boolean | null>) => void;
   hasExistingFindings: boolean;
+  initialText?: string;
+  autoOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
-  const [text, setText] = useState("");
+  const [open, setOpen] = useState(Boolean(autoOpen));
+  const [text, setText] = useState(initialText ?? "");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [extractions, setExtractions] = useState<ExtractedItem[] | null>(null);

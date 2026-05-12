@@ -1,10 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { NoteStatusBadge } from "@/components/note-status-badge";
 import { SoapEditor } from "./soap-editor";
+import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,20 @@ export default async function NotaPage({
   if (!nota) notFound();
   const n = nota as Nota;
 
+  const { data: profile } = await supa
+    .from("profiles")
+    .select("subscription_tier")
+    .eq("id", user.id)
+    .single();
+  const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const canSendToDiferencial =
+    canUseCerebro(tier) &&
+    Boolean(
+      (n.soap_subjetivo && n.soap_subjetivo.trim().length >= 20) ||
+        (n.soap_objetivo && n.soap_objetivo.trim().length >= 20) ||
+        (n.transcripcion && n.transcripcion.trim().length >= 20),
+    );
+
   const fullName = [
     n.paciente_nombre,
     n.paciente_apellido_paterno,
@@ -113,7 +128,18 @@ export default async function NotaPage({
               {n.audio_filename ? ` · ${n.audio_filename}` : ""}
             </p>
           </div>
-          <NoteStatusBadge status={n.status} />
+          <div className="flex flex-col items-end gap-2">
+            <NoteStatusBadge status={n.status} />
+            {canSendToDiferencial && (
+              <Link
+                href={`/dashboard/diferencial?from_nota=${n.id}`}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-validation-soft bg-validation-soft px-3 py-1.5 text-caption font-semibold text-validation hover:bg-validation hover:text-surface transition-colors"
+              >
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
+                Analizar en diferencial
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="mt-8 max-w-3xl">

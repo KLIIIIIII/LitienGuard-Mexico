@@ -51,15 +51,29 @@ const CATEGORY_META: Record<
 
 type TriState = boolean | null;
 
-export function DiferencialEngine() {
+export function DiferencialEngine({
+  initialClinicalText,
+  initialPatient,
+}: {
+  initialClinicalText?: string;
+  initialPatient?: {
+    iniciales: string | null;
+    edad: number | null;
+    sexo: "M" | "F" | "O" | null;
+  };
+} = {}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [savedId, setSavedId] = useState<string | null>(null);
 
-  // Patient context
-  const [iniciales, setIniciales] = useState("");
-  const [edad, setEdad] = useState<string>("");
-  const [sexo, setSexo] = useState<"" | "M" | "F" | "O">("");
+  // Patient context — pre-fill from note if provided
+  const [iniciales, setIniciales] = useState(initialPatient?.iniciales ?? "");
+  const [edad, setEdad] = useState<string>(
+    initialPatient?.edad != null ? String(initialPatient.edad) : "",
+  );
+  const [sexo, setSexo] = useState<"" | "M" | "F" | "O">(
+    initialPatient?.sexo ?? "",
+  );
   const [contexto, setContexto] = useState("");
 
   // Findings state — Map<findingId, TriState>
@@ -228,6 +242,8 @@ export function DiferencialEngine() {
         <ExtractPanel
           onApply={onExtractApply}
           hasExistingFindings={nMarked > 0}
+          initialText={initialClinicalText}
+          autoOpen={Boolean(initialClinicalText)}
         />
 
         {/* Findings checklist */}
@@ -290,7 +306,13 @@ export function DiferencialEngine() {
       {/* RIGHT — Live differential                                       */}
       {/* ============================================================ */}
       <div className="space-y-5">
-        <section className="lg-card sticky top-[88px]">
+        <section
+          className={`lg-card ${
+            nMarked >= 2
+              ? ""
+              : "lg:sticky lg:top-[88px] lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto"
+          }`}
+        >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-validation" strokeWidth={2} />
