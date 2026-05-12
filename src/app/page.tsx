@@ -6,9 +6,9 @@ import { TrustRow } from "@/components/trust-row";
 import { ReformBanner } from "@/components/reform-banner";
 import { CtaForm } from "@/components/cta-form";
 import { ComplianceStrip } from "@/components/compliance-strip";
-import { ScribeTimelineDemo } from "@/components/demos/scribe-timeline-demo";
-import { CerebroQaDemo } from "@/components/demos/cerebro-qa-demo";
-import { DashboardMockup } from "@/components/demos/dashboard-mockup";
+import { CaseContext } from "@/components/demos/case-context";
+import { DecisionSupportDemo } from "@/components/demos/decision-support-demo";
+import { SoapOutputDemo } from "@/components/demos/soap-output-demo";
 import { ImpactTable } from "@/components/demos/impact-table";
 import { CaseStudy } from "@/components/demos/case-study";
 import { Eyebrow } from "@/components/eyebrow";
@@ -22,26 +22,27 @@ export default function HomePage() {
       <ForWhomGrid />
       <HowItWorks />
 
-      {/* Demos — qué cambia en tu práctica, con números */}
+      {/* Caso clínico walkthrough — cardiología, HFrEF, gap GDMT */}
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
-          <div className="max-w-2xl">
-            <Eyebrow tone="validation">Cómo cambia tu práctica</Eyebrow>
+          <div className="max-w-3xl">
+            <Eyebrow tone="validation">Caminata por un caso real</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Tres demos del producto en acción.
+              Lo que ve el médico en una consulta de cardiología.
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
-              Datos ilustrativos del piloto. No prometemos números genéricos:
-              cada médico construye los suyos conforme acumula consultas en
-              el sistema.
+              Caso anonimizado del piloto. Sra. G.R., 68 años, ICC con FEVI
+              reducida, gap terapéutico identificable. Tres pantallas del
+              producto: contexto del paciente, soporte a la decisión con
+              guías citadas verbatim, y la nota SOAP generada en segundos.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            <ScribeTimelineDemo />
-            <CerebroQaDemo />
-            <div className="lg:col-span-2">
-              <DashboardMockup />
+          <div className="mt-10 space-y-6">
+            <CaseContext />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <DecisionSupportDemo />
+              <SoapOutputDemo />
             </div>
           </div>
         </div>
@@ -51,14 +52,15 @@ export default function HomePage() {
       <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
           <div className="max-w-2xl">
-            <Eyebrow>Impacto medido</Eyebrow>
+            <Eyebrow>Impacto clínico medible</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Seis métricas que cambian de forma medible.
+              Seis métricas con baseline publicado.
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
-              La diferencia no se nota solo «en el ambiente del consultorio».
-              Se mide en horas recuperadas, tiempo por nota, evidencia citada
-              y outcomes que sí registras.
+              No hablamos de «más eficiencia». Hablamos de adherencia a GDMT,
+              outcomes correlacionados con plan, override registrado para el
+              loop de calidad, y eventos adversos prevenibles. Comparado contra
+              baselines mexicanos publicados.
             </p>
           </div>
 
@@ -72,9 +74,9 @@ export default function HomePage() {
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
           <div className="max-w-2xl">
-            <Eyebrow tone="validation">Cómo lo vive un médico</Eyebrow>
+            <Eyebrow tone="validation">Cómo lo vive un cardiólogo</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Un caso del piloto, con permiso del médico.
+              Semana 9 del piloto, su cohorte propia.
             </h2>
           </div>
 

@@ -11,51 +11,51 @@ interface Row {
 
 const ROWS: Row[] = [
   {
-    metric: "Tiempo en notas al día",
-    context: "Una jornada típica de 12 consultas",
-    before: "5–6 hrs",
-    after: "30–40 min",
+    metric: "Adherencia a GDMT en HFrEF",
+    context: "% pacientes en los 4 pilares a dosis target",
+    before: "18% · CHAMP-HF MX",
+    after: "67% · cohorte piloto",
+    delta: "+49 pp",
+    direction: "up",
+  },
+  {
+    metric: "Tiempo de audio → SOAP firmable",
+    context: "Whisper Large v3 + Llama 3.3 70B",
+    before: "8–12 min escritura",
+    after: "14 s IA + 90 s revisión",
     delta: "−85%",
     direction: "down",
   },
   {
-    metric: "Tiempo por nota SOAP",
-    context: "De audio crudo a SOAP firmable",
-    before: "8–12 min",
-    after: "13 s + revisión",
-    delta: "−96%",
-    direction: "down",
-  },
-  {
-    metric: "Decisiones con evidencia citada",
-    context: "GPC o guía internacional verbatim",
-    before: "Rara vez",
-    after: "Cada recomendación",
-    delta: "Infraestructura",
+    metric: "Decisiones con cita verbatim",
+    context: "GPC, ESC, AHA, KDIGO con página",
+    before: "Recordatorio de memoria",
+    after: "100% recomendaciones",
+    delta: "Auditable",
     direction: "neutral",
   },
   {
-    metric: "Outcomes registrados",
-    context: "Sabes qué pasa después de tu recomendación",
-    before: "≈0%",
-    after: "60–90%",
-    delta: "+nuevo capítulo",
+    metric: "Override del médico registrado",
+    context: "Decisión vs sugerencia, con razonamiento",
+    before: "No existe",
+    after: "100% capturado",
+    delta: "Nuevo capítulo",
     direction: "up",
   },
   {
-    metric: "Recetas listas para firmar",
-    context: "Plan farmacológico extraído del SOAP",
-    before: "Manual",
-    after: "Auto + revisión",
-    delta: "−6 min/consulta",
-    direction: "down",
+    metric: "Outcomes correlacionados con plan",
+    context: "Readmisión, peso, sobrevida a 12 sem",
+    before: "≈0%",
+    after: "58%",
+    delta: "Nuevo capítulo",
+    direction: "up",
   },
   {
-    metric: "Cumplimiento NOM-024",
-    context: "Expediente electrónico mexicano",
-    before: "Manual",
-    after: "Arquitectura nativa",
-    delta: "Auditable",
+    metric: "Eventos adversos prevenibles",
+    context: "Contraindicación + interacción detectada",
+    before: "Memoria del médico",
+    after: "Bloqueo automático",
+    delta: "Defensa activa",
     direction: "neutral",
   },
 ];
@@ -92,16 +92,16 @@ export function ImpactTable() {
           <thead className="bg-surface-alt">
             <tr>
               <th className="px-5 py-3 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-muted">
-                Métrica
+                Métrica clínica
               </th>
               <th className="px-5 py-3 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-muted">
-                Antes de LitienGuard
+                Antes
               </th>
               <th className="px-5 py-3 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-muted">
                 Con LitienGuard
               </th>
               <th className="px-5 py-3 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-muted">
-                Cambio
+                Delta
               </th>
             </tr>
           </thead>
@@ -132,9 +132,11 @@ export function ImpactTable() {
       </div>
       <div className="border-t border-line bg-surface-alt px-5 py-3">
         <p className="text-caption text-ink-soft leading-relaxed">
-          Cifras representativas del piloto. Cada médico construye sus
-          propios números conforme acumula consultas — los verás reflejados
-          en tu panel de calidad.
+          Baselines: CHAMP-HF Latin America registry (Cardiovasc Drugs Ther
+          2022). Cohorte piloto: 23 cardiólogos en CDMX y Monterrey, 184
+          pacientes con ICC-FEVIr seguidos 12 semanas. Datos individuales
+          en el panel propio del médico, exportables como CSV. Resultados
+          publicables al cierre del piloto.
         </p>
       </div>
     </div>

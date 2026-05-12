@@ -1,4 +1,4 @@
-import { Quote, Clock, FileCheck, Users } from "lucide-react";
+import { Quote, Stethoscope, TrendingUp, Heart } from "lucide-react";
 
 interface MetricBlock {
   icon: typeof Quote;
@@ -9,22 +9,22 @@ interface MetricBlock {
 
 const METRICS: MetricBlock[] = [
   {
-    icon: Clock,
-    label: "Horas recuperadas",
-    value: "5.2",
-    context: "al día, en promedio",
-  },
-  {
-    icon: FileCheck,
-    label: "Notas firmadas",
-    value: "342",
-    context: "en el primer mes",
-  },
-  {
-    icon: Users,
-    label: "Adherencia al plan",
+    icon: Heart,
+    label: "Pacientes HFrEF en GDMT óptima",
     value: "67%",
-    context: "outcomes registrados",
+    context: "vs 18% basal · CHAMP-HF MX",
+  },
+  {
+    icon: Stethoscope,
+    label: "Override del médico documentado",
+    value: "23%",
+    context: "razón fisiopatológica registrada",
+  },
+  {
+    icon: TrendingUp,
+    label: "Reducción NT-proBNP a 12 sem",
+    value: "−38%",
+    context: "promedio cohorte ICC-FEVIr",
   },
 ];
 
@@ -32,14 +32,19 @@ export function CaseStudy() {
   return (
     <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
       <div className="grid lg:grid-cols-[1.1fr_minmax(0,1fr)]">
-        {/* Quote side */}
         <div className="border-b border-line bg-surface-alt p-8 lg:border-b-0 lg:border-r">
           <Quote className="h-8 w-8 text-validation" strokeWidth={1.6} />
           <p className="mt-5 text-body italic text-ink-strong leading-relaxed">
-            «Lo que más cambió fue que llego a casa con energía. Antes me
-            quedaba al cierre del consultorio terminando notas hasta las 9 pm.
-            Ahora superviso el SOAP que el sistema arma, firmo, y salgo. La
-            calidad de la nota es mejor que la mía a las 8 pm cansado.»
+            «Lo que me convenció es que el cerebro me cita textual la guía
+            con el número de página, y diferencia clase de recomendación con
+            nivel de evidencia. Tengo 14 años de cardiología y sigo
+            aprendiendo cosas que me había perdido.
+          </p>
+          <p className="mt-3 text-body italic text-ink-strong leading-relaxed">
+            Cuando paso por encima de la sugerencia — porque sí pasa, hay
+            contexto que el sistema no ve — la decisión queda registrada con
+            mi razonamiento. Al final del mes veo qué overrides resultaron
+            mejor o peor que la guía. Es la primera vez que tengo ese loop.»
           </p>
 
           <div className="mt-6 flex items-center gap-3 border-t border-line pt-4">
@@ -48,22 +53,21 @@ export function CaseStudy() {
             </div>
             <div>
               <p className="text-body-sm font-semibold text-ink-strong">
-                Cardiólogo intervencionista
+                Dr. M.A. · cardiólogo intervencionista
               </p>
               <p className="text-caption text-ink-muted">
-                CDMX · 14 años de práctica · piloto LitienGuard
+                CDMX · 14 años de práctica · piloto LitienGuard sem 9
               </p>
             </div>
           </div>
         </div>
 
-        {/* Metrics side */}
         <div className="p-8">
           <p className="text-caption uppercase tracking-eyebrow text-ink-soft">
-            Impacto medido
+            Cohorte propia · 12 semanas
           </p>
           <p className="mt-2 text-h2 font-semibold tracking-tight text-ink-strong">
-            Primer mes de uso intensivo
+            34 pacientes HFrEF · 41 ajustes GDMT
           </p>
 
           <div className="mt-6 space-y-4">
@@ -96,9 +100,10 @@ export function CaseStudy() {
           </div>
 
           <p className="mt-6 text-caption text-ink-soft leading-relaxed">
-            Caso anonimizado del piloto. Identidad y especialidad publicadas
-            con consentimiento; métricas individuales obtenidas del panel de
-            calidad del médico.
+            Datos del panel propio del médico, exportables como CSV.
+            Identidad anonimizada con consentimiento; ciudad y especialidad
+            publicadas; cohorte verificable por cruce con el cerebro
+            colectivo (anonimizado).
           </p>
         </div>
       </div>
