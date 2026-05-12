@@ -2,9 +2,7 @@
 // Required for installability. We deliberately do NOT cache HTML/JS so the
 // app always stays in sync with Vercel deploys — no stale screens.
 
-const VERSION = "v1";
-
-self.addEventListener("install", (event) => {
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
