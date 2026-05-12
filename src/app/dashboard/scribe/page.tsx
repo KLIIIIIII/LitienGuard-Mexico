@@ -78,8 +78,8 @@ export default async function ScribePage() {
               Nueva nota SOAP
             </h1>
             <p className="mt-2 max-w-prose text-body text-ink-muted">
-              Graba la consulta o sube el audio. Transcribimos con Whisper y
-              estructuramos en formato SOAP con Llama 3.3 70B. Tú firmas la
+              Graba la consulta o sube el audio. Lo transcribimos en español y
+              lo estructuramos automáticamente en formato SOAP. Tú firmas la
               versión final.
             </p>
           </div>

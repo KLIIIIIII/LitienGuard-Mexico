@@ -375,9 +375,9 @@ export function ScribeForm() {
 
         <div className="rounded-lg border border-warn-soft bg-warn-soft px-4 py-3 text-caption text-ink-strong">
           <strong>Privacidad:</strong> los datos del paciente se guardan
-          encriptados en Supabase y el audio se procesa con Whisper/Llama
-          (Groq). El médico es responsable de obtener consentimiento y manejar
-          el expediente conforme a la NOM-024-SSA3-2012 y la LFPDPPP.
+          encriptados y el audio se procesa por nuestro sistema de
+          transcripción. El médico es responsable de obtener consentimiento y
+          manejar el expediente conforme a la NOM-024-SSA3-2012 y la LFPDPPP.
         </div>
       </section>
 

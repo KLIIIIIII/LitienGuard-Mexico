@@ -21,8 +21,8 @@ const FEATURES = [
     desc: "2,758 chunks indexados desde GPC IMSS, KDIGO, ENSANUT y tesis universitarias elite. BM25 + filtros por sector.",
   },
   {
-    title: "AI Scribe ambient self-hosted",
-    desc: "Whisper + Llama 3.1 corren en tu equipo. Audio nunca sale del consultorio. Nota SOAP en español MX en 13 segundos.",
+    title: "AI Scribe ambient con procesamiento local",
+    desc: "Graba la consulta y obtén la nota SOAP estructurada en español MX en 13 segundos. El audio se procesa localmente — nunca sale del consultorio.",
   },
   {
     title: "Loop de calidad sobre tus consultas",
@@ -60,9 +60,10 @@ export default function MedicosPage() {
               Menos clicks. Más consulta.
             </h2>
             <p className="mt-4 max-w-prose text-body text-ink-muted">
-              El scribe escucha la consulta, transcribe con Whisper, sintetiza
-              SOAP con Llama 3.1 — todo en tu computadora. Tú revisas y firmas.
-              El cerebro complementa con evidencia cuando la pides.
+              El scribe escucha la consulta, la transcribe en español y la
+              estructura en formato SOAP firmable — todo procesado localmente
+              en tu equipo. Tú revisas y firmas. El cerebro complementa con
+              evidencia cuando la pides.
             </p>
             <div className="mt-8">
               <FeatureList items={FEATURES} />

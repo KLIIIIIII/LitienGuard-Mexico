@@ -20,7 +20,7 @@ const ROWS: Row[] = [
   },
   {
     metric: "Tiempo de audio → SOAP firmable",
-    context: "Whisper Large v3 + Llama 3.3 70B",
+    context: "Transcripción y síntesis SOAP automática",
     before: "8–12 min escritura",
     after: "14 s IA + 90 s revisión",
     delta: "−85%",

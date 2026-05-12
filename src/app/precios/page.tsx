@@ -24,7 +24,7 @@ const FEATURES_BY_TIER: Record<
   free: [
     { label: "5 notas SOAP al mes", ok: true },
     { label: "Cerebro lectura — búsqueda en guías", ok: true },
-    { label: "Scribe ambient (Whisper + Llama)", ok: false },
+    { label: "Scribe ambient con transcripción y SOAP automático", ok: false },
     { label: "Diferencial diagnóstico bayesiano", ok: false },
     { label: "Recetas electrónicas NOM-024", ok: false },
     { label: "Agenda de citas", ok: false },
@@ -41,7 +41,7 @@ const FEATURES_BY_TIER: Record<
   ],
   profesional: [
     { label: "300 SOAPs al mes con scribe ambient", ok: true },
-    { label: "Scribe self-hosted (Whisper + Llama local)", ok: true },
+    { label: "Scribe ambient con procesamiento local de audio", ok: true },
     { label: "Cerebro completo + Q&A con citas verbatim", ok: true },
     { label: "Diferencial bayesiano · 28 enfermedades · 51 findings", ok: true },
     { label: "Auto-extracción de findings desde texto libre", ok: true },

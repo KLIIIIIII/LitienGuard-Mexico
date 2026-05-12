@@ -75,7 +75,7 @@ const FEATURES: Record<FeatureKey, FeatureDef> = {
     key: "scribe",
     name: "Scribe ambient",
     description:
-      "Grabas la consulta — Whisper transcribe en español y Llama 3.3 70B la estructura como SOAP en segundos. Tú firmas la versión final.",
+      "Graba la consulta y obtén una nota SOAP estructurada en español en segundos. Tú firmas la versión final.",
     howToUse:
       "Scribe → Empezar grabación. Habla normal con el paciente. Detén la grabación al terminar. En 10-20 segundos tienes el SOAP estructurado listo para revisar.",
     href: "/dashboard/scribe",

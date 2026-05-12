@@ -187,8 +187,8 @@ export default async function DashboardPage() {
                 </div>
               </div>
               <p className="mt-3 text-body-sm text-ink-muted">
-                Graba o sube el audio de la consulta. Whisper transcribe en
-                español, Llama 3.3 70B estructura en formato SOAP. Tú firmas la
+                Graba o sube el audio de la consulta. Se transcribe en español
+                y se estructura automáticamente en formato SOAP. Tú firmas la
                 versión final.
               </p>
               <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">

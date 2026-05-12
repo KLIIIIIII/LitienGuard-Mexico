@@ -360,8 +360,8 @@ export function SoapPdf({ nota }: { nota: SoapPdfData }) {
 
         <View style={styles.footer} fixed>
           <Text>
-            Generado con asistencia de IA (Whisper + Llama 3.3 70B) y revisado
-            por el médico. No sustituye juicio clínico profesional.
+            Generado con asistencia de IA y revisado por el médico. No
+            sustituye juicio clínico profesional.
           </Text>
           <Text
             style={styles.pageNumber}
