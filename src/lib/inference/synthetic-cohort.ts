@@ -64,6 +64,7 @@ const BASE_PREVALENCE: Record<string, number> = {
   "ecg-twi-right-precordial": 0.04,
   "ecg-stelevation-no-territory": 0.03,
   "ecg-prolonged-qt": 0.03,
+  "ecg-sinus-tachycardia-fixed": 0.08,
   // Eco
   "echo-apical-sparing": 0.03,
   "echo-thick-walls": 0.18,
@@ -73,21 +74,43 @@ const BASE_PREVALENCE: Record<string, number> = {
   "echo-apical-ballooning": 0.005,
   "echo-rv-dilation-akinesia": 0.01,
   "echo-septal-bounce": 0.02,
-  // Lab
+  // Lab — cardio
   "lab-ntprobnp-disproportionate": 0.15,
   "lab-flc-abnormal": 0.05,
   "lab-troponin-rising": 0.1,
   "lab-pyp-scan-positive": 0.03,
   "lab-alpha-gal-low": 0.005,
+  // Lab — endocrino / infecto / metabólico
+  "lab-tsh-elevated": 0.05,
+  "lab-tsh-suppressed": 0.02,
+  "lab-cortisol-am-low": 0.01,
+  "lab-cortisol-am-elevated": 0.01,
+  "lab-metanephrines-elevated": 0.005,
+  "lab-hypokalemia": 0.04,
+  "lab-blood-cultures-positive": 0.02,
+  "lab-lactate-elevated": 0.06,
+  "lab-procalcitonin-elevated": 0.07,
+  "lab-chest-infiltrate": 0.08,
   // Historia
   "history-cts-bilateral": 0.04,
   "history-family-neuropathy": 0.03,
   "history-family-scd": 0.03,
   "history-recent-viral": 0.3,
   "history-emotional-stress": 0.15,
+  "history-fever": 0.12,
+  "history-thunderclap-headache": 0.01,
+  "history-night-sweats-weight-loss": 0.04,
+  "history-bp-paroxysmal": 0.02,
   // Examen
   "exam-orthostasis": 0.08,
   "exam-angiokeratoma": 0.005,
+  "exam-focal-deficit-acute": 0.03,
+  "exam-meningismus": 0.01,
+  "exam-new-murmur": 0.04,
+  "exam-altered-mental-status": 0.06,
+  "exam-bradykinesia-tremor": 0.02,
+  "exam-cushingoid-features": 0.005,
+  "exam-hyperpigmentation": 0.01,
   // Genética
   "genetic-gla-mutation": 0.003,
 };
