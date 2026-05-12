@@ -22,21 +22,21 @@ export default function HomePage() {
       <ForWhomGrid />
       <HowItWorks />
 
-      {/* Caso 1 — gestión crónica de complejidad conocida (HFrEF) */}
+      {/* Soporte a la decisión con cita verbatim (HFrEF) */}
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
           <div className="max-w-3xl">
             <Eyebrow tone="validation">
-              Caso 1 · gestión de complejidad conocida
+              Optimización terapéutica guiada
             </Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Insuficiencia cardíaca con FEVI reducida.
+              Cita verbatim, hazard ratios, override registrado.
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
-              Sra. G.R., 68 años. El médico sabe el diagnóstico — el reto es
-              ajustar GDMT a dosis target sin omitir pilares. El cerebro cita
-              guías con número de página y hazard ratios; el médico decide,
-              firma, y queda registrado el override cuando se aparta.
+              El cerebro no prescribe — propone, con texto literal de KDIGO,
+              ESC y AHA con número de página. El médico decide y firma; si
+              se aparta, su razonamiento queda en el expediente para el
+              loop de calidad.
             </p>
           </div>
 
@@ -47,21 +47,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Caso 2 — detección de enfermedad rara multi-señal (Amiloidosis) */}
+      {/* Detección multi-señal de enfermedad compleja (ATTR-CM) */}
       <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
           <div className="max-w-3xl">
             <Eyebrow tone="validation">
-              Caso 2 · detección donde otros sistemas no llegan
+              Convergencia diagnóstica multi-señal
             </Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Donde el patrón solo aparece al cruzar 6 fuentes.
+              Donde una sola señal nunca alcanza, las seis sí.
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
-              Enfermedades multi-variable como la amiloidosis cardíaca por
-              transtiretina tienen 4 años promedio de retraso diagnóstico.
-              Ninguna señal individual es específica; la combinación de las 6
-              lo es. El cerebro las correlaciona en la primera consulta.
+              Enfermedades como la amiloidosis cardíaca por transtiretina
+              tienen 4 años promedio de retraso diagnóstico. Mira cómo la
+              probabilidad cambia en tiempo real conforme el cerebro
+              incorpora cada señal.
             </p>
           </div>
 

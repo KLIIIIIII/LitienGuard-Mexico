@@ -1,413 +1,403 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useInView,
+  useReducedMotion,
+  useMotionValue,
+  animate,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import {
   Activity,
   Heart,
   FlaskConical,
   Dna,
   Users,
-  Sparkles,
   Brain,
-  ChevronRight,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
- * Amiloidosis cardíaca por transtiretina (ATTR-CM): una de las
- * enfermedades más subdiagnosticadas en cardiología. Retraso promedio
- * 4 años desde primeros síntomas hasta diagnóstico (Lousada I et al,
- * Adv Ther 2015).
+ * Cascada de probabilidad bayesiana para detección de amiloidosis
+ * cardíaca por transtiretina (ATTR-CM).
  *
- * Cada señal aislada es no-específica. La combinación de las 6 es
- * altamente sugestiva. El cerebro detecta el patrón en la primera
- * consulta porque correlaciona datos de orígenes distintos que un
- * médico individual rara vez tiene a la vista al mismo tiempo.
+ * Visualización: dos barras horizontales (HFpEF en rose, ATTR-CM en
+ * validation green) cuyos anchos se actualizan secuencialmente conforme
+ * cada una de las 6 señales clínicas se incorpora al razonamiento.
  *
- * Citas verbatim del cerebro:
+ * El crossover (cuando ATTR-CM supera a HFpEF) es el momento dramático
+ * visual. Probabilidades calibradas con likelihood ratios reportados:
  *   - Mayo Clinic AI-ECG · Lancet Digit Health 2021 · AUC 0.91
- *   - ATTR-ACT · NEJM 2018 · tafamidis HR 0.70 mortalidad
+ *   - ESC 2021 Position Paper on cardiac amyloidosis
  *   - ACC/AHA 2023 Expert Consensus Decision Pathway
- *   - ESC 2021 Position Paper cardiac amyloidosis
+ *   - ATTR-ACT · NEJM 2018 · tafamidis HR 0.70
  */
 
 interface Signal {
+  short: string;
+  full: string;
   icon: LucideIcon;
-  source: string;
-  finding: string;
-  detail: string;
-  alone: string;
+  hfpefAfter: number;
+  attrAfter: number;
 }
 
 const SIGNALS: Signal[] = [
   {
+    short: "ECG bajo voltaje",
+    full: "QRS <5 mm en miembros con LVH por eco",
     icon: Activity,
-    source: "ECG",
-    finding: "Bajo voltaje en derivaciones de miembros",
-    detail: "QRS <5 mm + criterios eléctricos para HVI ausentes pese a masa VI aumentada por eco",
-    alone: "No específico",
+    hfpefAfter: 52,
+    attrAfter: 28,
   },
   {
+    short: "Apical sparing",
+    full: "Strain longitudinal apical conservado",
     icon: Heart,
-    source: "Ecocardiograma",
-    finding: "Apical sparing pattern",
-    detail: "Strain longitudinal apical conservado, basal severamente reducido — patrón \"cherry-on-top\"",
-    alone: "Sensibilidad 93%",
+    hfpefAfter: 30,
+    attrAfter: 55,
   },
   {
+    short: "NT-proBNP discordante",
+    full: "1240 pg/mL con NYHA II",
     icon: FlaskConical,
-    source: "Biomarcadores",
-    finding: "NT-proBNP desproporcionado",
-    detail: "1240 pg/mL con NYHA II — discrepancia clínico-laboratorial",
-    alone: "No específico",
+    hfpefAfter: 22,
+    attrAfter: 64,
   },
   {
+    short: "FLC κ/λ normal",
+    full: "Excluye amiloidosis AL",
     icon: Dna,
-    source: "Cadenas ligeras libres",
-    finding: "Ratio κ/λ normal",
-    detail: "Descarta amiloidosis AL — orienta diagnóstico diferencial hacia ATTR",
-    alone: "Excluye AL",
+    hfpefAfter: 18,
+    attrAfter: 72,
   },
   {
+    short: "Hx familiar V122I",
+    full: "Neuropatía periférica idiopática",
     icon: Users,
-    source: "Historia familiar",
-    finding: "Neuropatía periférica idiopática",
-    detail: "Variante V122I prevalente en población mexicana (≈3% en algunos subgrupos)",
-    alone: "Sospecha hereditaria",
+    hfpefAfter: 10,
+    attrAfter: 81,
   },
   {
+    short: "CTS bilateral 2017",
+    full: "Túnel del carpo · precede 5–10 años",
     icon: Brain,
-    source: "Anamnesis dirigida",
-    finding: "Síndrome del túnel del carpo bilateral",
-    detail: "Cirugía CTS bilateral en 2017 — precede a fase cardíaca hasta 5–10 años",
-    alone: "Red flag retrospectivo",
+    hfpefAfter: 4,
+    attrAfter: 87,
   },
 ];
 
+const INITIAL = { hfpef: 78, attr: 5 };
+const STEP_MS = 700;
+const PAUSE_MS = 250;
+
 export function AmyloidDetectionDemo() {
   const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const [activeStep, setActiveStep] = useState(0);
+
+  const hfpefMV = useMotionValue(INITIAL.hfpef);
+  const attrMV = useMotionValue(INITIAL.attr);
+  const hfpefDisplay = useTransform(hfpefMV, (v) => Math.round(v));
+  const attrDisplay = useTransform(attrMV, (v) => Math.round(v));
+
+  useEffect(() => {
+    if (!inView) return;
+    if (reduce) {
+      const last = SIGNALS[SIGNALS.length - 1];
+      hfpefMV.set(last.hfpefAfter);
+      attrMV.set(last.attrAfter);
+      setActiveStep(SIGNALS.length);
+      return;
+    }
+
+    let cancelled = false;
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+
+    SIGNALS.forEach((s, i) => {
+      const delay = (i + 1) * (STEP_MS + PAUSE_MS);
+      const t = setTimeout(() => {
+        if (cancelled) return;
+        setActiveStep(i + 1);
+        animate(hfpefMV, s.hfpefAfter, {
+          duration: STEP_MS / 1000,
+          ease: [0.16, 1, 0.3, 1],
+        });
+        animate(attrMV, s.attrAfter, {
+          duration: STEP_MS / 1000,
+          ease: [0.16, 1, 0.3, 1],
+        });
+      }, delay);
+      timeouts.push(t);
+    });
+
+    return () => {
+      cancelled = true;
+      timeouts.forEach(clearTimeout);
+    };
+  }, [inView, reduce, hfpefMV, attrMV]);
+
+  const dominant: "hfpef" | "attr" =
+    activeStep === 0
+      ? "hfpef"
+      : SIGNALS[activeStep - 1].attrAfter > SIGNALS[activeStep - 1].hfpefAfter
+        ? "attr"
+        : "hfpef";
 
   return (
-    <div className="rounded-2xl border border-line bg-surface shadow-soft overflow-hidden">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 border-b border-line bg-surface-alt px-6 py-5">
-        <div>
-          <p className="text-caption font-semibold uppercase tracking-eyebrow text-validation">
-            Detección compleja · enfermedad subdiagnosticada
-          </p>
-          <h3 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-            Amiloidosis cardíaca por transtiretina
-          </h3>
-          <p className="mt-1.5 text-body-sm text-ink-muted leading-relaxed max-w-prose">
-            Hombre 71 años, diagnóstico previo de ICC-FEVI preservada hace
-            3 años. Antecedente de cirugía bilateral por síndrome del túnel
-            del carpo en 2017. Familiar con neuropatía periférica
-            idiopática.
-          </p>
-        </div>
-        <div className="hidden sm:flex flex-col items-end shrink-0">
-          <span className="inline-flex items-center rounded-full bg-rose-soft px-2.5 py-0.5 text-caption font-semibold text-rose">
-            4 años de retraso promedio
-          </span>
-          <span className="mt-1 text-caption text-ink-soft">
-            sin detección multi-señal
-          </span>
+    <div
+      ref={ref}
+      className="rounded-2xl border border-line bg-surface shadow-soft overflow-hidden"
+    >
+      <div className="border-b border-line bg-surface-alt px-6 py-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-caption font-semibold uppercase tracking-eyebrow text-validation">
+              Convergencia diagnóstica multi-señal
+            </p>
+            <p className="mt-1 text-body-sm font-medium text-ink-strong">
+              Hombre 71 a · diagnóstico previo «ICC-FEVI preservada» · 3 años seguimiento
+            </p>
+          </div>
+          <DominantBadge dominant={dominant} step={activeStep} />
         </div>
       </div>
 
-      <div className="px-6 py-6">
-        <p className="text-caption uppercase tracking-eyebrow text-ink-soft">
-          Convergencia de 6 señales independientes
-        </p>
-        <p className="mt-1 text-body-sm text-ink-muted leading-relaxed max-w-prose">
-          Cada hallazgo aislado es no-específico — por eso esta enfermedad
-          se pierde. El cerebro correlaciona orígenes distintos en una sola
-          lectura.
-        </p>
+      <div className="px-6 pt-7 pb-5 space-y-5">
+        <ProbabilityBar
+          label="HFpEF (hipótesis inicial)"
+          tone="rose"
+          motionValue={hfpefMV}
+          displayValue={hfpefDisplay}
+          isDominant={dominant === "hfpef"}
+        />
+        <ProbabilityBar
+          label="ATTR-CM (transtiretina cardíaca)"
+          tone="validation"
+          motionValue={attrMV}
+          displayValue={attrDisplay}
+          isDominant={dominant === "attr"}
+        />
+      </div>
 
-        {/* Signals grid + convergence */}
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
-          {/* Left column: signals 1-3 */}
-          <ul className="space-y-3">
-            {SIGNALS.slice(0, 3).map((s, i) => (
-              <SignalCard key={s.source} signal={s} index={i} reduce={reduce} />
-            ))}
-          </ul>
-
-          {/* Center: convergence node */}
-          <div className="hidden lg:flex flex-col items-center justify-center px-2">
-            <ConvergenceLine reduce={reduce} />
-            <ConvergenceNode reduce={reduce} />
-            <ConvergenceLine reduce={reduce} reverse />
-          </div>
-
-          {/* Right column: signals 4-6 */}
-          <ul className="space-y-3">
-            {SIGNALS.slice(3, 6).map((s, i) => (
-              <SignalCard
-                key={s.source}
-                signal={s}
-                index={i + 3}
-                reduce={reduce}
-                mirrored
-              />
-            ))}
-          </ul>
+      <div className="border-t border-line bg-surface-alt/60 px-6 py-5">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-caption uppercase tracking-eyebrow text-ink-soft">
+            6 señales · ninguna específica por sí sola
+          </p>
+          <p className="text-caption text-ink-soft tabular-nums">
+            paso {activeStep}/{SIGNALS.length}
+          </p>
         </div>
-
-        {/* Mobile-only synthesis card (replaces center column) */}
-        <div className="lg:hidden mt-4">
-          <ConvergenceNodeMobile reduce={reduce} />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          {SIGNALS.map((s, i) => (
+            <SignalTile
+              key={s.short}
+              signal={s}
+              isActive={activeStep > i}
+              isCurrent={activeStep === i + 1}
+              reduce={!!reduce}
+            />
+          ))}
         </div>
+      </div>
 
-        {/* Synthesis result */}
+      <FinalCard show={activeStep === SIGNALS.length} reduce={!!reduce} />
+    </div>
+  );
+}
+
+function ProbabilityBar({
+  label,
+  tone,
+  motionValue,
+  displayValue,
+  isDominant,
+}: {
+  label: string;
+  tone: "rose" | "validation";
+  motionValue: MotionValue<number>;
+  displayValue: MotionValue<number>;
+  isDominant: boolean;
+}) {
+  const barColor = tone === "rose" ? "#B8847C" : "#4A6B5B";
+  const bgColor = tone === "rose" ? "#FBEAE5" : "#E5EDE8";
+  const labelColor = tone === "rose" ? "text-rose" : "text-validation";
+  const width = useTransform(motionValue, (v) => `${v}%`);
+
+  return (
+    <div
+      className={`transition-opacity duration-500 ${
+        isDominant ? "opacity-100" : "opacity-70"
+      }`}
+    >
+      <div className="flex items-baseline justify-between mb-1.5">
+        <p className={`text-body-sm font-semibold ${labelColor}`}>{label}</p>
+        <div className={`text-h2 font-bold tabular-nums ${labelColor}`}>
+          <motion.span>{displayValue}</motion.span>
+          <span>%</span>
+        </div>
+      </div>
+      <div
+        className="relative h-5 w-full overflow-hidden rounded-full"
+        style={{ backgroundColor: bgColor }}
+      >
         <motion.div
-          initial={reduce ? false : { opacity: 0, y: 16 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          transition={{ delay: 1.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          viewport={{ once: true, margin: "-80px" }}
-          className="mt-8 rounded-xl border-2 border-validation bg-validation-soft/40 p-5"
-        >
-          <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-validation text-surface">
-              <Sparkles className="h-5 w-5" strokeWidth={2.2} />
-            </span>
-            <div className="flex-1">
-              <p className="text-caption font-semibold uppercase tracking-eyebrow text-validation">
-                Síntesis del cerebro · primera consulta
-              </p>
-              <p className="mt-1 text-body-sm text-ink-strong">
-                <strong>Probabilidad posterior de ATTR-CM: 87%.</strong>{" "}
-                Recomienda PYP scan (no invasivo) para confirmar; si positivo,
-                evaluar inicio de tafamidis 61 mg/día.
-              </p>
-              <blockquote className="mt-3 border-l-2 border-validation pl-3 text-caption italic text-ink-muted leading-relaxed">
-                «Tafamidis reduced all-cause mortality and cardiovascular-related
-                hospitalizations in patients with transthyretin amyloid
-                cardiomyopathy.»
-                <span className="block mt-1 not-italic text-ink-soft">
-                  Maurer et al., NEJM 2018 · ATTR-ACT trial · HR 0.70 mortalidad
-                  · NNT 7.5 a 30 meses
-                </span>
-              </blockquote>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-3 border-t border-validation/30 pt-4">
-            <Stat label="Sin LitienGuard" value="4 años" detail="retraso diagnóstico promedio" tone="rose" />
-            <Stat label="Con LitienGuard" value="1ª consulta" detail="detección por correlación" tone="validation" />
-            <Stat label="Impacto terapéutico" value="HR 0.70" detail="mortalidad si tafamidis temprano" tone="accent" />
-          </div>
-        </motion.div>
-
-        <p className="mt-5 text-caption text-ink-soft leading-relaxed">
-          Caso ilustrativo basado en presentación típica de ATTR-CM en
-          México. Probabilidad calculada por consenso de Mayo Clinic
-          AI-ECG (AUC 0.91, Lancet Digit Health 2021) más criterios ESC
-          2021 y ACC/AHA 2023. El sistema no diagnostica — orienta y
-          documenta la cadena de evidencia.
-        </p>
+          className="h-full rounded-full"
+          style={{
+            backgroundColor: barColor,
+            width,
+          }}
+        />
       </div>
     </div>
   );
 }
 
-function SignalCard({
+function SignalTile({
   signal,
-  index,
+  isActive,
+  isCurrent,
   reduce,
-  mirrored = false,
 }: {
   signal: Signal;
-  index: number;
-  reduce: boolean | null;
-  mirrored?: boolean;
+  isActive: boolean;
+  isCurrent: boolean;
+  reduce: boolean;
 }) {
   const Icon = signal.icon;
   return (
-    <motion.li
-      initial={reduce ? false : { opacity: 0, x: mirrored ? 20 : -20 }}
-      whileInView={reduce ? undefined : { opacity: 1, x: 0 }}
-      transition={{
-        delay: 0.1 + index * 0.12,
-        duration: 0.5,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      viewport={{ once: true, margin: "-80px" }}
-      className="rounded-lg border border-line bg-surface p-3.5"
+    <motion.div
+      animate={
+        reduce
+          ? undefined
+          : {
+              scale: isCurrent ? 1.03 : 1,
+              opacity: isActive ? 1 : 0.35,
+            }
+      }
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className={`relative rounded-lg border p-3 transition-colors ${
+        isActive ? "border-validation bg-surface" : "border-line bg-surface"
+      }`}
     >
-      <div className="flex items-start gap-3">
-        <motion.span
-          initial={reduce ? false : { scale: 0.6, opacity: 0 }}
-          whileInView={reduce ? undefined : { scale: 1, opacity: 1 }}
-          transition={{
-            delay: 0.2 + index * 0.12,
-            duration: 0.4,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          viewport={{ once: true, margin: "-80px" }}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent"
+      <div className="flex items-start gap-2">
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors ${
+            isActive
+              ? "bg-validation-soft text-validation"
+              : "bg-surface-alt text-ink-quiet"
+          }`}
         >
-          <Icon className="h-4 w-4" strokeWidth={2} />
-        </motion.span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="text-caption uppercase tracking-eyebrow text-ink-soft">
-              {signal.source}
-            </p>
-            <span className="text-[0.62rem] text-ink-quiet">{signal.alone}</span>
-          </div>
-          <p className="mt-1 text-body-sm font-semibold text-ink-strong leading-snug">
-            {signal.finding}
+          <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p
+            className={`text-caption font-semibold leading-tight ${
+              isActive ? "text-ink-strong" : "text-ink-soft"
+            }`}
+          >
+            {signal.short}
           </p>
-          <p className="mt-1 text-caption text-ink-muted leading-relaxed">
-            {signal.detail}
+          <p
+            className={`mt-0.5 text-[0.65rem] leading-snug ${
+              isActive ? "text-ink-muted" : "text-ink-quiet"
+            }`}
+          >
+            {signal.full}
           </p>
         </div>
       </div>
-    </motion.li>
-  );
-}
-
-function ConvergenceLine({
-  reverse = false,
-  reduce,
-}: {
-  reverse?: boolean;
-  reduce: boolean | null;
-}) {
-  return (
-    <svg
-      width="40"
-      height="120"
-      viewBox="0 0 40 120"
-      fill="none"
-      className="my-2"
-      aria-hidden
-    >
-      {[0, 1, 2].map((i) => {
-        const y1 = reverse ? 8 : 8 + i * 36;
-        const x1 = reverse ? 4 : 4;
-        const x2 = 36;
-        const y2 = 60;
-        return (
-          <motion.line
-            key={i}
-            x1={x1}
-            y1={reverse ? 8 + i * 36 : y1}
-            x2={x2}
-            y2={y2}
-            stroke="#274B39"
-            strokeWidth="1"
-            strokeOpacity="0.35"
-            strokeDasharray="4 3"
-            initial={reduce ? false : { pathLength: 0, opacity: 0 }}
-            whileInView={reduce ? undefined : { pathLength: 1, opacity: 1 }}
-            transition={{
-              delay: 0.4 + i * 0.12,
-              duration: 0.7,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            viewport={{ once: true, margin: "-80px" }}
-          />
-        );
-      })}
-    </svg>
-  );
-}
-
-function ConvergenceNode({ reduce }: { reduce: boolean | null }) {
-  return (
-    <motion.div
-      initial={reduce ? false : { scale: 0.5, opacity: 0 }}
-      whileInView={
-        reduce
-          ? undefined
-          : { scale: [0.5, 1.06, 1], opacity: [0, 1, 1] }
-      }
-      transition={{
-        delay: 1.0,
-        duration: 0.9,
-        ease: [0.16, 1, 0.3, 1],
-        times: [0, 0.6, 1],
-      }}
-      viewport={{ once: true, margin: "-80px" }}
-      className="relative flex h-20 w-20 items-center justify-center rounded-full bg-validation shadow-deep"
-    >
-      <Sparkles className="h-7 w-7 text-surface" strokeWidth={2.2} />
-      {!reduce && (
+      {isCurrent && !reduce && (
         <motion.span
           aria-hidden
-          className="absolute inset-0 rounded-full border-2 border-validation"
-          initial={{ scale: 1, opacity: 0.5 }}
-          animate={{ scale: 1.5, opacity: 0 }}
-          transition={{
-            delay: 1.3,
-            duration: 1.6,
-            repeat: 1,
-            ease: "easeOut",
-          }}
+          className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-validation"
+          initial={{ scale: 0 }}
+          animate={{ scale: [0, 1.4, 1] }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
         />
       )}
     </motion.div>
   );
 }
 
-function ConvergenceNodeMobile({ reduce }: { reduce: boolean | null }) {
-  return (
-    <motion.div
-      initial={reduce ? false : { scale: 0.7, opacity: 0 }}
-      whileInView={reduce ? undefined : { scale: 1, opacity: 1 }}
-      transition={{
-        delay: 0.9,
-        duration: 0.6,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      viewport={{ once: true, margin: "-80px" }}
-      className="flex items-center gap-3 rounded-lg border border-validation bg-validation-soft/60 px-4 py-3"
-    >
-      <ChevronRight
-        className="h-4 w-4 text-validation rotate-90"
-        strokeWidth={2.4}
-      />
-      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-validation text-surface">
-        <Sparkles className="h-5 w-5" strokeWidth={2.2} />
+function DominantBadge({
+  dominant,
+  step,
+}: {
+  dominant: "hfpef" | "attr";
+  step: number;
+}) {
+  if (step === 0) {
+    return (
+      <span className="hidden sm:inline-flex items-center rounded-full bg-rose-soft px-3 py-1 text-caption font-semibold text-rose whitespace-nowrap">
+        Inicial: HFpEF
       </span>
-      <p className="text-body-sm font-semibold text-validation">
-        Cerebro correlaciona las 6 señales
-      </p>
-    </motion.div>
+    );
+  }
+  const isAttr = dominant === "attr";
+  return (
+    <motion.span
+      key={dominant}
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className={`hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-caption font-semibold whitespace-nowrap ${
+        isAttr ? "bg-validation-soft text-validation" : "bg-rose-soft text-rose"
+      }`}
+    >
+      {isAttr && <Sparkles className="h-3 w-3" strokeWidth={2.4} />}
+      Líder: {isAttr ? "ATTR-CM" : "HFpEF"}
+    </motion.span>
   );
 }
 
-function Stat({
-  label,
-  value,
-  detail,
-  tone,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-  tone: "rose" | "validation" | "accent";
-}) {
-  const toneCls =
-    tone === "rose"
-      ? "text-rose"
-      : tone === "validation"
-        ? "text-validation"
-        : "text-accent";
+function FinalCard({ show, reduce }: { show: boolean; reduce: boolean }) {
   return (
-    <div className="rounded-lg bg-surface p-3 border border-line">
-      <p className="text-[0.62rem] uppercase tracking-eyebrow text-ink-soft">
-        {label}
-      </p>
-      <p className={`mt-1 text-h2 font-bold leading-none ${toneCls}`}>
-        {value}
-      </p>
-      <p className="mt-1 text-caption text-ink-muted leading-tight">
-        {detail}
-      </p>
-    </div>
+    <motion.div
+      initial={reduce ? false : { opacity: 0, height: 0 }}
+      animate={
+        reduce
+          ? undefined
+          : show
+            ? { opacity: 1, height: "auto" }
+            : { opacity: 0, height: 0 }
+      }
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="overflow-hidden bg-validation text-surface"
+    >
+      <div className="px-6 py-5">
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <p className="text-caption font-semibold uppercase tracking-eyebrow opacity-80">
+              Recomendación · primera consulta
+            </p>
+            <p className="mt-1 text-body-sm leading-relaxed">
+              Solicitar{" "}
+              <strong>gammagrafía con pirofosfato de tecnecio (PYP)</strong>.
+              Si positiva → iniciar <strong>tafamidis 61 mg/día</strong>.
+            </p>
+            <p className="mt-2 text-caption italic opacity-90">
+              ATTR-ACT · NEJM 2018 · HR 0.70 mortalidad · NNT 7.5 a 30 meses
+            </p>
+          </div>
+          <div className="sm:text-right">
+            <div className="inline-flex items-center gap-2 bg-surface/15 rounded-full px-3 py-1.5">
+              <span className="text-caption opacity-90">Retraso esperado:</span>
+              <span className="text-body-sm font-bold line-through opacity-70">
+                4 años
+              </span>
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.4} />
+              <span className="text-body-sm font-bold">1ª cita</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }
