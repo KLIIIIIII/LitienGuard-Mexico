@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { CollectiveToggle } from "./collective-toggle";
+import { ConsultorioForm } from "./consultorio-form";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function ConfiguracionPage() {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("share_with_collective,nombre,email,role")
+    .select("share_with_collective,nombre,email,role,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono")
     .eq("id", user.id)
     .single();
 
@@ -42,6 +43,17 @@ export default async function ConfiguracionPage() {
         </p>
 
         <div className="mt-10 max-w-3xl space-y-6">
+          <ConsultorioForm
+            initial={{
+              nombre: profile?.nombre ?? null,
+              cedula_profesional: profile?.cedula_profesional ?? null,
+              especialidad: profile?.especialidad ?? null,
+              consultorio_nombre: profile?.consultorio_nombre ?? null,
+              consultorio_direccion: profile?.consultorio_direccion ?? null,
+              consultorio_telefono: profile?.consultorio_telefono ?? null,
+            }}
+          />
+
           <CollectiveToggle
             initial={profile?.share_with_collective ?? false}
             practiceCount={practiceCount ?? 0}

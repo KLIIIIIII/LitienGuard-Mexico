@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { canUseScribe, canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
+import { canUseScribe, canUseCerebro, canUseRecetas, type SubscriptionTier } from "@/lib/entitlements";
 import { DashboardSidebar } from "./dashboard-sidebar";
 
 export default async function DashboardLayout({
@@ -44,6 +44,7 @@ export default async function DashboardLayout({
         isAdmin={isAdmin}
         canScribe={canUseScribe(tier)}
         canCerebro={canUseCerebro(tier)}
+        canRecetas={canUseRecetas(tier)}
       />
       <div className="min-w-0">{children}</div>
     </div>

@@ -13,6 +13,7 @@ import {
   Download,
   MessageCircle,
   Smile,
+  Pill,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -35,11 +36,13 @@ export function DashboardSidebar({
   isAdmin,
   canScribe,
   canCerebro,
+  canRecetas,
 }: {
   tier: SubscriptionTier;
   isAdmin: boolean;
   canScribe: boolean;
   canCerebro: boolean;
+  canRecetas: boolean;
 }) {
   const pathname = usePathname();
 
@@ -68,6 +71,13 @@ export function DashboardSidebar({
       label: "Odontograma",
       icon: Smile,
       match: (p) => p.startsWith("/dashboard/odontograma"),
+    },
+    {
+      href: "/dashboard/recetas",
+      label: "Recetas",
+      icon: Pill,
+      match: (p) => p.startsWith("/dashboard/recetas"),
+      locked: !canRecetas,
     },
     {
       href: "/dashboard/cerebro",
