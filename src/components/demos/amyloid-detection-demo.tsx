@@ -34,14 +34,30 @@ import type { LucideIcon } from "lucide-react";
  * validation green) cuyos anchos se actualizan secuencialmente conforme
  * cada una de las 6 señales clínicas se incorpora al razonamiento.
  *
- * Probabilidades calibradas con likelihood ratios reportados (todas las
- * referencias revisadas al cierre 2025):
+ * Frontera de evidencia 2026 — todas las referencias verificadas mayo 2026:
+ *   GUÍA AUTORITATIVA
+ *   - 2025 ACC Concise Clinical Guidance for ATTR-CM · JACC sept 2025
+ *
+ *   DETECCIÓN AI (AUC)
  *   - Mayo AI-ECG · Grogan et al · Mayo Clin Proc 2021 · AUC 0.91
- *   - ATTR-ACT · Maurer et al · NEJM 2018 · tafamidis HR 0.70
- *   - HELIOS-B · Fontana et al · Lancet 2024 · vutrisiran HR 0.72
- *   - ATTRibute-CM · Gillmore et al · NEJM 2024 · acoramidis HR 0.50
- *   - ESC HF 2023 Focused Update · McDonagh et al · Eur Heart J 2023
- *   - AHA/ACC/HFSA 2022 HF Guideline · Heidenreich et al · JAHA 2022
+ *   - Single-clip eco AI · Eur Heart J jul 2025 · AUC 0.93 (n=2,719)
+ *
+ *   ESTABILIZADORES TTR (FDA aprobados)
+ *   - Tafamidis · ATTR-ACT · NEJM 2018 · HR 0.70 mortalidad
+ *   - Acoramidis · ATTRibute-CM · NEJM 2024 · HR 0.50 eventos CV
+ *
+ *   SILENCIADORES RNA
+ *   - Vutrisiran · HELIOS-B · NEJM 2024 · HR 0.72 mortalidad
+ *   - Eplontersen · CARDIO-TTRansform · resultados esperados mid-2026
+ *   - Nucresiran (ALN-TTRsc04) · Phase 1 · 96% red. TTR @ 29 días · 2026
+ *
+ *   EDICIÓN GÉNICA (CRISPR-Cas9)
+ *   - Nexiguran ziclumeran (NTLA-2001) · NEJM 2024
+ *
+ *   ANTICUERPOS DEPLETORES DE FIBRILLAS
+ *   - NI006 (Phase 1) · NEJM 2023
+ *   - Coramitug (PRX004) · Phase 3 arrancando 2025
+ *   - AT-02 · Phase 1-2 reclutando
  *
  * Las tiles son navegables: click para saltar a un paso; el autoplay
  * se cancela en la primera interacción del usuario.
@@ -490,28 +506,45 @@ function FinalCard({ show, reduce }: { show: boolean; reduce: boolean }) {
       className="overflow-hidden bg-validation text-surface"
     >
       <div className="px-6 py-5">
-        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
           <div>
             <p className="text-caption font-semibold uppercase tracking-eyebrow opacity-80">
               Recomendación · primera consulta
             </p>
             <p className="mt-1 text-body-sm leading-relaxed">
               Solicitar{" "}
-              <strong>gammagrafía con pirofosfato de tecnecio (PYP)</strong>.
-              Si positiva → discutir estabilizadores de transtiretina
-              disponibles en 2025.
+              <strong>gammagrafía con pirofosfato de tecnecio (PYP)</strong>{" "}
+              y discutir el menú terapéutico actual conforme a la 2025 ACC
+              Concise Clinical Guidance for ATTR-CM (JACC, sept 2025).
             </p>
-            <ul className="mt-2 space-y-0.5 text-caption italic opacity-90">
-              <li>
-                Tafamidis · ATTR-ACT · NEJM 2018 · HR 0.70 mortalidad
-              </li>
-              <li>
-                Acoramidis · ATTRibute-CM · NEJM 2024 · HR 0.50 eventos CV
-              </li>
-              <li>
-                Vutrisiran · HELIOS-B · Lancet 2024 · HR 0.72 mortalidad
-              </li>
-            </ul>
+            <div className="mt-3 grid gap-1.5 text-caption opacity-95">
+              <p className="font-semibold uppercase tracking-eyebrow text-[0.62rem] opacity-80">
+                Cuatro clases con evidencia 2024–2026
+              </p>
+              <ul className="space-y-0.5">
+                <li>
+                  <strong>Estabilizadores TTR:</strong> tafamidis
+                  (ATTR-ACT, NEJM 2018) · acoramidis (ATTRibute-CM, NEJM 2024)
+                </li>
+                <li>
+                  <strong>Silenciadores RNA:</strong> vutrisiran (HELIOS-B,
+                  NEJM 2024) · eplontersen (CARDIO-TTRansform, resultados
+                  esperados 2026)
+                </li>
+                <li>
+                  <strong>Edición génica CRISPR-Cas9:</strong> nexiguran
+                  ziclumeran (NTLA-2001, NEJM 2024)
+                </li>
+                <li>
+                  <strong>Anticuerpos depletores de fibrillas:</strong> NI006
+                  (NEJM 2023) · coramitug (Phase 3, 2025) · AT-02
+                </li>
+              </ul>
+            </div>
+            <p className="mt-3 text-caption italic opacity-85">
+              Detección por AI: AUC 0.91 (Mayo AI-ECG, Mayo Clin Proc 2021,
+              Grogan) y AUC 0.93 (single-clip eco, Eur Heart J 2025).
+            </p>
           </div>
           <div className="sm:text-right">
             <div className="inline-flex items-center gap-2 bg-surface/15 rounded-full px-3 py-1.5">
