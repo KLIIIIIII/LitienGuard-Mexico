@@ -7,11 +7,11 @@ import { ArrowRight, Mail } from "lucide-react";
 import { requestMagicLink, type LoginState } from "./actions";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 
-export function LoginForm() {
+export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
   const turnstileSiteKey =
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null;
   const [pending, startTransition] = useTransition();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [state, setState] = useState<LoginState>({ status: "idle" });
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 

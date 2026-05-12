@@ -18,6 +18,7 @@ import {
   CreditCard,
   Sparkles,
   Gift,
+  Compass,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -117,6 +118,12 @@ export function DashboardSidebar({
       label: "Seguridad",
       icon: Lock,
       match: (p) => p.startsWith("/dashboard/seguridad"),
+    },
+    {
+      href: "/dashboard/mi-plan",
+      label: "Mi plan",
+      icon: Compass,
+      match: (p) => p.startsWith("/dashboard/mi-plan"),
     },
     {
       href: "/dashboard/billing",

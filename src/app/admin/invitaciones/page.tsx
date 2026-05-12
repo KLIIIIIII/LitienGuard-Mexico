@@ -4,8 +4,10 @@ import { InviteForm } from "./invite-form";
 import { RevokeButton } from "./revoke-button";
 import { ApprovePreregistroRow } from "./approve-preregistro-row";
 import { TierSelect } from "./tier-select";
+import { CopyDemoLink } from "./copy-demo-link";
 import { Eyebrow } from "@/components/eyebrow";
 import { type SubscriptionTier } from "@/lib/entitlements";
+import { SITE_URL } from "@/lib/utils";
 import { Inbox } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -43,13 +45,58 @@ export default async function InvitacionesPage() {
       <div className="lg-shell py-12 lg:py-16">
         <Eyebrow tone="accent">Admin</Eyebrow>
         <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink">
-          Invitaciones al piloto
+          Invitaciones y entrega de demos
         </h1>
         <p className="mt-2 max-w-prose text-body text-ink-muted">
-          Aprueba solicitudes recibidas o crea invitaciones manuales. Cuando un
-          invitado pide su magic link desde /login, el sistema valida contra
-          esta tabla.
+          Desde aquí entregas demos. Aprueba solicitudes recibidas o crea
+          invitaciones manuales, luego copia el link personalizado y mándalo
+          por WhatsApp/correo.
         </p>
+
+        {/* Cómo entregar una demo — referencia operativa */}
+        <section className="mt-8 rounded-2xl border border-line bg-surface p-6 shadow-soft">
+          <p className="text-caption uppercase tracking-eyebrow font-semibold text-validation">
+            Flujo de demo en 3 pasos
+          </p>
+          <ol className="mt-4 grid gap-4 text-body-sm text-ink-strong sm:grid-cols-3">
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-validation-soft font-bold text-validation">
+                1
+              </span>
+              <div>
+                <p className="font-semibold">Crea la invitación</p>
+                <p className="mt-1 text-caption text-ink-muted">
+                  Llena correo, nombre, hospital y elige plan (Esencial es
+                  el recomendado para demos comerciales).
+                </p>
+              </div>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-validation-soft font-bold text-validation">
+                2
+              </span>
+              <div>
+                <p className="font-semibold">Copia el link de demo</p>
+                <p className="mt-1 text-caption text-ink-muted">
+                  Botón &ldquo;Copiar link&rdquo; en la tabla — abre /login con el
+                  correo prellenado para que el médico solo dé click.
+                </p>
+              </div>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-validation-soft font-bold text-validation">
+                3
+              </span>
+              <div>
+                <p className="font-semibold">Mándalo por WhatsApp</p>
+                <p className="mt-1 text-caption text-ink-muted">
+                  El médico abre el link → pide magic link → entra al
+                  dashboard con todas las funciones de su plan activas.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </section>
 
         {/* Solicitudes pendientes (preregistros) */}
         <section className="mt-10">
@@ -114,6 +161,7 @@ export default async function InvitacionesPage() {
                   <th className="px-4 py-3 text-left font-medium">Plan</th>
                   <th className="px-4 py-3 text-left font-medium">Estado</th>
                   <th className="px-4 py-3 text-left font-medium">Expira</th>
+                  <th className="px-4 py-3 text-left font-medium">Demo</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -155,6 +203,11 @@ export default async function InvitacionesPage() {
                           ? new Date(i.expires_at).toLocaleDateString("es-MX")
                           : "—"}
                       </td>
+                      <td className="px-4 py-3">
+                        {!i.usada && (
+                          <CopyDemoLink email={i.email} siteUrl={SITE_URL} />
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <RevokeButton id={i.id} disabled={i.usada} />
                       </td>
@@ -164,7 +217,7 @@ export default async function InvitacionesPage() {
                 {(invitaciones?.length ?? 0) === 0 && (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="px-4 py-8 text-center text-body-sm text-ink-soft"
                     >
                       Aún no hay invitaciones. Crea la primera arriba.

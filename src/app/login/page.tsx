@@ -16,6 +16,11 @@ export default async function LoginPage({
 }) {
   const params = await searchParams;
   const reason = typeof params.reason === "string" ? params.reason : undefined;
+  const emailParam =
+    typeof params.email === "string" ? params.email.trim() : "";
+  const initialEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailParam)
+    ? emailParam.toLowerCase()
+    : "";
   const banner =
     reason === "link_expired"
       ? "El link que abriste expiró o ya fue usado. Pide uno nuevo aquí."
@@ -34,7 +39,7 @@ export default async function LoginPage({
               {banner}
             </div>
           )}
-          <LoginForm />
+          <LoginForm initialEmail={initialEmail} />
         </div>
       </div>
     </main>

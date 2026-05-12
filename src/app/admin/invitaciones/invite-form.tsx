@@ -82,19 +82,28 @@ export function InviteForm() {
           <select
             id="subscription_tier"
             name="subscription_tier"
-            defaultValue="pilot"
+            defaultValue="esencial"
             className="lg-input appearance-none pr-10"
             disabled={pending}
           >
-            <option value="free">Gratis — sin Scribe</option>
-            <option value="pilot">Piloto — Scribe gratis durante piloto</option>
-            <option value="pro">Pro — Scribe + Cerebro (comercial)</option>
+            <option value="free">Explorador — 5 SOAPs, sin cerebro</option>
+            <option value="esencial">
+              Esencial — MXN 499/mes · 100 SOAPs + cerebro lectura + recetas
+            </option>
+            <option value="pilot">
+              Piloto — Scribe ilimitado durante piloto (alias Esencial)
+            </option>
+            <option value="pro">
+              Profesional — MXN 999/mes · Scribe + diferencial bayesiano +
+              agenda
+            </option>
             <option value="enterprise">
-              Enterprise — todo + RCM (hospitales)
+              Clínica — contratado · todo + RCM + multi-médico (hospitales)
             </option>
           </select>
           <p className="text-caption text-ink-soft">
-            Define qué funciones puede usar el invitado.
+            Define qué funciones puede usar el invitado. Esencial es el plan
+            recomendado para demos comerciales.
           </p>
         </div>
 
