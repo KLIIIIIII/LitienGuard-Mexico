@@ -5,6 +5,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { DiferencialEngine } from "./diferencial-engine";
+import { HistorialList } from "./historial-list";
 
 export const metadata: Metadata = {
   title: "Diferencial diagnóstico — LitienGuard",
@@ -45,6 +46,15 @@ export default async function DiferencialPage() {
     );
   }
 
+  const { data: recentSessions, count: totalCount } = await supa
+    .from("diferencial_sessions")
+    .select(
+      "id, paciente_iniciales, paciente_edad, contexto_clinico, top_diagnoses, medico_diagnostico_principal, outcome_confirmado, created_at",
+      { count: "exact" },
+    )
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   return (
     <div className="space-y-6">
       <header>
@@ -60,7 +70,31 @@ export default async function DiferencialPage() {
         </p>
       </header>
 
-      <DiferencialEngine />
+      {recentSessions && recentSessions.length > 0 && (
+        <section>
+          <div className="mb-4 flex items-baseline justify-between gap-3">
+            <h2 className="text-h3 font-semibold tracking-tight text-ink-strong">
+              Casos guardados recientes
+            </h2>
+            {(totalCount ?? 0) > 5 && (
+              <Link
+                href="/dashboard/diferencial/historial"
+                className="text-caption font-semibold text-validation hover:underline"
+              >
+                Ver los {totalCount} casos →
+              </Link>
+            )}
+          </div>
+          <HistorialList sessions={recentSessions} compact />
+        </section>
+      )}
+
+      <section>
+        <h2 className="text-h3 font-semibold tracking-tight text-ink-strong mb-4">
+          Nuevo caso
+        </h2>
+        <DiferencialEngine />
+      </section>
 
       <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
         El motor no diagnostica — orienta y documenta tu razonamiento. Cuando
