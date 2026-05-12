@@ -392,6 +392,30 @@ export function AuroraMesh() {
             opacity: 1 !important;
           }
         }
+
+        /*
+         * Mobile fix: iOS Safari sobrecarga GPU con 10 blobs × blur(48px)
+         * + backdrop-filter saturate. Resultado: blobs no se renderizan
+         * y solo queda visible el glass overlay como color uniforme.
+         * Aquí (≤768px) reducimos carga manteniendo el espíritu visual.
+         */
+        @media (max-width: 768px) {
+          .aurora-blob {
+            filter: blur(28px);
+          }
+          /* Mantenemos solo los 6 más vibrantes en mobile */
+          .aurora-blob-g,
+          .aurora-blob-h,
+          .aurora-blob-i,
+          .aurora-blob-j {
+            display: none;
+          }
+          .aurora-glass {
+            background: rgba(251, 250, 246, 0.12);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+          }
+        }
       `}</style>
     </div>
   );

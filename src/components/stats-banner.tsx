@@ -21,8 +21,16 @@ const STATS: Stat[] = [
 
 function CountUp({ value, suffix = "", prefix = "" }: Stat) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const [display, setDisplay] = useState(0);
+  const inView = useInView(ref, { once: true, margin: "0px" });
+  /**
+   * Inicializamos en `value` (no 0) para que el número correcto se vea
+   * SIEMPRE — degradación elegante. Si `useInView` dispara (caso normal
+   * en desktop y la mayoría de mobile), corremos animate(0, value) que
+   * sobrescribe el state explícitamente desde 0. Si nunca dispara (bug
+   * de timing en iOS Safari), el usuario ve el número correcto sin
+   * animación — preferible a mostrar "0".
+   */
+  const [display, setDisplay] = useState(value);
 
   useEffect(() => {
     if (!inView) return;
