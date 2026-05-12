@@ -87,7 +87,8 @@ function DeltaPill({
 export function ImpactTable() {
   return (
     <div className="overflow-hidden rounded-xl border border-line bg-surface">
-      <div className="overflow-x-auto">
+      {/* Desktop: tabla clásica (md+) */}
+      <div className="hidden md:block">
         <table className="min-w-full divide-y divide-line">
           <thead className="bg-surface-alt">
             <tr>
@@ -130,6 +131,38 @@ export function ImpactTable() {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile: cards apiladas */}
+      <div className="divide-y divide-line md:hidden">
+        {ROWS.map((r) => (
+          <article key={r.metric} className="px-5 py-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-body-sm font-semibold leading-snug text-ink-strong">
+                  {r.metric}
+                </p>
+                <p className="mt-1 text-caption text-ink-muted leading-snug">
+                  {r.context}
+                </p>
+              </div>
+              <DeltaPill delta={r.delta} direction={r.direction} />
+            </div>
+            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
+              <dt className="text-caption uppercase tracking-eyebrow text-ink-soft">
+                Antes
+              </dt>
+              <dd className="text-caption text-ink-muted">{r.before}</dd>
+              <dt className="text-caption uppercase tracking-eyebrow text-ink-soft">
+                Con LG
+              </dt>
+              <dd className="text-caption font-semibold text-ink-strong">
+                {r.after}
+              </dd>
+            </dl>
+          </article>
+        ))}
+      </div>
+
       <div className="border-t border-line bg-surface-alt px-5 py-3">
         <p className="text-caption text-ink-soft leading-relaxed">
           Baselines: CHAMP-HF Latin America registry (Cardiovasc Drugs Ther

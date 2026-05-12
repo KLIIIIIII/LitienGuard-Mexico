@@ -207,74 +207,76 @@ export function OperationsTabs() {
           </p>
         </div>
 
+        {/*
+         * Mobile: tabs horizontales scrolleables (los botones grandes
+         * apilados verticalmente forzaban demasiado scroll antes de ver
+         * el contenido). Desktop: sidebar vertical clásico.
+         */}
         <div className="mt-12 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
-          {/* Sidebar selector — vertical tabs */}
           <nav
             aria-label="Secciones operativas"
-            className="space-y-1.5"
+            className="-mx-6 overflow-x-auto px-6 lg:mx-0 lg:overflow-visible lg:px-0 lg:space-y-1.5"
           >
-            {SECTIONS.map((s) => {
-              const isActive = s.id === active;
-              const Icon = s.icon;
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setActive(s.id)}
-                  aria-pressed={isActive}
-                  className={`group relative w-full rounded-xl border px-4 py-3.5 text-left transition-all ${
-                    isActive
-                      ? "border-validation bg-surface shadow-soft"
-                      : "border-line bg-surface/60 hover:bg-surface hover:border-validation-soft"
-                  }`}
-                >
-                  {isActive && (
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full bg-validation"
-                    />
-                  )}
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                        isActive
-                          ? "bg-validation text-surface"
-                          : "bg-surface-alt text-ink-muted group-hover:bg-validation-soft group-hover:text-validation"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" strokeWidth={2.2} />
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`font-mono text-[0.62rem] font-bold tracking-wider uppercase ${
-                          isActive ? "text-validation" : "text-ink-quiet"
+            <div className="flex w-max gap-2 lg:flex-col lg:w-auto lg:gap-1.5">
+              {SECTIONS.map((s) => {
+                const isActive = s.id === active;
+                const Icon = s.icon;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setActive(s.id)}
+                    aria-pressed={isActive}
+                    className={`group relative shrink-0 rounded-xl border px-4 py-3 text-left transition-all lg:w-full lg:py-3.5 ${
+                      isActive
+                        ? "border-validation bg-surface shadow-soft"
+                        : "border-line bg-surface/60 hover:bg-surface hover:border-validation-soft"
+                    }`}
+                  >
+                    {isActive && (
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-3 bottom-3 hidden w-[3px] rounded-r-full bg-validation lg:block"
+                      />
+                    )}
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                          isActive
+                            ? "bg-validation text-surface"
+                            : "bg-surface-alt text-ink-muted group-hover:bg-validation-soft group-hover:text-validation"
                         }`}
                       >
-                        Módulo {s.number}
-                      </p>
-                      <p
-                        className={`mt-0.5 text-body-sm font-semibold leading-tight ${
-                          isActive ? "text-ink-strong" : "text-ink-strong"
+                        <Icon className="h-4 w-4" strokeWidth={2.2} />
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`font-mono text-[0.62rem] font-bold tracking-wider uppercase ${
+                            isActive ? "text-validation" : "text-ink-quiet"
+                          }`}
+                        >
+                          Módulo {s.number}
+                        </p>
+                        <p className="mt-0.5 text-body-sm font-semibold leading-tight text-ink-strong">
+                          {s.short}
+                        </p>
+                      </div>
+                      <ArrowUpRight
+                        className={`h-3.5 w-3.5 shrink-0 transition-all ${
+                          isActive
+                            ? "text-validation opacity-100"
+                            : "text-ink-quiet opacity-0 group-hover:opacity-100"
                         }`}
-                      >
-                        {s.short}
-                      </p>
+                        strokeWidth={2.2}
+                      />
                     </div>
-                    <ArrowUpRight
-                      className={`h-3.5 w-3.5 shrink-0 transition-all ${
-                        isActive
-                          ? "text-validation opacity-100"
-                          : "text-ink-quiet opacity-0 group-hover:opacity-100"
-                      }`}
-                      strokeWidth={2.2}
-                    />
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Progress indicator */}
-            <div className="mt-6 rounded-xl border border-line bg-surface px-4 py-3">
+            {/* Progress indicator — oculto en mobile (ya hay tabs horizontales) */}
+            <div className="mt-6 hidden rounded-xl border border-line bg-surface px-4 py-3 lg:block">
               <p className="text-[0.62rem] uppercase tracking-eyebrow font-bold text-ink-soft">
                 Orden de implementación
               </p>

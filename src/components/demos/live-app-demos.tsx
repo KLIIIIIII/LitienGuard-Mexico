@@ -99,48 +99,54 @@ export function LiveAppDemos() {
           </p>
         </div>
 
-        {/* Tab nav */}
-        <div className="mt-8 flex flex-wrap gap-2">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            const isActive = t.id === active;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setActive(t.id)}
-                aria-pressed={isActive}
-                className={`group inline-flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-left transition-all ${
-                  isActive
-                    ? "border-validation bg-validation text-surface shadow-soft"
-                    : "border-line bg-surface text-ink-strong hover:border-validation-soft hover:bg-validation-soft/30"
-                }`}
-              >
-                <Icon
-                  className={`h-4 w-4 shrink-0 ${
-                    isActive ? "text-surface" : "text-validation"
+        {/*
+         * Tab nav — en mobile scroll horizontal (los 3 botones no caben
+         * en 375px ni siquiera apilados sin verse mal). En sm+ flex-wrap
+         * normal.
+         */}
+        <div className="mt-8 -mx-6 overflow-x-auto px-6 sm:mx-0 sm:overflow-visible sm:px-0">
+          <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              const isActive = t.id === active;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setActive(t.id)}
+                  aria-pressed={isActive}
+                  className={`group inline-flex shrink-0 items-center gap-2.5 rounded-lg border px-4 py-2.5 text-left transition-all ${
+                    isActive
+                      ? "border-validation bg-validation text-surface shadow-soft"
+                      : "border-line bg-surface text-ink-strong hover:border-validation-soft hover:bg-validation-soft/30"
                   }`}
-                  strokeWidth={2}
-                />
-                <div className="leading-tight">
-                  <p
-                    className={`text-body-sm font-semibold ${
-                      isActive ? "text-surface" : "text-ink-strong"
+                >
+                  <Icon
+                    className={`h-4 w-4 shrink-0 ${
+                      isActive ? "text-surface" : "text-validation"
                     }`}
-                  >
-                    {t.label}
-                  </p>
-                  <p
-                    className={`text-[0.7rem] ${
-                      isActive ? "text-surface/80" : "text-ink-muted"
-                    }`}
-                  >
-                    {t.short}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
+                    strokeWidth={2}
+                  />
+                  <div className="leading-tight">
+                    <p
+                      className={`text-body-sm font-semibold ${
+                        isActive ? "text-surface" : "text-ink-strong"
+                      }`}
+                    >
+                      {t.label}
+                    </p>
+                    <p
+                      className={`text-[0.7rem] ${
+                        isActive ? "text-surface/80" : "text-ink-muted"
+                      }`}
+                    >
+                      {t.short}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Active tab description */}
