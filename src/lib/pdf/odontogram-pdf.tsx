@@ -34,85 +34,91 @@ const INK = "#1F1E1B";
 const INK_MUTED = "#57554F";
 const INK_SOFT = "#8B887F";
 const RULE = "#D8D4C8";
+const RULE_STRONG = "#2C2B27";
+const SURFACE_ALT = "#F4F2EB";
 const ACCENT = "#274B39";
+const ACCENT_SOFT = "#E5EDE8";
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 60,
-    paddingBottom: 84,
-    paddingHorizontal: 64,
+    paddingTop: 36,
+    paddingBottom: 70,
+    paddingHorizontal: 40,
     fontSize: 10,
     color: INK,
     fontFamily: "Helvetica",
-    lineHeight: 1.5,
+    lineHeight: 1.4,
   },
 
-  // Masthead -------------------------------------------------------------
-  mastheadBrandRow: { flexDirection: "row", justifyContent: "center" },
-  mastheadBrand: {
-    fontFamily: "Times-Italic",
-    fontSize: 9,
-    color: ACCENT,
-    letterSpacing: 3,
-    textTransform: "uppercase",
-  },
-  mastheadTitle: {
-    marginTop: 8,
-    textAlign: "center",
-    fontFamily: "Times-Roman",
-    fontSize: 24,
-    color: INK,
-    letterSpacing: 0.5,
-  },
-  mastheadSubtitle: {
-    marginTop: 4,
-    textAlign: "center",
-    fontFamily: "Times-Italic",
-    fontSize: 10,
-    color: INK_MUTED,
-  },
-  mastheadRule: {
-    marginTop: 14,
-    marginBottom: 22,
-    height: 0.6,
-    backgroundColor: RULE,
-  },
-
-  // Meta block ----------------------------------------------------------
-  metaRow: {
-    flexDirection: "row",
+  // Header
+  header: {
     paddingBottom: 14,
-    marginBottom: 28,
-    borderBottomWidth: 0.6,
-    borderBottomColor: RULE,
+    borderBottomWidth: 2,
+    borderBottomColor: RULE_STRONG,
   },
-  metaCell: { flexDirection: "column", marginRight: 36 },
+  brandEyebrow: {
+    fontSize: 7,
+    color: ACCENT,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    marginBottom: 4,
+  },
+  brandTitle: {
+    fontSize: 22,
+    fontFamily: "Helvetica-Bold",
+    color: INK,
+    letterSpacing: -0.3,
+  },
+  brandSubtitle: {
+    fontSize: 9.5,
+    color: INK_MUTED,
+    marginTop: 2,
+  },
+
+  // Meta box
+  metaBox: {
+    marginTop: 14,
+    backgroundColor: SURFACE_ALT,
+    borderRadius: 4,
+    padding: 12,
+  },
+  metaGrid: { flexDirection: "row", flexWrap: "wrap" },
+  metaCell: { marginRight: 32, marginBottom: 4 },
   metaLabel: {
-    fontSize: 6.5,
+    fontSize: 7,
     color: INK_SOFT,
-    letterSpacing: 1.6,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 2,
   },
-  metaValue: { fontSize: 10, color: INK },
-
-  // Sections ------------------------------------------------------------
-  sectionLabel: {
-    fontSize: 7.5,
-    color: ACCENT,
-    letterSpacing: 1.8,
-    textTransform: "uppercase",
+  metaValue: {
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
-    marginBottom: 10,
+    color: INK,
   },
 
-  // Arch ---------------------------------------------------------------
-  archBlock: { marginBottom: 18 },
-  archHeading: {
-    fontFamily: "Times-Italic",
-    fontSize: 10,
-    color: INK_MUTED,
-    marginBottom: 6,
+  // Section
+  section: { marginTop: 18 },
+  sectionTitle: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    color: ACCENT,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    marginBottom: 8,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: ACCENT_SOFT,
+  },
+
+  // Arch
+  archBlock: { marginBottom: 12 },
+  archLabel: {
+    fontSize: 7,
+    color: INK_SOFT,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    marginBottom: 5,
     textAlign: "center",
   },
   archRow: {
@@ -123,32 +129,29 @@ const styles = StyleSheet.create({
     width: 26,
     height: 34,
     marginHorizontal: 1.5,
-    borderWidth: 0.8,
+    borderWidth: 1,
     borderRadius: 3,
     justifyContent: "center",
     alignItems: "center",
   },
-  toothLeftGap: { marginLeft: 9 },
-  toothNum: { fontSize: 6.5, fontFamily: "Helvetica-Bold" },
-  toothStateLabel: { fontSize: 5, marginTop: 1, fontFamily: "Times-Italic" },
+  toothLeftGap: { marginLeft: 10 },
+  toothNum: { fontSize: 7, fontFamily: "Helvetica-Bold" },
+  toothStateLabel: { fontSize: 5, marginTop: 1 },
 
   midline: {
     alignSelf: "center",
-    width: 1,
-    height: 14,
+    width: 60,
+    height: 1,
     backgroundColor: RULE,
-    marginVertical: 4,
+    marginVertical: 8,
   },
 
-  // Legend --------------------------------------------------------------
-  legendWrap: {
-    marginTop: 26,
-    paddingTop: 14,
-    paddingBottom: 14,
-    borderTopWidth: 0.4,
-    borderTopColor: RULE,
-    borderBottomWidth: 0.4,
-    borderBottomColor: RULE,
+  // Legend
+  legendBox: {
+    marginTop: 12,
+    padding: 10,
+    backgroundColor: SURFACE_ALT,
+    borderRadius: 4,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
@@ -157,76 +160,63 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 8,
-    marginVertical: 3,
+    marginVertical: 2,
   },
-  legendBox: {
+  legendSwatch: {
     width: 10,
     height: 10,
-    borderWidth: 0.8,
+    borderWidth: 1,
     marginRight: 5,
     borderRadius: 2,
   },
-  legendText: { fontSize: 8.5, color: INK_MUTED, letterSpacing: 0.3 },
+  legendLabel: { fontSize: 8.5, color: INK_MUTED },
 
-  // Notes ---------------------------------------------------------------
-  notesBlock: { marginTop: 26 },
+  // Notes
   notesBody: {
     fontSize: 10,
     color: INK,
-    lineHeight: 1.55,
-    fontFamily: "Helvetica",
+    lineHeight: 1.5,
   },
 
-  // Signatures ---------------------------------------------------------
+  // Signatures
   signatureWrap: {
-    marginTop: 50,
+    marginTop: 38,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  signatureBox: { width: "44%", alignItems: "center" },
+  signatureBox: { width: "45%" },
   signatureLine: {
-    width: "100%",
-    borderBottomWidth: 0.8,
+    borderBottomWidth: 1,
     borderBottomColor: INK,
     marginBottom: 6,
-    height: 34,
+    height: 32,
   },
   signatureLabel: {
-    fontSize: 9,
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
     color: INK,
     textAlign: "center",
   },
   signatureSub: {
-    fontSize: 8,
-    fontFamily: "Times-Italic",
+    fontSize: 8.5,
     color: INK_MUTED,
     textAlign: "center",
     marginTop: 1,
   },
 
-  // Footer --------------------------------------------------------------
+  // Footer
   footer: {
     position: "absolute",
-    bottom: 36,
-    left: 64,
-    right: 64,
-    paddingTop: 10,
-    borderTopWidth: 0.4,
+    bottom: 28,
+    left: 40,
+    right: 40,
+    paddingTop: 6,
+    borderTopWidth: 1,
     borderTopColor: RULE,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  footerLeft: {
-    fontFamily: "Times-Italic",
-    fontSize: 7.5,
-    color: INK_SOFT,
-  },
-  footerRight: {
-    fontSize: 7,
-    color: INK_SOFT,
-    letterSpacing: 0.4,
-  },
+  footerText: { fontSize: 7, color: INK_SOFT, letterSpacing: 0.3 },
 });
 
 interface OdontogramPdfProps {
@@ -291,91 +281,93 @@ export function OdontogramPdf({
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
-        {/* Masthead */}
-        <View style={styles.mastheadBrandRow}>
-          <Text style={styles.mastheadBrand}>LitienGuard · Dental</Text>
-        </View>
-        <Text style={styles.mastheadTitle}>Odontograma</Text>
-        <Text style={styles.mastheadSubtitle}>
-          Estado clínico de las piezas dentales
-        </Text>
-        <View style={styles.mastheadRule} />
-
-        {/* Meta */}
-        <View style={styles.metaRow}>
-          <View style={[styles.metaCell, { flex: 1 }]}>
-            <Text style={styles.metaLabel}>Paciente</Text>
-            <Text style={styles.metaValue}>{paciente || "—"}</Text>
-          </View>
-          <View style={styles.metaCell}>
-            <Text style={styles.metaLabel}>Fecha</Text>
-            <Text style={styles.metaValue}>{fmtDate}</Text>
-          </View>
-          <View style={[styles.metaCell, { marginRight: 0 }]}>
-            <Text style={styles.metaLabel}>Profesional</Text>
-            <Text style={styles.metaValue}>{medico}</Text>
-          </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.brandEyebrow}>LitienGuard · Dental</Text>
+          <Text style={styles.brandTitle}>Odontograma</Text>
+          <Text style={styles.brandSubtitle}>
+            Estado clínico de las piezas dentales · Notación FDI
+          </Text>
         </View>
 
-        {/* Odontogram */}
-        <Text style={styles.sectionLabel}>Diagrama dentario · Notación FDI</Text>
-
-        <View style={styles.archBlock}>
-          <Text style={styles.archHeading}>Arcada superior</Text>
-          <View style={styles.archRow}>
-            {UPPER_ROW.map((n, i) => (
-              <ToothCell
-                key={n}
-                n={n}
-                state={state[n] ?? "sano"}
-                isGap={i === 8}
-              />
-            ))}
+        {/* Meta box */}
+        <View style={styles.metaBox}>
+          <View style={styles.metaGrid}>
+            <View style={[styles.metaCell, { flex: 1, marginRight: 12 }]}>
+              <Text style={styles.metaLabel}>Paciente</Text>
+              <Text style={styles.metaValue}>{paciente || "—"}</Text>
+            </View>
+            <View style={styles.metaCell}>
+              <Text style={styles.metaLabel}>Fecha</Text>
+              <Text style={styles.metaValue}>{fmtDate}</Text>
+            </View>
+            <View style={[styles.metaCell, { marginRight: 0 }]}>
+              <Text style={styles.metaLabel}>Profesional</Text>
+              <Text style={styles.metaValue}>{medico}</Text>
+            </View>
           </View>
         </View>
 
-        <View style={styles.midline} />
+        {/* Diagram */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Diagrama dentario</Text>
 
-        <View style={styles.archBlock}>
-          <Text style={styles.archHeading}>Arcada inferior</Text>
-          <View style={styles.archRow}>
-            {LOWER_ROW.map((n, i) => (
-              <ToothCell
-                key={n}
-                n={n}
-                state={state[n] ?? "sano"}
-                isGap={i === 8}
-              />
-            ))}
-          </View>
-        </View>
-
-        {/* Legend */}
-        <View style={styles.legendWrap}>
-          {(Object.keys(STATE_LABELS) as ToothState[]).map((k) => {
-            const c = STATE_COLORS[k];
-            return (
-              <View key={k} style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendBox,
-                    {
-                      backgroundColor: c.fill,
-                      borderColor: c.border,
-                      borderStyle: k === "ausente" ? "dashed" : "solid",
-                    },
-                  ]}
+          <View style={styles.archBlock}>
+            <Text style={styles.archLabel}>Arcada superior</Text>
+            <View style={styles.archRow}>
+              {UPPER_ROW.map((n, i) => (
+                <ToothCell
+                  key={n}
+                  n={n}
+                  state={state[n] ?? "sano"}
+                  isGap={i === 8}
                 />
-                <Text style={styles.legendText}>{STATE_LABELS[k]}</Text>
-              </View>
-            );
-          })}
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.midline} />
+
+          <View style={styles.archBlock}>
+            <Text style={styles.archLabel}>Arcada inferior</Text>
+            <View style={styles.archRow}>
+              {LOWER_ROW.map((n, i) => (
+                <ToothCell
+                  key={n}
+                  n={n}
+                  state={state[n] ?? "sano"}
+                  isGap={i === 8}
+                />
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.legendBox}>
+            {(Object.keys(STATE_LABELS) as ToothState[]).map((k) => {
+              const c = STATE_COLORS[k];
+              return (
+                <View key={k} style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendSwatch,
+                      {
+                        backgroundColor: c.fill,
+                        borderColor: c.border,
+                        borderStyle: k === "ausente" ? "dashed" : "solid",
+                      },
+                    ]}
+                  />
+                  <Text style={styles.legendLabel}>{STATE_LABELS[k]}</Text>
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         {/* Notes */}
         {notas.trim() ? (
-          <View style={styles.notesBlock}>
-            <Text style={styles.sectionLabel}>Notas y plan de tratamiento</Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Notas y plan de tratamiento</Text>
             <Text style={styles.notesBody}>{notas}</Text>
           </View>
         ) : null}
@@ -396,10 +388,10 @@ export function OdontogramPdf({
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerLeft}>
-            LitienGuard · Documento conforme a NOM-024-SSA3 · LFPDPPP
+          <Text style={styles.footerText}>
+            LitienGuard · NOM-024-SSA3 · LFPDPPP
           </Text>
-          <Text style={styles.footerRight}>
+          <Text style={styles.footerText}>
             Contiene únicamente información clínica
           </Text>
         </View>

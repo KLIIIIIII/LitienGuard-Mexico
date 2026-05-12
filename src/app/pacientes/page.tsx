@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHero } from "@/components/page-hero";
 import { FeatureList } from "@/components/feature-list";
 import { FinalCta } from "@/components/final-cta";
@@ -111,6 +112,23 @@ export default function PacientesPage() {
                 <p className="mt-1 text-body-sm text-ink-muted">{s.desc}</p>
               </TiltCard>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-line bg-canvas py-14">
+        <div className="lg-shell">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <Eyebrow>¿Ya tienes cita pendiente?</Eyebrow>
+              <p className="mt-2 max-w-2xl text-body text-ink-strong">
+                Si tu médico usa LitienGuard, puedes reservar tu cita
+                directamente en línea.
+              </p>
+            </div>
+            <Link href="/agendar" className="lg-cta-ghost shrink-0">
+              Agendar cita
+            </Link>
           </div>
         </div>
       </section>

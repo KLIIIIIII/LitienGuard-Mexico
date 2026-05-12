@@ -3,6 +3,8 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { CollectiveToggle } from "./collective-toggle";
 import { ConsultorioForm } from "./consultorio-form";
+import { BookingForm } from "./booking-form";
+import { canUseAgenda, type SubscriptionTier } from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +22,16 @@ export default async function ConfiguracionPage() {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("share_with_collective,nombre,email,role,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono")
+    .select(
+      "share_with_collective,nombre,email,role,subscription_tier,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio",
+    )
     .eq("id", user.id)
     .single();
+
+  const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const canBookings = canUseAgenda(tier);
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://litien-guard-mexico.vercel.app";
 
   const { count: practiceCount } = await supa
     .from("cerebro_chunks")
@@ -53,6 +62,22 @@ export default async function ConfiguracionPage() {
               consultorio_telefono: profile?.consultorio_telefono ?? null,
             }}
           />
+
+          {canBookings && (
+            <BookingForm
+              initial={{
+                accepts_public_bookings: profile?.accepts_public_bookings ?? false,
+                booking_slug: profile?.booking_slug ?? null,
+                booking_workdays: profile?.booking_workdays ?? [1, 2, 3, 4, 5],
+                booking_hour_start: profile?.booking_hour_start ?? 9,
+                booking_hour_end: profile?.booking_hour_end ?? 18,
+                booking_slot_minutes: profile?.booking_slot_minutes ?? 30,
+                booking_advance_days: profile?.booking_advance_days ?? 14,
+                booking_bio: profile?.booking_bio ?? null,
+              }}
+              siteUrl={siteUrl.replace(/\/$/, "")}
+            />
+          )}
 
           <CollectiveToggle
             initial={profile?.share_with_collective ?? false}
