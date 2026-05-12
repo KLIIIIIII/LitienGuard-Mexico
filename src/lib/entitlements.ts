@@ -1,30 +1,49 @@
 export const TIER_LABELS = {
-  free: "Gratis",
-  pilot: "Piloto",
-  pro: "Pro",
-  enterprise: "Enterprise",
+  free: "Explorador",
+  esencial: "Esencial",
+  pilot: "Esencial (piloto)",
+  pro: "Profesional",
+  enterprise: "Clínica",
 } as const;
 
 export const TIER_DESCRIPTIONS = {
-  free: "Acceso al panel — sin Scribe",
+  free: "Acceso al panel — 5 notas SOAP, sin cerebro",
+  esencial: "100 SOAPs + cerebro lectura + recetas básicas",
   pilot: "Scribe ilimitado durante piloto",
-  pro: "Scribe + Cerebro · Plan comercial",
-  enterprise: "Todo + RCM · Hospitales",
+  pro: "Scribe + cerebro + diferencial bayesiano + agenda",
+  enterprise: "Todo + RCM + multi-médico + SLA",
 } as const;
 
 export type SubscriptionTier = keyof typeof TIER_LABELS;
 
+// "pilot" is kept for backward compatibility — same access as "esencial".
+const ESENCIAL_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
 const SCRIBE_TIERS: SubscriptionTier[] = ["pilot", "pro", "enterprise"];
 const CEREBRO_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
-const RECETAS_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
+const RECETAS_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
 const AGENDA_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RCM_TIERS: SubscriptionTier[] = ["enterprise"];
+
+/**
+ * Read-only access to cerebro (search guidelines, no diferencial engine
+ * or auto-extraction). Available from Esencial.
+ */
+export function canReadCerebro(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  if (!tier) return false;
+  return ESENCIAL_TIERS.includes(tier);
+}
 
 export function canUseScribe(tier: SubscriptionTier | null | undefined): boolean {
   if (!tier) return false;
   return SCRIBE_TIERS.includes(tier);
 }
 
+/**
+ * Full cerebro access — includes diferencial bayesiano engine,
+ * auto-extraction of findings, evidence Q&A.
+ */
 export function canUseCerebro(
   tier: SubscriptionTier | null | undefined,
 ): boolean {
@@ -51,15 +70,12 @@ export function canUseRcm(tier: SubscriptionTier | null | undefined): boolean {
   return RCM_TIERS.includes(tier);
 }
 
-/**
- * Monthly Scribe note limit per tier. Returns Infinity for unlimited.
- * Free returns 0 — Scribe is gated upstream anyway.
- */
 export function scribeMonthlyLimit(
   tier: SubscriptionTier | null | undefined,
 ): number {
   switch (tier) {
     case "pilot":
+    case "esencial":
       return 100;
     case "pro":
       return 300;
@@ -77,6 +93,7 @@ export function tierBadgeClass(tier: SubscriptionTier | null | undefined): strin
     case "enterprise":
       return "bg-validation-soft text-validation";
     case "pilot":
+    case "esencial":
       return "bg-accent-soft text-accent";
     case "free":
     default:

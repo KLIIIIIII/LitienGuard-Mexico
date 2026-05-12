@@ -17,6 +17,7 @@ import {
   Calendar,
   CreditCard,
   Sparkles,
+  Gift,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -122,6 +123,12 @@ export function DashboardSidebar({
       label: "Facturación",
       icon: CreditCard,
       match: (p) => p.startsWith("/dashboard/billing"),
+    },
+    {
+      href: "/dashboard/referidos",
+      label: "Refiere y gana",
+      icon: Gift,
+      match: (p) => p.startsWith("/dashboard/referidos"),
     },
     {
       href: "/dashboard/configuracion",

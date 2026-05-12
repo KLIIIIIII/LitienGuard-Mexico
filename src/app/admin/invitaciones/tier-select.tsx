@@ -5,10 +5,11 @@ import { Check, AlertCircle, Loader2 } from "lucide-react";
 import { updateInvitationTier } from "./actions";
 import { TIER_LABELS, type SubscriptionTier } from "@/lib/entitlements";
 
-const TIERS: SubscriptionTier[] = ["free", "pilot", "pro", "enterprise"];
+const TIERS: SubscriptionTier[] = ["free", "esencial", "pilot", "pro", "enterprise"];
 
 const TIER_BG: Record<SubscriptionTier, string> = {
   free: "bg-warn-soft text-warn border-warn-soft",
+  esencial: "bg-accent-soft text-accent border-accent-soft",
   pilot: "bg-accent-soft text-accent border-accent-soft",
   pro: "bg-validation-soft text-validation border-validation-soft",
   enterprise: "bg-validation text-surface border-validation",

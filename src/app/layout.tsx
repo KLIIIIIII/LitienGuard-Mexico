@@ -9,6 +9,7 @@ import { PWARegister } from "@/components/pwa-register";
 import { PWAInstallBanner } from "@/components/pwa-install-banner";
 import { FeedbackFab } from "@/components/feedback-fab";
 import { ErrorReporter } from "@/components/error-reporter";
+import { ReferralCapture } from "@/components/referral-capture";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -98,6 +99,7 @@ export default function RootLayout({
         <PWAInstallBanner />
         <FeedbackFab />
         <ErrorReporter />
+        <ReferralCapture />
       </body>
     </html>
   );

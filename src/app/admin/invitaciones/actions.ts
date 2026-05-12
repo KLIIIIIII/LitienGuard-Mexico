@@ -7,7 +7,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 const inviteSchema = z.object({
   email: z.string().email("Correo inválido"),
   role: z.enum(["medico", "admin"]),
-  subscription_tier: z.enum(["free", "pilot", "pro", "enterprise"]),
+  subscription_tier: z.enum(["free", "esencial", "pilot", "pro", "enterprise"]),
   nombre: z.string().max(120).optional(),
   hospital: z.string().max(120).optional(),
 });
@@ -97,7 +97,7 @@ export async function revokeInvite(id: string): Promise<void> {
 const approveSchema = z.object({
   preregistroId: z.string().uuid(),
   role: z.enum(["medico", "admin"]),
-  subscription_tier: z.enum(["free", "pilot", "pro", "enterprise"]),
+  subscription_tier: z.enum(["free", "esencial", "pilot", "pro", "enterprise"]),
 });
 
 export async function approvePreregistro(
@@ -190,12 +190,12 @@ export async function approvePreregistro(
 
 const tierUpdateSchema = z.object({
   inviteId: z.string().uuid(),
-  tier: z.enum(["free", "pilot", "pro", "enterprise"]),
+  tier: z.enum(["free", "esencial", "pilot", "pro", "enterprise"]),
 });
 
 export async function updateInvitationTier(
   inviteId: string,
-  tier: "free" | "pilot" | "pro" | "enterprise",
+  tier: "free" | "esencial" | "pilot" | "pro" | "enterprise",
 ): Promise<{ status: "ok" } | { status: "error"; message: string }> {
   const parsed = tierUpdateSchema.safeParse({ inviteId, tier });
   if (!parsed.success) {

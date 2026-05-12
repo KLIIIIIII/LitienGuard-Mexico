@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseScribe, canUseCerebro, canUseRecetas, canUseAgenda, type SubscriptionTier } from "@/lib/entitlements";
+import { applyCapturedReferralCode } from "./referidos/actions";
 import { DashboardSidebar } from "./dashboard-sidebar";
 
 export default async function DashboardLayout({
@@ -36,6 +37,10 @@ export default async function DashboardLayout({
 
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
   const isAdmin = profile?.role === "admin";
+
+  // Fire-and-forget: apply captured referral cookie if first dashboard visit.
+  // Idempotent — won't apply twice. Silently no-ops if no captured code.
+  void applyCapturedReferralCode().catch(() => undefined);
 
   return (
     <div className="lg-shell grid gap-8 py-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 lg:py-8">
