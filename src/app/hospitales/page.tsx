@@ -5,11 +5,12 @@ import { FinalCta } from "@/components/final-cta";
 import { TiltCard } from "@/components/tilt-card";
 import { Eyebrow } from "@/components/eyebrow";
 import { ComplianceStrip } from "@/components/compliance-strip";
+import { HospitalPlatformPreview } from "@/components/hospitales/platform-preview";
 
 export const metadata: Metadata = {
-  title: "Para hospitales — Recupera ingresos y reduce DSO",
+  title: "Para hospitales — Plataforma operativa hospitalaria",
   description:
-    "Validación de pólizas en segundos, predicción de denegaciones, automatización de facturación y EHR ligero compatible con la Reforma de Salud Digital 2026.",
+    "Contabilización inteligente de CFDIs, dashboard financiero en tiempo real, gestor documental con audit log NOM-024. Recupera 5-15% de ingresos. Compatible con la Reforma LGS Salud Digital 2026.",
 };
 
 const RCM_FEATURES = [
@@ -80,18 +81,22 @@ export default function HospitalesPage() {
         eyebrow="Hospitales privados"
         title={
           <>
-            Recupera{" "}
-            <span className="lg-serif-italic text-validation">5–15%</span> de
-            ingresos. Cobra 20–30% más rápido.
+            Plataforma operativa{" "}
+            <span className="lg-serif-italic text-validation">hospitalaria</span>{" "}
+            sobre un mismo cerebro clínico.
           </>
         }
-        description="Validación de pólizas, predicción de denegaciones, automatización de facturación y un EHR ligero que cumple con la Reforma de Salud Digital 2026. Empezamos por el ciclo de ingresos donde la inversión se paga sola, y crecemos contigo a EHR completo cuando ya hay resultados visibles."
+        description="Contabilización inteligente de CFDIs, dashboard financiero en tiempo real para el CFO y gestor documental con audit log NOM-024. Tres módulos que recuperan 5-15% de ingresos perdidos en fugas administrativas. Compatibles con la Reforma LGS Salud Digital 2026 desde el primer día."
         variant="alt"
       />
 
       <ComplianceStrip />
 
-      <section className="border-b border-line bg-canvas py-20">
+      {/* New Adaral-style platform preview */}
+      <HospitalPlatformPreview />
+
+      {/* Ciclo de ingresos detalle */}
+      <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
           <Eyebrow>Ciclo de ingresos hospitalarios</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
@@ -109,7 +114,7 @@ export default function HospitalesPage() {
         </div>
       </section>
 
-      <section className="border-b border-line bg-surface-alt py-20">
+      <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
           <Eyebrow>Expediente clínico electrónico</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
@@ -126,7 +131,7 @@ export default function HospitalesPage() {
         </div>
       </section>
 
-      <section className="border-b border-line bg-canvas py-20">
+      <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
           <Eyebrow>¿Es para tu hospital?</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
@@ -151,7 +156,7 @@ export default function HospitalesPage() {
       </section>
 
       <FinalCta
-        title="Demo guiada — 30 minutos, con tus números."
+        title="Demo ejecutiva — 30 minutos, con tus números."
         description="Te mostramos exactamente cuánto podrías recuperar en tu operación. Sin compromiso, sin demos genéricas — usamos un pedazo de tu data real para cuantificar el caso."
       />
     </>
