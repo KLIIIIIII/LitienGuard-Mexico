@@ -88,10 +88,10 @@ export function HospitalPlatformPreview() {
             en seis meses.
           </h2>
           <p className="mt-4 max-w-prose text-body text-ink-muted">
-            Inspirado en lo que <span className="font-semibold">Adaral</span>{" "}
-            hace para despachos contables en España, adaptado al hospital
-            privado mexicano. Cumplimiento CFDI 4.0 + NOM-024 + Reforma LGS
-            Salud Digital 2026 desde el primer día.
+            Diseñada específicamente para el hospital privado mexicano:
+            cumplimiento CFDI 4.0 + NOM-024 + Reforma LGS Salud Digital 2026
+            desde el primer día. Sin reemplazar tu HIS, sin proyectos de
+            migración de un año.
           </p>
         </div>
 
