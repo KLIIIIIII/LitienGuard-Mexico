@@ -27,31 +27,78 @@ export default async function ReferidosPage() {
   } = await supa.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supa
+  let code: string | null = null;
+  let migrationMissing = false;
+
+  // Try to read referral_code. If column doesn't exist yet (migration 0019
+  // not applied), we'll get a specific Postgres error.
+  const { data: profile, error: profileErr } = await supa
     .from("profiles")
     .select("referral_code, nombre")
     .eq("id", user.id)
     .single();
 
-  let code = profile?.referral_code ?? null;
+  if (profileErr) {
+    const msg = (profileErr.message ?? "").toLowerCase();
+    if (
+      msg.includes("referral_code") ||
+      msg.includes("does not exist") ||
+      msg.includes("column")
+    ) {
+      migrationMissing = true;
+    }
+  } else if (profile?.referral_code) {
+    code = profile.referral_code;
+  }
 
-  // Fallback if trigger missed
-  if (!code) {
-    const { data: gen } = await supa.rpc("generate_referral_code");
-    if (gen) {
-      await supa
+  // No code yet — try SQL function first
+  if (!code && !migrationMissing) {
+    const { data: gen, error: rpcErr } = await supa.rpc(
+      "generate_referral_code",
+    );
+    if (rpcErr) {
+      const msg = (rpcErr.message ?? "").toLowerCase();
+      if (msg.includes("does not exist") || msg.includes("function")) {
+        migrationMissing = true;
+      }
+    } else if (gen) {
+      const { error: updateErr } = await supa
         .from("profiles")
         .update({ referral_code: gen as string })
         .eq("id", user.id);
-      code = gen as string;
+      if (!updateErr) {
+        code = gen as string;
+      }
     }
   }
 
-  const { data: referrals } = await supa
+  // Last resort fallback — generate a code client-side just so the page
+  // doesn't break. Won't be persisted until migration runs.
+  if (!code) {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let suffix = "";
+    for (let i = 0; i < 6; i++) {
+      suffix += chars[Math.floor(Math.random() * chars.length)];
+    }
+    code = `LG-${suffix}`;
+  }
+
+  const { data: referrals, error: refErr } = await supa
     .from("referrals")
     .select("id, status, created_at, qualified_at, rewarded_at")
     .eq("referrer_id", user.id)
     .order("created_at", { ascending: false });
+
+  if (refErr) {
+    const msg = (refErr.message ?? "").toLowerCase();
+    if (
+      msg.includes("referrals") ||
+      msg.includes("does not exist") ||
+      msg.includes("relation")
+    ) {
+      migrationMissing = true;
+    }
+  }
 
   const rows = (referrals ?? []) as ReferralRow[];
   const counts = {
@@ -106,16 +153,22 @@ export default async function ReferidosPage() {
         />
       </div>
 
-      {/* Code card */}
-      {code ? (
-        <ReferralCard code={code} />
-      ) : (
-        <div className="lg-card border-rose-soft border-2">
-          <p className="text-body-sm text-rose">
-            No pudimos generar tu código. Contacta a soporte.
+      {/* Migration pending banner */}
+      {migrationMissing && (
+        <div className="rounded-lg border border-warn-soft bg-warn-soft px-4 py-3">
+          <p className="text-body-sm font-semibold text-ink-strong">
+            Sistema de referidos en activación
+          </p>
+          <p className="mt-1 text-caption text-ink-muted leading-relaxed">
+            Tu código mostrado es temporal hasta que el admin aplique la
+            migración 0019 en Supabase. Aún puedes compartirlo — quedará
+            registrado en cuanto se active el sistema.
           </p>
         </div>
       )}
+
+      {/* Code card */}
+      <ReferralCard code={code} />
 
       {/* How it works */}
       <section className="lg-card">
