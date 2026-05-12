@@ -3,6 +3,7 @@ import { ShieldCheck } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { UserChip } from "@/components/user-chip";
 import { SolucionesMenu } from "@/components/soluciones-menu";
+import { MobileMenu } from "@/components/mobile-menu";
 
 const secondaryLinks = [
   { href: "/precios", label: "Precios" },
@@ -100,7 +101,10 @@ export async function TopBar() {
 
         <div className="flex items-center gap-3">
           {user ? (
-            <UserChip />
+            <>
+              <UserChip />
+              <MobileMenu isAdmin={isAdmin} isLoggedIn={true} />
+            </>
           ) : (
             <>
               <Link
@@ -109,9 +113,19 @@ export async function TopBar() {
               >
                 Entrar
               </Link>
-              <Link href="/contacto#piloto" className="lg-cta-primary">
+              <Link
+                href="/contacto#piloto"
+                className="hidden lg-cta-primary sm:inline-flex"
+              >
                 Solicita acceso piloto
               </Link>
+              <Link
+                href="/contacto#piloto"
+                className="lg-cta-primary text-[0.8rem] sm:hidden"
+              >
+                Piloto
+              </Link>
+              <MobileMenu isAdmin={isAdmin} isLoggedIn={false} />
             </>
           )}
         </div>
