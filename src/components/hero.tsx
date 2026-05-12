@@ -2,26 +2,29 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { AuroraMesh } from "@/components/aurora-mesh";
 import { HeroProductVisual } from "@/components/hero-product-visual";
 
-const FADE_UP = {
-  initial: { opacity: 0, y: 24 },
+/**
+ * Hero — diseño editorial institucional.
+ *
+ * Principios aplicados:
+ *   · Proporción áurea (φ=1.618) en spacing vertical:
+ *     21 → 34 → 55 → 89 → 144 px (escala Fibonacci).
+ *   · Tipografía dual: sans-bold para autoridad + serif italic para
+ *     gravitas editorial (Harvard / MIT / Stanford / Tec / Hospital Ángeles).
+ *   · Una sola declaración monumental, no tricolon.
+ *   · Whitespace dominante (1/φ del viewport).
+ *   · Eyebrow sin pill, sin dot animado.
+ *   · Animaciones cortas (300-500ms), no performativas.
+ */
+
+const FADE = {
+  initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
 };
 const EASE = [0.22, 1, 0.36, 1] as const;
-
-const TRUST_SOURCES = [
-  "IMSS-CENETEC",
-  "KDIGO 2024",
-  "ESC 2024",
-  "AHA-ACC 2024",
-  "Sepsis-3",
-  "ICHD-3",
-  "Mayo Clin",
-  "Harvard Medical",
-];
 
 export function Hero() {
   return (
@@ -30,55 +33,57 @@ export function Hero() {
         <AuroraMesh />
       </div>
 
-      <div className="lg-shell relative py-24 lg:py-32">
-        {/* Editorial headline column — centered, monumental */}
-        <div className="max-w-4xl">
-          <motion.div
-            {...FADE_UP}
-            transition={{ duration: 0.6, ease: EASE, delay: 0.0 }}
-            className="inline-flex items-center gap-2 rounded-full border border-validation-soft bg-surface/80 px-3 py-1 backdrop-blur"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-validation animate-pulse" />
-            <p className="text-caption font-semibold tracking-eyebrow uppercase text-validation">
-              México · 2026 · Reforma LGS Salud Digital
-            </p>
-          </motion.div>
-
-          <motion.h1
-            {...FADE_UP}
-            transition={{ duration: 0.8, ease: EASE, delay: 0.12 }}
-            className="mt-8 max-w-[20ch] text-display font-semibold tracking-tight text-ink leading-[1.02] sm:text-[clamp(2.75rem,6vw,4.5rem)]"
-          >
-            Evidencia que{" "}
-            <span className="lg-serif-italic text-validation">se cita</span>.
-            Tiempo que{" "}
-            <span className="lg-serif-italic text-validation">se recupera</span>.
-            Diagnósticos que{" "}
-            <span className="lg-serif-italic text-validation">llegan a tiempo</span>.
-          </motion.h1>
-
+      {/* Spacing áureo: 144px top, 89px bottom desktop · escala reducida mobile */}
+      <div className="lg-shell relative pt-[89px] pb-[55px] sm:pt-[120px] lg:pt-[144px] lg:pb-[89px]">
+        {/* Editorial column — ancho 1/φ ≈ 62% */}
+        <div className="max-w-[62ch]">
+          {/* Eyebrow institucional — texto simple, sin pill, sin dot */}
           <motion.p
-            {...FADE_UP}
-            transition={{ duration: 0.7, ease: EASE, delay: 0.28 }}
-            className="mt-8 max-w-2xl text-[1.05rem] leading-relaxed text-ink-muted sm:text-[1.15rem]"
+            {...FADE}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="text-[0.72rem] uppercase tracking-[0.18em] font-semibold text-ink-muted"
           >
-            El sistema operativo clínico para el médico privado mexicano. Un
-            cerebro curado en español, anclado en guías oficiales — IMSS,
-            CENETEC, KDIGO, ESC, AHA-ACC, AMA. Cero hallucination: solo
-            evidencia citada con número de página.
+            LitienGuard · Para médicos en México
           </motion.p>
 
-          {/* CTAs */}
+          {/* Headline monumental — sans-bold + serif italic en frase clave.
+              Escala áurea: 55 → 68 → 89 px (clamp responsive). */}
+          <motion.h1
+            {...FADE}
+            transition={{ duration: 0.5, ease: EASE, delay: 0.08 }}
+            className="mt-[21px] text-ink leading-[1.04] tracking-[-0.02em] font-semibold"
+            style={{
+              fontSize: "clamp(2.625rem, 6.2vw, 4.5rem)",
+            }}
+          >
+            La consulta,
+            <br />
+            <span className="lg-serif-italic font-normal text-validation">
+              como debió ser.
+            </span>
+          </motion.h1>
+
+          {/* Subtítulo — UNA sola frase clara. 21px desktop, leading generoso. */}
+          <motion.p
+            {...FADE}
+            transition={{ duration: 0.5, ease: EASE, delay: 0.16 }}
+            className="mt-[34px] max-w-[52ch] text-[1.0625rem] leading-[1.6] text-ink-muted sm:text-[1.3125rem] sm:leading-[1.55]"
+          >
+            El cerebro clínico curado en español, con cita verbatim a las
+            guías oficiales de México y del mundo.
+          </motion.p>
+
+          {/* CTAs — escala 55px gap, no agresivos */}
           <motion.div
-            {...FADE_UP}
-            transition={{ duration: 0.7, ease: EASE, delay: 0.42 }}
-            className="mt-10 flex flex-wrap items-center gap-3"
+            {...FADE}
+            transition={{ duration: 0.5, ease: EASE, delay: 0.24 }}
+            className="mt-[55px] flex flex-wrap items-center gap-3"
           >
             <Link
               href="#solicita-piloto"
-              className="group inline-flex items-center gap-2 rounded-full bg-ink-strong px-6 py-3 text-body-sm font-semibold text-canvas shadow-deep transition-all hover:bg-ink hover:shadow-soft"
+              className="group inline-flex items-center gap-2 rounded-full bg-ink-strong px-7 py-3.5 text-[0.95rem] font-semibold text-canvas transition-all hover:bg-ink hover:shadow-soft"
             >
-              Solicita acceso piloto
+              Solicitar acceso piloto
               <ArrowRight
                 className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
                 strokeWidth={2.2}
@@ -86,108 +91,42 @@ export function Hero() {
             </Link>
             <Link
               href="/medicos"
-              className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 px-6 py-3 text-body-sm font-semibold text-ink-strong backdrop-blur transition-colors hover:bg-surface"
+              className="inline-flex items-center gap-2 px-3 py-3.5 text-[0.95rem] font-semibold text-ink-strong hover:text-validation transition-colors"
             >
               Ver para médicos
+              <ArrowRight
+                className="h-3.5 w-3.5"
+                strokeWidth={2.2}
+              />
             </Link>
           </motion.div>
         </div>
 
-        {/* Stat row — proof points editorial */}
+        {/* Product visual — 144px gap (escala áurea). Anchura 1/φ ≈ 62% al desktop */}
         <motion.div
-          {...FADE_UP}
-          transition={{ duration: 0.8, ease: EASE, delay: 0.6 }}
-          className="mt-16 grid gap-x-10 gap-y-8 sm:grid-cols-3 lg:max-w-4xl"
-        >
-          <Stat
-            number="6.1 años"
-            label="Retraso diagnóstico promedio en ATTR-CM"
-            sub="hoy en México · Mayo Clin 2021"
-          />
-          <Stat
-            number="4-6 hrs"
-            label="Por día que un médico dedica a notas"
-            sub="hoy en México · FunSalud 2026"
-          />
-          <Stat
-            number="25.8%"
-            label="De diabéticos en control glucémico"
-            sub="hoy en México · ENSANUT 2023"
-          />
-        </motion.div>
-
-        {/* Product visual — large, premium */}
-        <motion.div
-          {...FADE_UP}
-          transition={{ duration: 1.1, ease: EASE, delay: 0.72 }}
-          className="mt-20 relative"
+          {...FADE}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.42 }}
+          className="mt-[89px] sm:mt-[144px]"
         >
           <HeroProductVisual />
         </motion.div>
 
-        {/* Trust strip — fuentes oficiales */}
-        <motion.div
-          {...FADE_UP}
-          transition={{ duration: 0.9, ease: EASE, delay: 0.92 }}
-          className="mt-16 border-t border-line pt-8"
+        {/* Trust line — UNA sola línea, sin animación performativa,
+            estilo "footnote académico" institucional. */}
+        <motion.p
+          {...FADE}
+          transition={{ duration: 0.5, ease: EASE, delay: 0.6 }}
+          className="mt-[55px] max-w-[62ch] text-[0.78rem] leading-relaxed text-ink-soft"
         >
-          <p className="text-[0.65rem] uppercase tracking-eyebrow font-semibold text-ink-soft text-center">
-            Cerebro anclado en guías oficiales — citas verbatim con número de página
-          </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-            {TRUST_SOURCES.map((source, i) => (
-              <motion.span
-                key={source}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                  duration: 0.6,
-                  delay: 1.0 + i * 0.05,
-                  ease: EASE,
-                }}
-                className="text-caption font-semibold text-ink-quiet tracking-tight"
-              >
-                {source}
-              </motion.span>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Subtle hint to keep scrolling */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, delay: 1.4 }}
-          className="mt-14 flex items-center justify-center gap-2 text-ink-quiet"
-        >
-          <Sparkles className="h-3 w-3" strokeWidth={2.2} />
-          <span className="text-caption tracking-tight">
-            Tres flujos. Un mismo cerebro. Continúa abajo.
+          Cerebro anclado en guías oficiales —{" "}
+          <span className="text-ink-muted font-medium">
+            IMSS · CENETEC · KDIGO · ESC · AHA-ACC · Sepsis-3 · Mayo Clinic ·
+            Harvard Medical School
           </span>
-        </motion.div>
+          . Cada recomendación se entrega con la cita verbatim y el número de
+          página del documento fuente.
+        </motion.p>
       </div>
     </section>
-  );
-}
-
-function Stat({
-  number,
-  label,
-  sub,
-}: {
-  number: string;
-  label: string;
-  sub: string;
-}) {
-  return (
-    <div className="border-t-2 border-ink-strong pt-4">
-      <p className="text-[2.5rem] font-bold tracking-tight tabular-nums text-ink-strong leading-none">
-        {number}
-      </p>
-      <p className="mt-3 text-body-sm font-medium leading-snug text-ink-strong max-w-[28ch]">
-        {label}
-      </p>
-      <p className="mt-1 text-[0.7rem] text-ink-muted tracking-tight">{sub}</p>
-    </div>
   );
 }
