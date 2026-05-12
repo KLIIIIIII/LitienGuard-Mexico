@@ -35,6 +35,7 @@ import {
   saveDiferencialSession,
   type SaveDiferencialInput,
 } from "./actions";
+import { ExtractPanel } from "./extract-panel";
 
 const CATEGORY_META: Record<
   FindingCategory,
@@ -144,6 +145,11 @@ export function DiferencialEngine() {
     setExpanded(null);
   }
 
+  function onExtractApply(extracted: Map<string, boolean | null>) {
+    setFindings(extracted);
+    setSavedId(null);
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       {/* ============================================================ */}
@@ -217,6 +223,12 @@ export function DiferencialEngine() {
             />
           </div>
         </section>
+
+        {/* Auto-extraction panel */}
+        <ExtractPanel
+          onApply={onExtractApply}
+          hasExistingFindings={nMarked > 0}
+        />
 
         {/* Findings checklist */}
         <section className="lg-card">
