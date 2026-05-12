@@ -55,20 +55,41 @@ function sampleCategorical<T>(
  * (pacientes que no tienen la enfermedad). Estimaciones de literatura.
  */
 const BASE_PREVALENCE: Record<string, number> = {
+  // ECG
   "ecg-low-voltage-paradox": 0.05,
   "ecg-pseudoinfarct": 0.07,
   "ecg-conduction-disease": 0.1,
+  "ecg-short-pr": 0.03,
+  "ecg-epsilon-wave": 0.005,
+  "ecg-twi-right-precordial": 0.04,
+  "ecg-stelevation-no-territory": 0.03,
+  "ecg-prolonged-qt": 0.03,
+  // Eco
   "echo-apical-sparing": 0.03,
   "echo-thick-walls": 0.18,
   "echo-biatrial-enlarge": 0.12,
   "echo-granular-sparkle": 0.06,
   "echo-asymmetric-septal": 0.04,
+  "echo-apical-ballooning": 0.005,
+  "echo-rv-dilation-akinesia": 0.01,
+  "echo-septal-bounce": 0.02,
+  // Lab
   "lab-ntprobnp-disproportionate": 0.15,
   "lab-flc-abnormal": 0.05,
+  "lab-troponin-rising": 0.1,
+  "lab-pyp-scan-positive": 0.03,
+  "lab-alpha-gal-low": 0.005,
+  // Historia
   "history-cts-bilateral": 0.04,
   "history-family-neuropathy": 0.03,
   "history-family-scd": 0.03,
+  "history-recent-viral": 0.3,
+  "history-emotional-stress": 0.15,
+  // Examen
   "exam-orthostasis": 0.08,
+  "exam-angiokeratoma": 0.005,
+  // Genética
+  "genetic-gla-mutation": 0.003,
 };
 
 /**

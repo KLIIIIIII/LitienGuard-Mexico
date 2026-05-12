@@ -1,16 +1,25 @@
 /**
- * Knowledge base del motor de inferencia v1 — cardiología enfocada en
- * cardiomiopatía infiltrativa / restrictiva. 6 enfermedades, 14 findings,
- * 50+ likelihood ratios todos respaldados por literatura citada.
+ * Knowledge base del motor de inferencia v2 — cardiomiopatías + agudo +
+ * restrictivo. 12 enfermedades, 29 findings, ~100 likelihood ratios todos
+ * respaldados por literatura citada.
  *
  * Fuentes principales:
  *   - 2025 ACC Concise Clinical Guidance for ATTR-CM (JACC sept 2025)
  *   - Phelan et al · Heart 2012 · apical sparing strain pattern
  *   - Westin et al · JACC 2022 · pre-cardiac amyloid manifestations
  *   - Grogan et al · Mayo Clin Proc 2021 · AI-ECG
- *   - ESC 2014 · Hypertrophic cardiomyopathy guidelines
+ *   - ESC 2014 / AHA-ACC 2024 · Hypertrophic cardiomyopathy guidelines
  *   - Falk et al · JACC 2016 · diagnostic algorithm for cardiac amyloid
  *   - Maurer et al · NEJM 2018 · ATTR-ACT (tafamidis)
+ *   - Bouwer et al · Eur Heart J 2024 · Fabry cardiomyopathy review
+ *   - Linhart et al · Eur Heart J 2020 · Fabry cardiac involvement
+ *   - Caforio et al · Eur Heart J 2013 · ESC myocarditis position paper
+ *   - Templin et al · NEJM 2015 · InterTAK registry takotsubo
+ *   - Ghadri et al · Eur Heart J 2018 · InterTAK diagnostic criteria
+ *   - Welch et al · Circulation 2014 · constrictive pericarditis criteria
+ *   - Geske et al · JACC 2016 · differentiating restrictive vs constrictive
+ *   - Marcus et al · Circulation 2010 · ARVC Task Force Criteria (revised)
+ *   - HRS 2014 · Sarcoidosis Cardíaca expert consensus
  *
  * Los LRs son consenso de literatura cuando hay múltiples fuentes.
  * Confidence se asigna por la solidez de la evidencia subyacente.
@@ -19,13 +28,14 @@
 import type { Disease, Finding, LikelihoodRatio } from "./types";
 
 // ============================================================
-// Enfermedades candidatas — 6 etiologías de LVH/restrictiva en >60 años
+// Enfermedades candidatas — 12 etiologías de cardiomiopatía / falla cardíaca
+// con LVH, restrictivo o presentación aguda
 // ============================================================
 export const DISEASES: Disease[] = [
   {
     id: "attr-cm",
     label: "ATTR-CM (amiloidosis cardíaca por transtiretina)",
-    prior: 0.05, // ~5% de HFpEF idiopático >65 años (Mayo Clin Proc 2019)
+    prior: 0.04,
   },
   {
     id: "al-amyloid",
@@ -35,12 +45,12 @@ export const DISEASES: Disease[] = [
   {
     id: "hfpef-idiopathic",
     label: "HFpEF idiopática / multifactorial",
-    prior: 0.65,
+    prior: 0.55,
   },
   {
     id: "hypertensive-hd",
     label: "Cardiopatía hipertensiva con LVH",
-    prior: 0.18,
+    prior: 0.15,
   },
   {
     id: "hcm",
@@ -53,16 +63,42 @@ export const DISEASES: Disease[] = [
     prior: 0.03,
   },
   {
-    id: "other",
-    label: "Otras causas de LVH / restrictivo",
+    id: "fabry",
+    label: "Enfermedad de Fabry (cardíaca)",
+    prior: 0.01,
+  },
+  {
+    id: "myocarditis-acute",
+    label: "Miocarditis aguda",
+    prior: 0.04,
+  },
+  {
+    id: "takotsubo",
+    label: "Cardiomiopatía de Takotsubo",
+    prior: 0.03,
+  },
+  {
+    id: "constrictive-pericarditis",
+    label: "Pericarditis constrictiva",
     prior: 0.02,
+  },
+  {
+    id: "arvc",
+    label: "Cardiomiopatía arritmogénica del VD (ARVC)",
+    prior: 0.02,
+  },
+  {
+    id: "other",
+    label: "Otras causas de LVH / restrictivo / cardiomiopatía",
+    prior: 0.04,
   },
 ];
 
 // ============================================================
-// Findings clínicos — 14 hallazgos relevantes para el diferencial
+// Findings clínicos — 29 hallazgos relevantes para el diferencial
 // ============================================================
 export const FINDINGS: Finding[] = [
+  // ---------------- ECG (8) ----------------
   {
     id: "ecg-low-voltage-paradox",
     label: "ECG bajo voltaje con LVH eco",
@@ -81,6 +117,38 @@ export const FINDINGS: Finding[] = [
     category: "ecg",
     detail: "BAV 1°, 2° o BCRD/BCRI sin causa clara",
   },
+  {
+    id: "ecg-short-pr",
+    label: "PR corto sin pre-excitación clásica",
+    category: "ecg",
+    detail: "PR <120 ms sin onda delta franca",
+  },
+  {
+    id: "ecg-epsilon-wave",
+    label: "Onda épsilon V1-V3",
+    category: "ecg",
+    detail: "Deflexión post-QRS de baja amplitud en precordiales derechas",
+  },
+  {
+    id: "ecg-twi-right-precordial",
+    label: "Inversión T en V1-V3 sin BCRD",
+    category: "ecg",
+    detail: "T negativa V1-V3 en adulto sin bloqueo de rama derecha",
+  },
+  {
+    id: "ecg-stelevation-no-territory",
+    label: "Elevación ST sin territorio coronario",
+    category: "ecg",
+    detail: "Difusa, no respeta distribución de coronaria epicárdica",
+  },
+  {
+    id: "ecg-prolonged-qt",
+    label: "QT prolongado adquirido",
+    category: "ecg",
+    detail: "QTc >470 ms (M) / 480 ms (F) sin fármaco que lo explique",
+  },
+
+  // ---------------- Eco (8) ----------------
   {
     id: "echo-apical-sparing",
     label: "Apical sparing en strain longitudinal",
@@ -112,6 +180,26 @@ export const FINDINGS: Finding[] = [
     detail: "Cociente septal/posterior >1.3",
   },
   {
+    id: "echo-apical-ballooning",
+    label: "Abalonamiento apical / disquinesia apical",
+    category: "echo",
+    detail: "Aquinesia apical con hipercinesia basal en sístole",
+  },
+  {
+    id: "echo-rv-dilation-akinesia",
+    label: "Dilatación VD con segmentos aquinéticos",
+    category: "echo",
+    detail: "VD dilatado con áreas aquinéticas/disquinéticas regionales",
+  },
+  {
+    id: "echo-septal-bounce",
+    label: "Rebote septal en diástole / variación respirofásica",
+    category: "echo",
+    detail: "Movimiento septal anormal diastólico + variación >25% mitral",
+  },
+
+  // ---------------- Lab (5) ----------------
+  {
     id: "lab-ntprobnp-disproportionate",
     label: "NT-proBNP desproporcionado a NYHA",
     category: "lab",
@@ -124,10 +212,30 @@ export const FINDINGS: Finding[] = [
     detail: "Ratio <0.26 o >1.65",
   },
   {
+    id: "lab-troponin-rising",
+    label: "Troponina elevada/ascendente sin coronario",
+    category: "lab",
+    detail: "Hs-troponina alta con coronariografía sin obstrucción",
+  },
+  {
+    id: "lab-pyp-scan-positive",
+    label: "PYP scan grado 2-3",
+    category: "lab",
+    detail: "Captación miocárdica difusa grado 2 o 3 (Perugini)",
+  },
+  {
+    id: "lab-alpha-gal-low",
+    label: "α-galactosidasa A leucocitaria baja",
+    category: "lab",
+    detail: "Actividad enzimática baja en leucocitos (hombres)",
+  },
+
+  // ---------------- Historia (5) ----------------
+  {
     id: "history-cts-bilateral",
     label: "Síndrome del túnel del carpo bilateral",
     category: "history",
-    detail: "Especialmente con cirugía descompresiva",
+    detail: "Especialmente con cirugía descompresiva previa",
   },
   {
     id: "history-family-neuropathy",
@@ -141,9 +249,37 @@ export const FINDINGS: Finding[] = [
     detail: "Familiar de 1° grado <50 años",
   },
   {
+    id: "history-recent-viral",
+    label: "Infección viral reciente (2-4 sem)",
+    category: "history",
+    detail: "Cuadro respiratorio o gastrointestinal viral previo",
+  },
+  {
+    id: "history-emotional-stress",
+    label: "Estrés emocional/físico severo reciente",
+    category: "history",
+    detail: "Trigger psicológico o físico mayor en las últimas 72 hrs",
+  },
+
+  // ---------------- Examen (2) ----------------
+  {
     id: "exam-orthostasis",
     label: "Hipotensión ortostática / disautonomía",
     category: "exam",
+  },
+  {
+    id: "exam-angiokeratoma",
+    label: "Angiokeratomas cutáneos",
+    category: "exam",
+    detail: "Pápulas rojo-púrpura en pelvis, ombligo, escroto",
+  },
+
+  // ---------------- Genética (1) ----------------
+  {
+    id: "genetic-gla-mutation",
+    label: "Mutación GLA conocida",
+    category: "genetic",
+    detail: "Variante patogénica confirmada en gen GLA (Fabry)",
   },
 ];
 
@@ -152,7 +288,7 @@ export const FINDINGS: Finding[] = [
 // LRs ≈ 1 (no informativos) se omiten para mantener la matriz manejable.
 // ============================================================
 export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
-  // -------- ATTR-CM --------
+  // ===== ATTR-CM =====
   {
     finding: "ecg-low-voltage-paradox",
     disease: "attr-cm",
@@ -220,9 +356,17 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
   {
     finding: "lab-flc-abnormal",
     disease: "attr-cm",
-    lrPlus: 0.6, // anormal sugiere AL, no ATTR
+    lrPlus: 0.6,
     lrMinus: 1.2,
     source: "Falk · JACC 2016 · differential AL vs ATTR",
+    confidence: "high",
+  },
+  {
+    finding: "lab-pyp-scan-positive",
+    disease: "attr-cm",
+    lrPlus: 35,
+    lrMinus: 0.05,
+    source: "Gillmore · Circulation 2016 · PYP grade 2-3 spec 100% sens 97%",
     confidence: "high",
   },
   {
@@ -250,12 +394,12 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     confidence: "medium",
   },
 
-  // -------- AL Amyloid --------
+  // ===== AL Amyloid =====
   {
     finding: "lab-flc-abnormal",
     disease: "al-amyloid",
-    lrPlus: 25, // alta especificidad
-    lrMinus: 0.05, // alta sensibilidad — descarta si normal
+    lrPlus: 25,
+    lrMinus: 0.05,
     source: "Falk · JACC 2016 · FLC + electroforesis screening AL",
     confidence: "high",
   },
@@ -291,14 +435,22 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     source: "Falk · JACC 2016",
     confidence: "medium",
   },
+  {
+    finding: "lab-pyp-scan-positive",
+    disease: "al-amyloid",
+    lrPlus: 1.5,
+    lrMinus: 0.9,
+    source: "Gillmore · Circulation 2016 · ~20% AL PYP+ grado leve",
+    confidence: "medium",
+  },
 
-  // -------- HCM (sarcomérica) --------
+  // ===== HCM =====
   {
     finding: "echo-asymmetric-septal",
     disease: "hcm",
     lrPlus: 8,
     lrMinus: 0.18,
-    source: "ESC HCM Guidelines 2014 · diagnostic criteria",
+    source: "AHA-ACC HCM 2024 Guidelines · diagnostic criteria",
     confidence: "high",
   },
   {
@@ -306,7 +458,7 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     disease: "hcm",
     lrPlus: 3.5,
     lrMinus: 0.1,
-    source: "ESC HCM Guidelines 2014",
+    source: "AHA-ACC HCM 2024 Guidelines",
     confidence: "high",
   },
   {
@@ -314,7 +466,7 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     disease: "hcm",
     lrPlus: 10,
     lrMinus: 0.7,
-    source: "ESC HCM Guidelines 2014 · familial history HCM",
+    source: "AHA-ACC HCM 2024 · familial history HCM",
     confidence: "high",
   },
   {
@@ -322,15 +474,15 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     disease: "hcm",
     lrPlus: 2.0,
     lrMinus: 0.85,
-    source: "ESC HCM Guidelines 2014",
+    source: "AHA-ACC HCM 2024",
     confidence: "medium",
   },
   {
     finding: "ecg-low-voltage-paradox",
     disease: "hcm",
-    lrPlus: 0.5, // HCM tiene voltaje alto típicamente
+    lrPlus: 0.5,
     lrMinus: 1.1,
-    source: "ESC HCM Guidelines 2014",
+    source: "AHA-ACC HCM 2024 · HCM tiene voltaje alto típicamente",
     confidence: "medium",
   },
   {
@@ -341,8 +493,16 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     source: "Westin · JACC 2022 · differential vs amyloid",
     confidence: "medium",
   },
+  {
+    finding: "ecg-twi-right-precordial",
+    disease: "hcm",
+    lrPlus: 2.2,
+    lrMinus: 0.9,
+    source: "Yamaguchi · Am J Cardiol 1979 · HCM apical TWI gigante",
+    confidence: "medium",
+  },
 
-  // -------- Cardiopatía hipertensiva --------
+  // ===== Cardiopatía hipertensiva =====
   {
     finding: "echo-thick-walls",
     disease: "hypertensive-hd",
@@ -376,9 +536,7 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     confidence: "high",
   },
 
-  // -------- HFpEF idiopática --------
-  // HFpEF es heterogénea, casi no tiene findings específicos.
-  // Sus LRs son cercanos a 1 — actúa como prior basal.
+  // ===== HFpEF idiopática =====
   {
     finding: "echo-thick-walls",
     disease: "hfpef-idiopathic",
@@ -398,7 +556,7 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
   {
     finding: "echo-apical-sparing",
     disease: "hfpef-idiopathic",
-    lrPlus: 0.3, // si hay apical sparing, no es HFpEF idiopática
+    lrPlus: 0.3,
     lrMinus: 1.1,
     source: "Phelan · Heart 2012 · controls HFpEF",
     confidence: "high",
@@ -412,7 +570,7 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     confidence: "high",
   },
 
-  // -------- Sarcoidosis cardíaca --------
+  // ===== Sarcoidosis cardíaca =====
   {
     finding: "ecg-conduction-disease",
     disease: "cardiac-sarcoid",
@@ -435,6 +593,248 @@ export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     lrPlus: 0.5,
     lrMinus: 1.1,
     source: "HRS 2014 Sarcoidosis",
+    confidence: "medium",
+  },
+  {
+    finding: "lab-troponin-rising",
+    disease: "cardiac-sarcoid",
+    lrPlus: 1.8,
+    lrMinus: 0.85,
+    source: "HRS 2014 Sarcoidosis · active inflammation",
+    confidence: "medium",
+  },
+
+  // ===== Fabry =====
+  {
+    finding: "ecg-short-pr",
+    disease: "fabry",
+    lrPlus: 7,
+    lrMinus: 0.4,
+    source: "Linhart · Eur Heart J 2020 · ECG features Fabry",
+    confidence: "high",
+  },
+  {
+    finding: "echo-thick-walls",
+    disease: "fabry",
+    lrPlus: 3,
+    lrMinus: 0.15,
+    source: "Bouwer · Eur Heart J 2024 · LVH casi universal en Fabry cardíaco",
+    confidence: "high",
+  },
+  {
+    finding: "echo-asymmetric-septal",
+    disease: "fabry",
+    lrPlus: 0.8,
+    lrMinus: 1.05,
+    source: "Linhart · Eur Heart J 2020 · concéntrica más común",
+    confidence: "medium",
+  },
+  {
+    finding: "echo-apical-sparing",
+    disease: "fabry",
+    lrPlus: 0.6,
+    lrMinus: 1.05,
+    source: "Bouwer · Eur Heart J 2024 · strain Fabry vs amyloid",
+    confidence: "medium",
+  },
+  {
+    finding: "exam-angiokeratoma",
+    disease: "fabry",
+    lrPlus: 30,
+    lrMinus: 0.7,
+    source: "Linhart · Eur Heart J 2020 · angiokeratoma patognomónico",
+    confidence: "high",
+  },
+  {
+    finding: "genetic-gla-mutation",
+    disease: "fabry",
+    lrPlus: 200,
+    lrMinus: 0.05,
+    source: "Linhart · Eur Heart J 2020 · diagnóstico genético confirmatorio",
+    confidence: "high",
+  },
+  {
+    finding: "lab-alpha-gal-low",
+    disease: "fabry",
+    lrPlus: 50,
+    lrMinus: 0.1,
+    source: "Linhart · Eur Heart J 2020 · enzima leucocitaria en hombres",
+    confidence: "high",
+  },
+  {
+    finding: "history-family-neuropathy",
+    disease: "fabry",
+    lrPlus: 3.5,
+    lrMinus: 0.7,
+    source: "Bouwer · Eur Heart J 2024 · neuropatía dolorosa Fabry",
+    confidence: "medium",
+  },
+
+  // ===== Miocarditis aguda =====
+  {
+    finding: "history-recent-viral",
+    disease: "myocarditis-acute",
+    lrPlus: 6,
+    lrMinus: 0.35,
+    source: "Caforio · Eur Heart J 2013 · ESC myocarditis position paper",
+    confidence: "high",
+  },
+  {
+    finding: "lab-troponin-rising",
+    disease: "myocarditis-acute",
+    lrPlus: 7,
+    lrMinus: 0.2,
+    source: "Caforio · Eur Heart J 2013 · troponina criterio diagnóstico",
+    confidence: "high",
+  },
+  {
+    finding: "ecg-stelevation-no-territory",
+    disease: "myocarditis-acute",
+    lrPlus: 5,
+    lrMinus: 0.5,
+    source: "Caforio · Eur Heart J 2013 · pericarditis acompañante",
+    confidence: "high",
+  },
+  {
+    finding: "ecg-prolonged-qt",
+    disease: "myocarditis-acute",
+    lrPlus: 2.5,
+    lrMinus: 0.8,
+    source: "Caforio · Eur Heart J 2013",
+    confidence: "medium",
+  },
+  {
+    finding: "echo-thick-walls",
+    disease: "myocarditis-acute",
+    lrPlus: 1.6,
+    lrMinus: 0.75,
+    source: "Caforio · Eur Heart J 2013 · edema miocárdico",
+    confidence: "low",
+  },
+
+  // ===== Takotsubo =====
+  {
+    finding: "history-emotional-stress",
+    disease: "takotsubo",
+    lrPlus: 15,
+    lrMinus: 0.3,
+    source: "Templin · NEJM 2015 · InterTAK registry n=1750",
+    confidence: "high",
+  },
+  {
+    finding: "echo-apical-ballooning",
+    disease: "takotsubo",
+    lrPlus: 35,
+    lrMinus: 0.1,
+    source: "Ghadri · Eur Heart J 2018 · InterTAK criteria typical",
+    confidence: "high",
+  },
+  {
+    finding: "lab-troponin-rising",
+    disease: "takotsubo",
+    lrPlus: 3,
+    lrMinus: 0.4,
+    source: "Templin · NEJM 2015 · troponina elevada modesta",
+    confidence: "high",
+  },
+  {
+    finding: "ecg-stelevation-no-territory",
+    disease: "takotsubo",
+    lrPlus: 3.5,
+    lrMinus: 0.5,
+    source: "Ghadri · Eur Heart J 2018",
+    confidence: "high",
+  },
+  {
+    finding: "ecg-prolonged-qt",
+    disease: "takotsubo",
+    lrPlus: 4,
+    lrMinus: 0.5,
+    source: "Ghadri · Eur Heart J 2018 · QT prolongado característico subagudo",
+    confidence: "high",
+  },
+
+  // ===== Pericarditis constrictiva =====
+  {
+    finding: "echo-septal-bounce",
+    disease: "constrictive-pericarditis",
+    lrPlus: 18,
+    lrMinus: 0.2,
+    source: "Welch · Circulation 2014 · Mayo criteria · sens 94% spec 81%",
+    confidence: "high",
+  },
+  {
+    finding: "echo-thick-walls",
+    disease: "constrictive-pericarditis",
+    lrPlus: 0.6,
+    lrMinus: 1.1,
+    source: "Geske · JACC 2016 · paredes normales en constrictiva pura",
+    confidence: "high",
+  },
+  {
+    finding: "echo-biatrial-enlarge",
+    disease: "constrictive-pericarditis",
+    lrPlus: 1.2,
+    lrMinus: 0.85,
+    source: "Geske · JACC 2016",
+    confidence: "low",
+  },
+  {
+    finding: "echo-apical-sparing",
+    disease: "constrictive-pericarditis",
+    lrPlus: 0.6,
+    lrMinus: 1.05,
+    source: "Geske · JACC 2016 · strain conservado",
+    confidence: "medium",
+  },
+  {
+    finding: "lab-ntprobnp-disproportionate",
+    disease: "constrictive-pericarditis",
+    lrPlus: 0.4,
+    lrMinus: 1.2,
+    source: "Geske · JACC 2016 · BNP relativamente bajo (<200)",
+    confidence: "high",
+  },
+
+  // ===== ARVC =====
+  {
+    finding: "ecg-epsilon-wave",
+    disease: "arvc",
+    lrPlus: 50,
+    lrMinus: 0.7,
+    source: "Marcus · Circulation 2010 · ARVC Task Force criterion mayor",
+    confidence: "high",
+  },
+  {
+    finding: "ecg-twi-right-precordial",
+    disease: "arvc",
+    lrPlus: 9,
+    lrMinus: 0.3,
+    source: "Marcus · Circulation 2010 · TWI V1-V3 criterio mayor",
+    confidence: "high",
+  },
+  {
+    finding: "echo-rv-dilation-akinesia",
+    disease: "arvc",
+    lrPlus: 22,
+    lrMinus: 0.25,
+    source: "Marcus · Circulation 2010 · imaging criterio mayor",
+    confidence: "high",
+  },
+  {
+    finding: "history-family-scd",
+    disease: "arvc",
+    lrPlus: 6,
+    lrMinus: 0.7,
+    source: "Marcus · Circulation 2010 · familial component ARVC",
+    confidence: "high",
+  },
+  {
+    finding: "echo-thick-walls",
+    disease: "arvc",
+    lrPlus: 0.5,
+    lrMinus: 1.05,
+    source: "Marcus · Circulation 2010 · VI usualmente normal",
     confidence: "medium",
   },
 ];
