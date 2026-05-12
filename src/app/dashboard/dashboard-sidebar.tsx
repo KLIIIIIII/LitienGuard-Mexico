@@ -15,6 +15,7 @@ import {
   Smile,
   Pill,
   Calendar,
+  CreditCard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -107,6 +108,12 @@ export function DashboardSidebar({
       label: "Seguridad",
       icon: Lock,
       match: (p) => p.startsWith("/dashboard/seguridad"),
+    },
+    {
+      href: "/dashboard/billing",
+      label: "Facturación",
+      icon: CreditCard,
+      match: (p) => p.startsWith("/dashboard/billing"),
     },
     {
       href: "/dashboard/configuracion",
