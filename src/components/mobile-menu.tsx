@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ChevronRight, ShieldCheck } from "lucide-react";
@@ -33,7 +34,13 @@ const PRIMARY_GROUPS = [
 
 export function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  // Portal solo en cliente — evita hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Cerrar al cambiar de ruta
   useEffect(() => {
@@ -61,18 +68,14 @@ export function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  return (
+  /*
+   * Drawer renderizado vía Portal a document.body. iOS Safari tiene un
+   * bug donde `position: fixed` dentro de un ancestor con backdrop-filter
+   * queda atrapado en el stacking context del ancestor (el <header> tiene
+   * backdrop-blur-sm). Sacar el drawer al body via Portal lo libera.
+   */
+  const drawer = (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Abrir menú"
-        className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-strong transition-colors hover:bg-surface-alt"
-      >
-        <Menu className="h-5 w-5" strokeWidth={2} />
-      </button>
-
-      {/* Backdrop */}
       {open && (
         <button
           type="button"
@@ -82,7 +85,6 @@ export function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
         />
       )}
 
-      {/* Panel */}
       <aside
         className={`fixed inset-y-0 right-0 z-[70] w-[88%] max-w-sm transform overflow-y-auto bg-canvas shadow-deep transition-transform duration-300 ease-out md:hidden ${
           open ? "translate-x-0" : "translate-x-full"
@@ -176,6 +178,21 @@ export function MobileMenu({ isAdmin, isLoggedIn }: MobileMenuProps) {
           </Link>
         </div>
       </aside>
+    </>
+  );
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Abrir menú"
+        className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-strong transition-colors hover:bg-surface-alt"
+      >
+        <Menu className="h-5 w-5" strokeWidth={2} />
+      </button>
+
+      {mounted && createPortal(drawer, document.body)}
     </>
   );
 }
