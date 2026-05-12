@@ -10,6 +10,7 @@ import {
   Database,
   Beaker,
   AlertCircle,
+  Download,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -55,18 +56,32 @@ export default async function ValidacionPage() {
 
   return (
     <div className="lg-shell py-12 lg:py-16 space-y-8">
-      <header>
-        <Eyebrow tone="validation">Validación retrospectiva</Eyebrow>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          Motor de inferencia bayesiano · benchmark sintético
-        </h1>
-        <p className="mt-3 max-w-prose text-body text-ink-muted">
-          Cohorte sintética de {benchmark.cohort.total.toLocaleString("es-MX")}{" "}
-          pacientes calibrada con likelihood ratios y prevalencias publicadas
-          (Mayo Clin Proc 2021, Heart 2012, JACC 2016/2022, 2025 ACC). Genera
-          findings clínicos según la enfermedad real, corre el motor, mide
-          performance. Reproducible con seed = {benchmark.seed}.
-        </p>
+      <header className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <Eyebrow tone="validation">Validación retrospectiva</Eyebrow>
+          <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+            Motor de inferencia bayesiano · benchmark sintético
+          </h1>
+          <p className="mt-3 max-w-prose text-body text-ink-muted">
+            Cohorte sintética de{" "}
+            {benchmark.cohort.total.toLocaleString("es-MX")} pacientes
+            calibrada con likelihood ratios y prevalencias publicadas (Mayo
+            Clin Proc 2021, Heart 2012, JACC 2016/2022, 2025 ACC, ESC HF
+            2021, AHA-ACC HCM 2024, Sepsis-3, Duke-ISCVID 2023, ATS/IDSA
+            2019). Genera findings clínicos según la enfermedad real, corre
+            el motor, mide performance. Reproducible con seed ={" "}
+            {benchmark.seed}.
+          </p>
+        </div>
+        <a
+          href="/api/admin/validacion/export?size=5000&seed=42"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-validation bg-validation-soft px-4 py-2 text-caption font-semibold text-validation hover:bg-validation hover:text-surface transition-colors"
+        >
+          <Download className="h-3.5 w-3.5" strokeWidth={2.2} />
+          Exportar reporte JSON (n=5000)
+        </a>
       </header>
 
       {/* Headline metrics — ATTR-CM detection */}
