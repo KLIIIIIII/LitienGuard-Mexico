@@ -8,18 +8,35 @@ import {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 56,
+    /*
+     * paddingTop suficiente para dejar espacio al header fixed que se
+     * repite en cada página. Sin esto, en página 2+ el contenido se
+     * dibuja encima del header (overlap). 56 (margen base) + 56 (alto
+     * del header con padding y border) ≈ 112.
+     */
+    paddingTop: 112,
+    paddingBottom: 80,
+    paddingHorizontal: 56,
     fontFamily: "Helvetica",
     fontSize: 10,
     color: "#1F1E1B",
     backgroundColor: "#FBFAF6",
+    lineHeight: 1.55,
   },
   header: {
+    /*
+     * Header fixed — se posiciona absolutamente en cada página.
+     * El paddingTop del page deja espacio para que no se solape con
+     * el contenido normal.
+     */
+    position: "absolute",
+    top: 56,
+    left: 56,
+    right: 56,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 24,
-    paddingBottom: 12,
+    paddingBottom: 10,
     borderBottomWidth: 0.6,
     borderBottomColor: "#C9C4B8",
   },
@@ -122,10 +139,13 @@ const styles = StyleSheet.create({
   },
   soapBody: {
     fontSize: 10,
-    lineHeight: 1.55,
+    lineHeight: 1.6,
     color: "#2C2B27",
     paddingLeft: 30,
     paddingRight: 6,
+  },
+  soapSpacer: {
+    marginBottom: 14,
   },
   soapEmpty: {
     fontSize: 9,
@@ -173,6 +193,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#EFECE3",
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     fontSize: 7,
     color: "#8B887F",
   },

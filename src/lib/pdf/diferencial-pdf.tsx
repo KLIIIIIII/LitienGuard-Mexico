@@ -9,18 +9,28 @@ import { FINDINGS } from "@/lib/inference/knowledge-base";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 48,
+    /*
+     * paddingTop deja espacio al header fixed para evitar overlap
+     * en página 2+. 48 (margen) + 50 (header) ≈ 98.
+     */
+    paddingTop: 100,
+    paddingBottom: 80,
+    paddingHorizontal: 48,
     fontFamily: "Helvetica",
     fontSize: 10,
     color: "#1F1E1B",
     backgroundColor: "#FBFAF6",
+    lineHeight: 1.55,
   },
   header: {
+    position: "absolute",
+    top: 48,
+    left: 48,
+    right: 48,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 20,
-    paddingBottom: 12,
+    paddingBottom: 10,
     borderBottomWidth: 0.6,
     borderBottomColor: "#C9C4B8",
   },
@@ -194,19 +204,19 @@ const styles = StyleSheet.create({
   outcomePendiente: { backgroundColor: "#F4F2EB", color: "#8B887F" },
   footer: {
     position: "absolute",
-    bottom: 28,
+    bottom: 32,
     left: 48,
-    right: 48,
+    right: 90,
     paddingTop: 8,
     borderTopWidth: 0.5,
     borderTopColor: "#C9C4B8",
     fontSize: 7.5,
     color: "#8B887F",
-    lineHeight: 1.4,
+    lineHeight: 1.45,
   },
   pageNumber: {
     position: "absolute",
-    bottom: 28,
+    bottom: 32,
     right: 48,
     fontSize: 8,
     color: "#8B887F",

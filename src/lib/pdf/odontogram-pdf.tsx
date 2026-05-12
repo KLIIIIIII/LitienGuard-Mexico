@@ -41,13 +41,13 @@ const ACCENT_SOFT = "#E5EDE8";
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 36,
-    paddingBottom: 70,
-    paddingHorizontal: 40,
+    paddingTop: 40,
+    paddingBottom: 80,
+    paddingHorizontal: 44,
     fontSize: 10,
     color: INK,
     fontFamily: "Helvetica",
-    lineHeight: 1.4,
+    lineHeight: 1.55,
   },
 
   // Header
