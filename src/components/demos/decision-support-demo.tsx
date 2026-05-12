@@ -56,11 +56,11 @@ export function DecisionSupportDemo() {
           title="Iniciar dapagliflozina 10 mg/día"
           mechanism="Natriuresis, atenuación RAAS y cambio en sustrato energético cardíaco — beneficio CV independiente de glucemia."
           evidence="«Recommend SGLT2 inhibitor in patients with HFrEF and CKD eGFR ≥20 mL/min/1.73 m², independent of glycemic control.»"
-          source="KDIGO 2024 Clinical Practice Guideline for Diabetes Management in CKD · §4.3.2 · pág. 81"
+          source="AHA/ACC/HFSA 2022 HF Guideline · Class I LOE A · Heidenreich et al · JAHA 2022 · DAPA-HF (NEJM 2019) + EMPEROR-Reduced (NEJM 2020)"
           stats={[
             { label: "HR mortalidad CV / HF", value: "0.74" },
-            { label: "DAPA-HF, 18 meses", value: "—" },
-            { label: "NNT", value: "21" },
+            { label: "DAPA-HF, 18 m", value: "—" },
+            { label: "NNT 21", value: "—" },
           ]}
           contraindications={[
             "DM tipo 1 (riesgo CAD)",
@@ -76,11 +76,11 @@ export function DecisionSupportDemo() {
           title="Switch lisinopril → sacubitril/valsartán 49/51 mg BID"
           mechanism="Inhibición de neprilisina aumenta péptidos natriuréticos (BNP) y reduce remodelado. Bloqueo RAS preservado por valsartán."
           evidence="«En pacientes con HFrEF crónica sintomática (NYHA II-III), reemplazar IECA por sacubitril/valsartán para reducir morbimortalidad.»"
-          source="ESC Heart Failure Guidelines 2021 · §8.2.1 · Tabla 18 · pág. 3631"
+          source="ESC HF 2023 Focused Update · Class I · McDonagh et al · Eur Heart J 2023 · PARADIGM-HF (NEJM 2014, McMurray)"
           stats={[
             { label: "HR mortalidad CV / HF", value: "0.80" },
-            { label: "PARADIGM-HF, 27 meses", value: "—" },
-            { label: "NNT", value: "21" },
+            { label: "PARADIGM-HF, 27 m", value: "—" },
+            { label: "NNT 21", value: "—" },
           ]}
           contraindications={[
             "Hx angioedema con IECA",
@@ -97,11 +97,11 @@ export function DecisionSupportDemo() {
           title="Titular carvedilol a 25 mg BID en 4 semanas"
           mechanism="Beneficio mortalidad es dosis-dependiente. Dosis actual (6.25 BID) es 25% del target."
           evidence="«Beta-blockers should be uptitrated to maximum tolerated dose at intervals of ≥2 weeks.»"
-          source="AHA/ACC/HFSA 2022 Heart Failure Guideline · §7.3.2 · pág. e905"
+          source="AHA/ACC/HFSA 2022 HF Guideline · Class I LOE A · Heidenreich et al · JAHA 2022 · COPERNICUS (NEJM 2001, Packer)"
           stats={[
             { label: "HR mortalidad", value: "0.65" },
-            { label: "COPERNICUS, dosis target", value: "—" },
-            { label: "NNT 1 año", value: "14" },
+            { label: "COPERNICUS, target", value: "—" },
+            { label: "NNT 1 a", value: "14" },
           ]}
           contraindications={[
             "Bradicardia sintomática <50 lpm",
