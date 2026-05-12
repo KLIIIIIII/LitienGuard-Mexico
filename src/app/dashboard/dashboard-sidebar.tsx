@@ -16,6 +16,7 @@ import {
   Pill,
   Calendar,
   CreditCard,
+  Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -95,6 +96,13 @@ export function DashboardSidebar({
       label: "Cerebro",
       icon: BookOpen,
       match: (p) => p.startsWith("/dashboard/cerebro"),
+      locked: !canCerebro,
+    },
+    {
+      href: "/dashboard/diferencial",
+      label: "Diferencial",
+      icon: Sparkles,
+      match: (p) => p.startsWith("/dashboard/diferencial"),
       locked: !canCerebro,
     },
     {
