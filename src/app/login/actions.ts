@@ -12,11 +12,18 @@ import { checkIpLockout, recordKnownDevice } from "@/lib/security";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 const emailSchema = z.string().email("Correo inválido");
+const otpSchema = z.string().regex(/^\d{6}$/, "El código debe ser de 6 dígitos");
 
 export type LoginState =
   | { status: "idle" }
-  | { status: "ok"; message: string }
+  | { status: "ok"; message: string; email: string }
   | { status: "error"; message: string };
+
+export type VerifyState =
+  | { status: "idle" }
+  | { status: "ok" }
+  | { status: "error"; message: string }
+  | { status: "mfa_required" };
 
 export async function requestMagicLink(
   email: string,
@@ -130,9 +137,105 @@ export async function requestMagicLink(
 
   return {
     status: "ok",
+    email: normalized,
     message:
-      "Revisa tu correo. Te enviamos un link de un solo clic para entrar.",
+      "Revisa tu correo. Te enviamos un código de 6 dígitos y un magic link.",
   };
+}
+
+export async function verifyOtpCode(
+  email: string,
+  token: string,
+): Promise<VerifyState> {
+  const emailParsed = emailSchema.safeParse(email);
+  if (!emailParsed.success) {
+    return { status: "error", message: "Correo inválido" };
+  }
+  const tokenParsed = otpSchema.safeParse(token.trim().replace(/\s+/g, ""));
+  if (!tokenParsed.success) {
+    return {
+      status: "error",
+      message: tokenParsed.error.issues[0]?.message ?? "Código inválido",
+    };
+  }
+
+  const hdrs = await headers();
+  const ip = extractIp(hdrs);
+
+  const lockout = await checkIpLockout(ip);
+  if (lockout.locked) {
+    return {
+      status: "error",
+      message: "Tu IP está temporalmente bloqueada. Inténtalo más tarde.",
+    };
+  }
+
+  const rl = await checkRateLimit(ip, "login");
+  if (!rl.allowed) {
+    return {
+      status: "error",
+      message: "Demasiados intentos. Espera unos minutos.",
+    };
+  }
+
+  const supa = await createSupabaseServer();
+  const { error } = await supa.auth.verifyOtp({
+    email: emailParsed.data.toLowerCase().trim(),
+    token: tokenParsed.data,
+    type: "email",
+  });
+
+  if (error) {
+    console.error("[login] verifyOtp error:", error);
+    void recordAudit({
+      action: "login.otp_failed",
+      resource: emailParsed.data.toLowerCase().trim(),
+      ip,
+      metadata: { reason: error.message },
+    });
+
+    if (/expired/i.test(error.message)) {
+      return {
+        status: "error",
+        message: "El código expiró. Pide uno nuevo.",
+      };
+    }
+    if (/invalid|otp/i.test(error.message)) {
+      return {
+        status: "error",
+        message: "Código incorrecto. Revisa y vuelve a intentar.",
+      };
+    }
+    return {
+      status: "error",
+      message: "No pudimos verificar el código. Inténtalo de nuevo.",
+    };
+  }
+
+  // Check MFA requirement
+  try {
+    const { data: aal } =
+      await supa.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+      void recordAudit({
+        action: "login.otp_verified_mfa_pending",
+        resource: emailParsed.data.toLowerCase().trim(),
+        ip,
+      });
+      return { status: "mfa_required" };
+    }
+  } catch (e) {
+    console.warn("[login] AAL check failed:", e);
+  }
+
+  void recordAudit({
+    action: "login.otp_verified",
+    resource: emailParsed.data.toLowerCase().trim(),
+    ip,
+    userAgent: hdrs.get("user-agent"),
+  });
+
+  return { status: "ok" };
 }
 
 export async function signOut(): Promise<void> {
