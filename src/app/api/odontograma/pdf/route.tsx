@@ -50,6 +50,12 @@ export async function GET(request: NextRequest) {
     state = {};
   }
 
+  const { data: profile } = await supa
+    .from("profiles")
+    .select("pdf_brand_titulo, pdf_brand_subtitulo, consultorio_nombre")
+    .eq("id", user.id)
+    .single();
+
   const buffer = await renderToBuffer(
     <OdontogramPdf
       paciente={paciente}
@@ -57,6 +63,11 @@ export async function GET(request: NextRequest) {
       medico={medico}
       notas={notas}
       state={state}
+      brand={{
+        pdf_brand_titulo: profile?.pdf_brand_titulo ?? null,
+        pdf_brand_subtitulo: profile?.pdf_brand_subtitulo ?? null,
+        consultorio_nombre: profile?.consultorio_nombre ?? null,
+      }}
     />,
   );
 

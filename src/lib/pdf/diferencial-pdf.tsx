@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import { FINDINGS } from "@/lib/inference/knowledge-base";
+import { resolveBranding } from "./branding";
 
 const styles = StyleSheet.create({
   page: {
@@ -261,6 +262,9 @@ export interface DiferencialPdfData {
   medico_especialidad: string | null;
   medico_hospital: string | null;
   medico_cedula: string | null;
+  pdf_brand_titulo?: string | null;
+  pdf_brand_subtitulo?: string | null;
+  consultorio_nombre?: string | null;
 }
 
 function formatDate(iso: string): string {
@@ -314,12 +318,29 @@ export function DiferencialPdf({
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header} fixed>
-          <View>
-            <Text style={styles.brand}>LitienGuard</Text>
-            <Text style={styles.brandSubtitle}>
-              Diferencial diagnóstico
-            </Text>
-          </View>
+          {(() => {
+            const brand = resolveBranding(
+              {
+                pdf_brand_titulo: caso.pdf_brand_titulo,
+                pdf_brand_subtitulo: caso.pdf_brand_subtitulo,
+                consultorio_nombre: caso.consultorio_nombre,
+              },
+              {
+                eyebrow: "Diferencial diagnóstico",
+                subtitulo: "Diferencial diagnóstico",
+              },
+            );
+            return (
+              <View>
+                <Text style={styles.brand}>{brand.titulo}</Text>
+                <Text style={styles.brandSubtitle}>
+                  {brand.titulo === "LitienGuard"
+                    ? "Diferencial diagnóstico"
+                    : `Diferencial · ${brand.subtitulo || "diagnóstico"}`}
+                </Text>
+              </View>
+            );
+          })()}
           <View style={styles.metaCol}>
             <Text style={styles.metaLabel}>Fecha</Text>
             <Text style={styles.metaValue}>

@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
 } from "@react-pdf/renderer";
+import { resolveBranding, type ProfileBrandFields } from "./branding";
 
 export interface RecetaPdfData {
   receta: {
@@ -39,6 +40,8 @@ export interface RecetaPdfData {
     consultorio_nombre: string | null;
     consultorio_direccion: string | null;
     consultorio_telefono: string | null;
+    pdf_brand_titulo?: string | null;
+    pdf_brand_subtitulo?: string | null;
   };
 }
 
@@ -85,6 +88,11 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     color: INK,
     letterSpacing: -0.3,
+  },
+  brandSubtitle: {
+    fontSize: 9,
+    color: INK_MUTED,
+    marginTop: 3,
   },
   practitionerBlock: {
     flexDirection: "column",
@@ -343,10 +351,23 @@ export function RecetaPdf({ receta, items, medico }: RecetaPdfData) {
 
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.brand}>
-            <Text style={styles.brandEyebrow}>LitienGuard · Receta médica</Text>
-            <Text style={styles.brandTitle}>Receta</Text>
-          </View>
+          {(() => {
+            const brand = resolveBranding(medico as ProfileBrandFields, {
+              eyebrow: "LitienGuard · Receta médica",
+              subtitulo: "",
+            });
+            return (
+              <View style={styles.brand}>
+                <Text style={styles.brandEyebrow}>{brand.eyebrow}</Text>
+                <Text style={styles.brandTitle}>
+                  {brand.titulo === "LitienGuard" ? "Receta" : brand.titulo}
+                </Text>
+                {brand.titulo !== "LitienGuard" && brand.subtitulo && (
+                  <Text style={styles.brandSubtitle}>{brand.subtitulo}</Text>
+                )}
+              </View>
+            );
+          })()}
           <View style={styles.practitionerBlock}>
             <Text style={styles.practitionerName}>{medico.nombre ?? "—"}</Text>
             {medico.especialidad && (

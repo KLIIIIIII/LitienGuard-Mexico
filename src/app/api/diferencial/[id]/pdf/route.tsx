@@ -27,7 +27,9 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("nombre, email, especialidad, hospital, cedula, subscription_tier")
+    .select(
+      "nombre, email, especialidad, hospital, cedula, subscription_tier, pdf_brand_titulo, pdf_brand_subtitulo, consultorio_nombre",
+    )
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
@@ -65,6 +67,9 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
     medico_especialidad: profile?.especialidad ?? null,
     medico_hospital: profile?.hospital ?? null,
     medico_cedula: profile?.cedula ?? null,
+    pdf_brand_titulo: profile?.pdf_brand_titulo ?? null,
+    pdf_brand_subtitulo: profile?.pdf_brand_subtitulo ?? null,
+    consultorio_nombre: profile?.consultorio_nombre ?? null,
   };
 
   const buffer = await renderToBuffer(<DiferencialPdf caso={data} />);

@@ -5,6 +5,49 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { invalidateCerebroCache } from "@/lib/bm25";
 
+const pdfBrandingSchema = z.object({
+  titulo: z.string().max(80).nullable(),
+  subtitulo: z.string().max(120).nullable(),
+});
+
+export async function setPdfBranding(input: {
+  titulo: string | null;
+  subtitulo: string | null;
+}): Promise<{ status: "ok" } | { status: "error"; message: string }> {
+  const parsed = pdfBrandingSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Datos inválidos",
+    };
+  }
+
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado" };
+
+  const { error } = await supa
+    .from("profiles")
+    .update({
+      pdf_brand_titulo: parsed.data.titulo,
+      pdf_brand_subtitulo: parsed.data.subtitulo,
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    console.error("[configuracion] pdf_branding update err:", error);
+    return {
+      status: "error",
+      message: "No pudimos guardar tu branding",
+    };
+  }
+
+  revalidatePath("/dashboard/configuracion");
+  return { status: "ok" };
+}
+
 export async function setRecallReplyToEmail(
   emailOrNull: string | null,
 ): Promise<{ status: "ok" } | { status: "error"; message: string }> {

@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import type { OdontogramState, ToothState } from "@/components/odontogram";
+import { resolveBranding } from "./branding";
 
 const STATE_LABELS: Record<ToothState, string> = {
   sano: "Sano",
@@ -225,6 +226,11 @@ interface OdontogramPdfProps {
   medico: string;
   notas: string;
   state: OdontogramState;
+  brand?: {
+    pdf_brand_titulo?: string | null;
+    pdf_brand_subtitulo?: string | null;
+    consultorio_nombre?: string | null;
+  };
 }
 
 function ToothCell({
@@ -265,7 +271,12 @@ export function OdontogramPdf({
   medico,
   notas,
   state,
+  brand,
 }: OdontogramPdfProps) {
+  const resolved = resolveBranding(brand ?? null, {
+    eyebrow: "LitienGuard · Dental",
+    subtitulo: "Estado clínico de las piezas dentales · Notación FDI",
+  });
   const fmtDate = (() => {
     try {
       return new Date(fecha).toLocaleDateString("es-MX", {
@@ -283,10 +294,16 @@ export function OdontogramPdf({
       <Page size="LETTER" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.brandEyebrow}>LitienGuard · Dental</Text>
-          <Text style={styles.brandTitle}>Odontograma</Text>
+          <Text style={styles.brandEyebrow}>{resolved.eyebrow}</Text>
+          <Text style={styles.brandTitle}>
+            {resolved.titulo === "LitienGuard"
+              ? "Odontograma"
+              : resolved.titulo}
+          </Text>
           <Text style={styles.brandSubtitle}>
-            Estado clínico de las piezas dentales · Notación FDI
+            {resolved.titulo === "LitienGuard"
+              ? resolved.subtitulo
+              : `Odontograma · ${resolved.subtitulo || "Notación FDI"}`}
           </Text>
         </View>
 

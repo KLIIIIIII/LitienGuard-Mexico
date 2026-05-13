@@ -49,7 +49,7 @@ const FEATURES_BY_TIER: Record<
     { label: "Diferencial bayesiano · 28 enfermedades · 51 findings", ok: true },
     { label: "Auto-extracción de findings desde texto libre", ok: true },
     { label: "Recetas, agenda y reservación pública", ok: true },
-    { label: "Padrón de pacientes + recall automático mensual", ok: true },
+    { label: "Padrón de pacientes + recall automático mensual (Q3 2026)", ok: true },
     { label: "Mi calidad personal — calibración PPV", ok: true },
     { label: "Soporte correo (24 h)", ok: true },
   ],

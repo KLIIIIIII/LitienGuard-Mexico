@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
 } from "@react-pdf/renderer";
+import { resolveBranding } from "./branding";
 
 const styles = StyleSheet.create({
   page: {
@@ -219,6 +220,9 @@ export type SoapPdfData = {
   medico_email: string;
   medico_hospital: string | null;
   medico_especialidad: string | null;
+  pdf_brand_titulo?: string | null;
+  pdf_brand_subtitulo?: string | null;
+  consultorio_nombre?: string | null;
 };
 
 function patientFullName(d: SoapPdfData): string {
@@ -271,21 +275,32 @@ export function SoapPdf({ nota }: { nota: SoapPdfData }) {
         ? styles.statusDescartada
         : styles.statusBorrador;
 
+  const brand = resolveBranding(
+    {
+      pdf_brand_titulo: nota.pdf_brand_titulo,
+      pdf_brand_subtitulo: nota.pdf_brand_subtitulo,
+      consultorio_nombre: nota.consultorio_nombre,
+    },
+    {
+      eyebrow: "Inteligencia médica para México",
+      subtitulo: "Inteligencia médica para México",
+    },
+  );
+
   return (
     <Document
       title={`Nota SOAP ${nota.paciente_iniciales ?? ""} ${nota.id.slice(0, 8)}`.trim()}
-      author="LitienGuard"
+      author={brand.titulo}
     >
       <Page size="A4" style={styles.page}>
         <View style={styles.header} fixed>
           <View>
             <View style={styles.brandRow}>
-              <Text style={styles.brand}>LitienGuard</Text>
-              <View style={styles.brandDot} />
+              <Text style={styles.brand}>{brand.titulo}</Text>
             </View>
-            <Text style={styles.brandSubtitle}>
-              Inteligencia médica para México
-            </Text>
+            {brand.subtitulo && (
+              <Text style={styles.brandSubtitle}>{brand.subtitulo}</Text>
+            )}
           </View>
           <View style={styles.headerMeta}>
             <Text style={styles.metaLabel}>Nota SOAP</Text>

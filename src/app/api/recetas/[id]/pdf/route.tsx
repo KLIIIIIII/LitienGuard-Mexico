@@ -22,7 +22,7 @@ export async function GET(
   const { data: profile } = await supa
     .from("profiles")
     .select(
-      "subscription_tier,nombre,email,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono",
+      "subscription_tier,nombre,email,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,pdf_brand_titulo,pdf_brand_subtitulo",
     )
     .eq("id", user.id)
     .single();
@@ -73,6 +73,8 @@ export async function GET(
         consultorio_nombre: profile?.consultorio_nombre ?? null,
         consultorio_direccion: profile?.consultorio_direccion ?? null,
         consultorio_telefono: profile?.consultorio_telefono ?? null,
+        pdf_brand_titulo: profile?.pdf_brand_titulo ?? null,
+        pdf_brand_subtitulo: profile?.pdf_brand_subtitulo ?? null,
       }}
     />,
   );
