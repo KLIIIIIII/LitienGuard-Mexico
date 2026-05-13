@@ -112,12 +112,11 @@ export default async function DiferencialPage({
         </div>
         <div className="text-body-sm text-ink-strong">
           <strong className="font-bold">
-            Función en pruebas — usar con discreción clínica.
+            Función en beta — usar con discreción clínica.
           </strong>{" "}
-          El motor cubre 28 enfermedades cardiometabólicas; está en
-          calibración activa y la cobertura crecerá pronto. Las sugerencias
-          son apoyo a la decisión, no diagnóstico — siempre validá con tu
-          juicio clínico.
+          El motor sigue en calibración activa. Las sugerencias son apoyo a
+          la decisión, no diagnóstico — siempre validá con tu juicio
+          clínico.
         </div>
       </div>
 
