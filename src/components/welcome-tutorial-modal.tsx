@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   motion,
   AnimatePresence,
@@ -333,10 +334,12 @@ export function WelcomeTutorialModal({
   inlineMode = false,
   onClose,
 }: Props) {
+  const router = useRouter();
   const [slides] = useState(() => getSlides(profileType, nombre));
   const [index, setIndex] = useState(0);
   const [pending, startTransition] = useTransition();
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [exiting, setExiting] = useState(false);
 
   const isFirst = index === 0;
   const isLast = index === slides.length - 1;
@@ -361,6 +364,7 @@ export function WelcomeTutorialModal({
   }, [index]);
 
   function next() {
+    if (exiting) return;
     if (isLast) {
       finish();
     } else {
@@ -370,32 +374,45 @@ export function WelcomeTutorialModal({
   }
 
   function prev() {
+    if (exiting) return;
     if (!isFirst) {
       setDirection(-1);
       setIndex(index - 1);
     }
   }
 
-  function finish() {
-    startTransition(async () => {
-      await markTutorialComplete();
+  async function finishWithAction(
+    action: () => Promise<{ status: "ok" } | { status: "error"; message: string }>,
+  ) {
+    if (exiting) return;
+    setExiting(true);
+
+    // Lanzar la mutación en paralelo con la animación de salida
+    const mutationPromise = action();
+
+    // Esperar a que la animación de fade-out termine (450ms)
+    await new Promise((r) => setTimeout(r, 480));
+
+    // Asegurar que la mutación terminó antes de refrescar el server component
+    await mutationPromise;
+
+    startTransition(() => {
       if (inlineMode && onClose) {
         onClose();
       } else {
-        window.location.reload();
+        // router.refresh() re-renderiza server components sin reload completo:
+        // sin flash de pantalla blanca, sin perder el contexto del cliente.
+        router.refresh();
       }
     });
   }
 
+  function finish() {
+    void finishWithAction(markTutorialComplete);
+  }
+
   function skip() {
-    startTransition(async () => {
-      await markTutorialSkipped();
-      if (inlineMode && onClose) {
-        onClose();
-      } else {
-        window.location.reload();
-      }
-    });
+    void finishWithAction(markTutorialSkipped);
   }
 
   const containerVariants: Variants = {
@@ -421,14 +438,24 @@ export function WelcomeTutorialModal({
   return (
     <motion.div
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, ease: EASE }}
-      className="fixed inset-0 z-[95] flex items-center justify-center overflow-y-auto bg-canvas/95 backdrop-blur-sm"
+      animate={{ opacity: exiting ? 0 : 1 }}
+      transition={{ duration: 0.45, ease: EASE }}
+      className={`fixed inset-0 z-[95] flex items-center justify-center overflow-y-auto bg-canvas/95 backdrop-blur-sm ${
+        exiting ? "pointer-events-none" : ""
+      }`}
       role="dialog"
       aria-modal
       aria-labelledby="tutorial-title"
     >
-      <div className="relative w-full max-w-5xl px-6 py-8 sm:py-12">
+      <motion.div
+        initial={{ scale: 0.96, y: 12 }}
+        animate={{
+          scale: exiting ? 0.94 : 1,
+          y: exiting ? 18 : 0,
+        }}
+        transition={{ duration: 0.45, ease: EASE }}
+        className="relative w-full max-w-5xl px-6 py-8 sm:py-12"
+      >
         <button
           type="button"
           onClick={skip}
@@ -531,10 +558,11 @@ export function WelcomeTutorialModal({
                 key={i}
                 type="button"
                 onClick={() => {
+                  if (exiting) return;
                   setDirection(i > index ? 1 : -1);
                   setIndex(i);
                 }}
-                disabled={pending}
+                disabled={pending || exiting}
                 aria-label={`Ir al paso ${i + 1}`}
                 className={`h-1.5 rounded-full transition-all ${
                   i === index
@@ -585,7 +613,7 @@ export function WelcomeTutorialModal({
           </kbd>{" "}
           saltar
         </p>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
