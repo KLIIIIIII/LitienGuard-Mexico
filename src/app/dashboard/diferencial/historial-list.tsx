@@ -34,8 +34,82 @@ export function HistorialList({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-surface">
-      <table className="min-w-full divide-y divide-line">
+    <>
+      {/* MOBILE: cards stacked */}
+      <div className="space-y-2.5 md:hidden">
+        {sessions.map((s) => {
+          const top = s.top_diagnoses?.[0];
+          const fecha = new Date(s.created_at);
+          const outcomeIcon =
+            s.outcome_confirmado === "confirmado"
+              ? CheckCircle2
+              : s.outcome_confirmado === "refutado"
+                ? AlertCircle
+                : Clock;
+          const outcomeColor =
+            s.outcome_confirmado === "confirmado"
+              ? "text-validation"
+              : s.outcome_confirmado === "refutado"
+                ? "text-rose"
+                : "text-ink-quiet";
+          const OutcomeIcon = outcomeIcon;
+          return (
+            <Link
+              key={`m-${s.id}`}
+              href={`/dashboard/diferencial/${s.id}`}
+              className="block rounded-xl border border-line bg-surface px-4 py-3.5 transition-colors hover:border-line-strong"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-body-sm font-semibold text-ink-strong">
+                    {s.paciente_iniciales ?? "—"}
+                    {s.paciente_edad ? ` · ${s.paciente_edad} a` : ""}
+                  </p>
+                  <p className="mt-0.5 text-[0.65rem] text-ink-soft font-mono">
+                    {s.id.slice(0, 8).toUpperCase()}
+                  </p>
+                </div>
+                <span
+                  className={`inline-flex shrink-0 items-center gap-1 text-[0.65rem] font-medium ${outcomeColor}`}
+                >
+                  <OutcomeIcon className="h-2.5 w-2.5" strokeWidth={2.4} />
+                  {s.outcome_confirmado ?? "pendiente"}
+                </span>
+              </div>
+              {top && (
+                <p className="mt-2 text-caption text-ink-muted">
+                  Top:{" "}
+                  <span className="font-medium text-ink-strong">
+                    {top.label.split(" (")[0]}
+                  </span>{" "}
+                  <span className="tabular-nums text-ink-soft">
+                    {Math.round(top.posterior * 100)}%
+                  </span>
+                </p>
+              )}
+              {!compact && s.medico_diagnostico_principal && (
+                <p className="mt-1 text-caption text-ink-muted">
+                  Tu dx:{" "}
+                  <span className="text-ink-strong">
+                    {s.medico_diagnostico_principal}
+                  </span>
+                </p>
+              )}
+              <p className="mt-2 text-[0.65rem] text-ink-soft">
+                {fecha.toLocaleDateString("es-MX", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* DESKTOP: tabla */}
+      <div className="hidden overflow-x-auto rounded-xl border border-line bg-surface md:block">
+        <table className="min-w-full divide-y divide-line">
         <thead className="bg-surface-alt">
           <tr>
             <th className="px-5 py-3 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-muted">
@@ -133,6 +207,7 @@ export function HistorialList({
           })}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }

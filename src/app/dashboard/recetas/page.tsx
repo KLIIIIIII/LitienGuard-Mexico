@@ -125,8 +125,56 @@ export default async function RecetasPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-line bg-surface">
-          <table className="min-w-full divide-y divide-line">
+        <>
+          {/* MOBILE: cards stacked */}
+          <div className="space-y-2.5 md:hidden">
+            {recetas.map((r) => {
+              const meta = STATUS_LABEL[r.status] ?? STATUS_LABEL.borrador;
+              const Icon = meta.icon;
+              const fullName = [
+                r.paciente_nombre,
+                r.paciente_apellido_paterno,
+              ]
+                .filter(Boolean)
+                .join(" ");
+              const fecha = new Date(r.fecha_emision ?? r.created_at);
+              return (
+                <Link
+                  key={r.id}
+                  href={`/dashboard/recetas/${r.id}`}
+                  className="block rounded-xl border border-line bg-surface px-4 py-3.5 transition-colors hover:border-line-strong"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-ink-strong">
+                        {fullName}
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-caption text-ink-muted">
+                        {r.diagnostico}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[0.6rem] font-medium ${meta.cls}`}
+                    >
+                      <Icon className="h-2.5 w-2.5" strokeWidth={2.2} />
+                      {meta.label}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-[0.65rem] text-ink-soft">
+                    {fecha.toLocaleDateString("es-MX", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* DESKTOP: tabla */}
+          <div className="hidden overflow-x-auto rounded-xl border border-line bg-surface md:block">
+            <table className="min-w-full divide-y divide-line">
             <thead className="bg-surface-alt">
               <tr>
                 <th className="px-4 py-3 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-muted">
@@ -191,6 +239,7 @@ export default async function RecetasPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

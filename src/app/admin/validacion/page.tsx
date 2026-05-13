@@ -129,7 +129,7 @@ export default async function ValidacionPage() {
           AUC binario one-vs-rest, sensibilidad a 90% y 95% de especificidad,
           Brier score (calibración — menor es mejor).
         </p>
-        <div className="mt-5 overflow-hidden rounded-xl border border-line bg-surface">
+        <div className="mt-5 overflow-x-auto rounded-xl border border-line bg-surface">
           <table className="min-w-full divide-y divide-line">
             <thead className="bg-surface-alt">
               <tr>

@@ -243,8 +243,8 @@ export default async function AdminFeedbackPage({
               </div>
             </div>
 
-            <div className="mt-5 overflow-hidden rounded-xl border border-line bg-surface">
-              <table className="w-full text-body-sm">
+            <div className="mt-5 overflow-x-auto rounded-xl border border-line bg-surface">
+              <table className="w-full min-w-[640px] text-body-sm">
                 <thead className="bg-surface-alt text-caption uppercase tracking-eyebrow text-ink-muted">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium">
