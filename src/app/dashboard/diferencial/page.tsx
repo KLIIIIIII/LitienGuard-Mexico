@@ -105,6 +105,22 @@ export default async function DiferencialPage({
 
   return (
     <div className="space-y-6">
+      {/* Banner Beta — el motor sigue en pruebas, no es decisión final */}
+      <div className="flex items-start gap-3 rounded-xl border-2 border-warn-soft bg-warn-soft/40 p-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-warn-soft text-warn font-bold text-caption">
+          β
+        </div>
+        <div className="text-body-sm text-ink-strong">
+          <strong className="font-bold">
+            Función en pruebas — usar con discreción clínica.
+          </strong>{" "}
+          El motor cubre 28 enfermedades cardiometabólicas; está en
+          calibración activa y la cobertura crecerá pronto. Las sugerencias
+          son apoyo a la decisión, no diagnóstico — siempre validá con tu
+          juicio clínico.
+        </div>
+      </div>
+
       <header className="flex items-start justify-between gap-4">
         <div>
           <Eyebrow tone="validation">Diferencial diagnóstico</Eyebrow>
