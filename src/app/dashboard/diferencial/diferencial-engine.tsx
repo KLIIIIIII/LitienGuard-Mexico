@@ -342,7 +342,7 @@ export function DiferencialEngine({
           {processing ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Razonando con Claude Sonnet 4.6 + motor bayesiano…
+              Procesando con LG Motor…
             </>
           ) : (
             <>
@@ -547,7 +547,7 @@ export function DiferencialEngine({
                 Diferenciales del motor
               </h2>
               <p className="mt-1 text-caption text-ink-muted">
-                Generados por Sonnet 4.6 razonando sobre el contexto
+                Generados por LG Motor razonando sobre el contexto
                 completo. Click en cada uno para ver razonamiento clínico y
                 qué estudios faltan confirmar.
               </p>
@@ -657,8 +657,8 @@ export function DiferencialEngine({
               Hallazgos extraídos ({findings.size} marcados)
             </h2>
             <p className="mt-1 text-caption text-ink-muted">
-              Sonnet 4.6 extrajo estos hallazgos del catálogo del motor.
-              Click para cambiar de estado o quitar.
+              LG Motor extrajo estos hallazgos del catálogo. Click para
+              cambiar de estado o quitar.
             </p>
           </div>
         </div>
