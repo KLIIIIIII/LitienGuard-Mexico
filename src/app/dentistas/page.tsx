@@ -36,8 +36,8 @@ const FEATURES = [
     desc: "Endodoncia, periodoncia, operatoria, implantes, odontopediatría. Cada recomendación cita ADA, Colegio Mexicano de Odontología o la NOM correspondiente con el número de página del documento fuente. Nunca inventa.",
   },
   {
-    title: "Validación de seguros dentales en segundos",
-    desc: "Verifica cobertura Metlife Dental, AXA Dental, GNP Dental y planes corporativos antes de iniciar el tratamiento. El paciente ve en pantalla qué cubre y qué no. Cero llamadas a la aseguradora, cero sorpresas al cobrar.",
+    title: "Validación de seguros dentales · próximamente Q4 2026",
+    desc: "Integración con Metlife Dental, AXA Dental, GNP Dental y planes corporativos para verificar cobertura antes de iniciar el tratamiento. En desarrollo — disponible para planes Esencial+ cuando lance.",
   },
 ];
 
@@ -75,7 +75,7 @@ const FOR_WHOM = [
   },
   {
     label: "Mezcla de privados y aseguradoras",
-    desc: "Pacientes privados conviven con pacientes Metlife Dental o AXA. La validación de póliza en segundos elimina la llamada de \"déjame checar tu cobertura\" en admisión.",
+    desc: "Pacientes privados conviven con pacientes de aseguradora. Cuando habilitemos la validación automática de pólizas (Q4 2026), eliminas la llamada de \"déjame checar tu cobertura\" en admisión.",
   },
 ];
 
