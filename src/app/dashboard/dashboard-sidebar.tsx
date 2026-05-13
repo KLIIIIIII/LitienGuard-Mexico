@@ -19,6 +19,7 @@ import {
   Sparkles,
   Gift,
   Compass,
+  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -43,6 +44,7 @@ export function DashboardSidebar({
   canCerebro,
   canRecetas,
   canAgenda,
+  canPacientes,
 }: {
   tier: SubscriptionTier;
   isAdmin: boolean;
@@ -50,6 +52,7 @@ export function DashboardSidebar({
   canCerebro: boolean;
   canRecetas: boolean;
   canAgenda: boolean;
+  canPacientes: boolean;
 }) {
   const pathname = usePathname();
 
@@ -92,6 +95,13 @@ export function DashboardSidebar({
       icon: Calendar,
       match: (p) => p.startsWith("/dashboard/agenda"),
       locked: !canAgenda,
+    },
+    {
+      href: "/dashboard/pacientes",
+      label: "Pacientes",
+      icon: Users,
+      match: (p) => p.startsWith("/dashboard/pacientes"),
+      locked: !canPacientes,
     },
     {
       href: "/dashboard/cerebro",

@@ -22,6 +22,8 @@ const SCRIBE_TIERS: SubscriptionTier[] = ["pilot", "pro", "enterprise"];
 const CEREBRO_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RECETAS_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
 const AGENDA_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
+const PACIENTES_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
+const PACIENTES_RECALL_AUTO_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RCM_TIERS: SubscriptionTier[] = ["enterprise"];
 
 /**
@@ -68,6 +70,29 @@ export function canUseAgenda(
 export function canUseRcm(tier: SubscriptionTier | null | undefined): boolean {
   if (!tier) return false;
   return RCM_TIERS.includes(tier);
+}
+
+/**
+ * Módulo de pacientes (padrón propio): listar, importar CSV, marcar
+ * inactivos, enviar recordatorio MANUAL. Disponible Esencial+.
+ */
+export function canUsePacientes(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  if (!tier) return false;
+  return PACIENTES_TIERS.includes(tier);
+}
+
+/**
+ * Recall AUTOMÁTICO de pacientes inactivos vía cron semanal. Premium
+ * de Pro+. El médico configura regla (3/6/12 meses) y el sistema
+ * manda recordatorio sin intervención.
+ */
+export function canUsePacientesRecallAuto(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  if (!tier) return false;
+  return PACIENTES_RECALL_AUTO_TIERS.includes(tier);
 }
 
 export function scribeMonthlyLimit(

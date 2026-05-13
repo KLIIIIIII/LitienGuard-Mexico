@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   CreditCard,
   Stethoscope,
+  Users,
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
@@ -24,6 +25,8 @@ import {
   canReadCerebro,
   canUseRecetas,
   canUseAgenda,
+  canUsePacientes,
+  canUsePacientesRecallAuto,
   canUseRcm,
   scribeMonthlyLimit,
   TIER_LABELS,
@@ -48,6 +51,8 @@ type FeatureKey =
   | "recetas"
   | "agenda"
   | "odontograma"
+  | "pacientes"
+  | "pacientes-recall-auto"
   | "rcm"
   | "multi-medico";
 
@@ -141,6 +146,26 @@ const FEATURES: Record<FeatureKey, FeatureDef> = {
     href: "/dashboard/odontograma",
     icon: Smile,
   },
+  pacientes: {
+    key: "pacientes",
+    name: "Padrón de pacientes",
+    description:
+      "Importa tu agenda completa (CSV o manual), identifica quiénes llevan más de 6 meses sin venir y envía recordatorio personalizado de cita de mantenimiento.",
+    howToUse:
+      "Pacientes → Importar CSV con nombre, correo, teléfono y última visita. Filtra por '+6 meses sin consulta'. Click en paciente → Enviar recordatorio con nota personalizada.",
+    href: "/dashboard/pacientes",
+    icon: Users,
+  },
+  "pacientes-recall-auto": {
+    key: "pacientes-recall-auto",
+    name: "Recall automático de pacientes",
+    description:
+      "Cron semanal que identifica pacientes inactivos por umbral (3/6/12 meses) y envía recordatorio automático sin intervención. Próximamente.",
+    howToUse:
+      "Configura el umbral por especialidad y un mensaje base. El sistema corre cada semana, manda los recordatorios, marca recall_enviado_at y evita spam. (Disponible al cierre del piloto.)",
+    href: "/dashboard/pacientes",
+    icon: Users,
+  },
   rcm: {
     key: "rcm",
     name: "RCM Copilot (próximamente)",
@@ -173,6 +198,8 @@ function featuresUnlocked(tier: SubscriptionTier): FeatureKey[] {
   }
   if (canUseRecetas(tier)) list.push("recetas");
   if (canUseAgenda(tier)) list.push("agenda");
+  if (canUsePacientes(tier)) list.push("pacientes");
+  if (canUsePacientesRecallAuto(tier)) list.push("pacientes-recall-auto");
   list.push("odontograma"); // disponible en todos los tiers
   if (canUseRcm(tier)) {
     list.push("rcm", "multi-medico");
@@ -189,6 +216,8 @@ function featuresLocked(tier: SubscriptionTier): FeatureKey[] {
     "diferencial",
     "recetas",
     "agenda",
+    "pacientes",
+    "pacientes-recall-auto",
     "rcm",
     "multi-medico",
   ];

@@ -31,12 +31,14 @@ const FEATURES_BY_TIER: Record<
   ],
   esencial: [
     { label: "100 SOAPs al mes (cargados manual)", ok: true },
+    { label: "Padrón de pacientes + import CSV + recordatorios manuales", ok: true },
     { label: "Cerebro lectura — IMSS, CENETEC, KDIGO, ESC, AHA", ok: true },
     { label: "Recetas digitales con estructura NOM-024", ok: true },
     { label: "Odontograma + export PDF", ok: true },
     { label: "MFA opcional y audit log", ok: true },
     { label: "Diferencial bayesiano", ok: false },
     { label: "Scribe ambient", ok: false },
+    { label: "Recall automático de pacientes inactivos", ok: false },
     { label: "Soporte correo (48 h)", ok: true },
   ],
   profesional: [
@@ -46,6 +48,7 @@ const FEATURES_BY_TIER: Record<
     { label: "Diferencial bayesiano · 28 enfermedades · 51 findings", ok: true },
     { label: "Auto-extracción de findings desde texto libre", ok: true },
     { label: "Recetas, agenda y reservación pública", ok: true },
+    { label: "Padrón de pacientes + recall automático mensual", ok: true },
     { label: "Mi calidad personal — calibración PPV", ok: true },
     { label: "Soporte correo (24 h)", ok: true },
   ],

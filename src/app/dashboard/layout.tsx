@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { canUseScribe, canUseCerebro, canUseRecetas, canUseAgenda, type SubscriptionTier } from "@/lib/entitlements";
+import { canUseScribe, canUseCerebro, canUseRecetas, canUseAgenda, canUsePacientes, type SubscriptionTier } from "@/lib/entitlements";
 import { applyCapturedReferralCode } from "./referidos/actions";
 import { DashboardSidebar } from "./dashboard-sidebar";
 
@@ -51,6 +51,7 @@ export default async function DashboardLayout({
         canCerebro={canUseCerebro(tier)}
         canRecetas={canUseRecetas(tier)}
         canAgenda={canUseAgenda(tier)}
+        canPacientes={canUsePacientes(tier)}
       />
       <div className="min-w-0">{children}</div>
     </div>
