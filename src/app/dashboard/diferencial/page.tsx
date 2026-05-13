@@ -125,13 +125,14 @@ export default async function DiferencialPage({
         <div>
           <Eyebrow tone="validation">Diferencial diagnóstico</Eyebrow>
           <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-            Razonamiento bayesiano multi-señal
+            Empieza con tu hipótesis, deja que el motor te confronte
           </h1>
           <p className="mt-2 max-w-prose text-body-sm text-ink-muted">
-            Marca los findings clínicos que observas en el paciente. El motor
-            actualiza el diferencial en tiempo real combinando likelihood
-            ratios publicados con la prevalencia poblacional. Cada
-            recomendación viene con la cita verbatim de la fuente.
+            Escribe el diagnóstico que sospechas y pega el contexto clínico
+            del paciente. El motor extrae los hallazgos automáticamente,
+            calcula la probabilidad bayesiana de tu hipótesis, y te muestra
+            qué otras enfermedades podrían explicar lo mismo (anti-anchoring)
+            + qué hallazgos te faltan confirmar.
           </p>
         </div>
         <Link

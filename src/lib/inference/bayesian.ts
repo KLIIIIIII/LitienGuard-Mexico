@@ -22,8 +22,11 @@ import {
   DISEASES,
   LIKELIHOOD_RATIOS,
   findFinding,
+  findDisease,
   lrsForDisease,
 } from "./knowledge-base";
+
+export { findDisease };
 
 function priorLogOdds(prior: number): number {
   const clamped = Math.max(1e-6, Math.min(1 - 1e-6, prior));
@@ -117,3 +120,57 @@ export function inferDifferential(
 }
 
 export { lrsForDisease };
+
+/**
+ * Findings con mayor poder discriminativo para una enfermedad dada,
+ * que el médico aún NO ha evaluado. Útil para guiar el siguiente paso
+ * de la evaluación clínica: "para confirmar o descartar tu hipótesis,
+ * busca estos hallazgos primero".
+ *
+ * Poder discriminativo = |log(LR+ / LR-)| — qué tanto mueve la
+ * probabilidad si el finding está presente vs ausente.
+ */
+export interface SuggestedFinding {
+  finding: import("./types").Finding;
+  lrPlus: number;
+  lrMinus: number;
+  /** Poder discriminativo en log-units (mayor = más informativo) */
+  discriminativePower: number;
+  source: string;
+  confidence: "high" | "medium" | "low";
+}
+
+export function suggestFindingsToConfirm(
+  diseaseId: string,
+  observations: FindingObservation[],
+  topN = 8,
+  lrs: LikelihoodRatio[] = LIKELIHOOD_RATIOS,
+): SuggestedFinding[] {
+  const observedIds = new Set(
+    observations.filter((o) => o.present !== null).map((o) => o.finding),
+  );
+
+  const candidates: SuggestedFinding[] = [];
+  for (const lr of lrs) {
+    if (lr.disease !== diseaseId) continue;
+    if (observedIds.has(lr.finding)) continue;
+    const finding = findFinding(lr.finding);
+    if (!finding) continue;
+
+    const safeMinus = Math.max(1e-3, lr.lrMinus);
+    const safePlus = Math.max(1e-3, lr.lrPlus);
+    const power = Math.abs(Math.log(safePlus / safeMinus));
+
+    candidates.push({
+      finding,
+      lrPlus: lr.lrPlus,
+      lrMinus: lr.lrMinus,
+      discriminativePower: power,
+      source: lr.source,
+      confidence: lr.confidence,
+    });
+  }
+
+  candidates.sort((a, b) => b.discriminativePower - a.discriminativePower);
+  return candidates.slice(0, topN);
+}
