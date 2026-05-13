@@ -1,0 +1,16 @@
+nombre,apellido_paterno,apellido_materno,email,telefono,fecha_nacimiento,sexo,ultima_consulta_at,notas_internas,etiquetas
+María José,García,López,maria.garcia@ejemplo.mx,55 1234 5678,1985-04-12,F,2026-04-20,"Ortodoncia activa con brackets. Control mensual.",ortodoncia,mensual
+Juan Carlos,Hernández,Martínez,juan.hernandez@ejemplo.mx,55 2345 6789,1978-09-23,M,2026-04-15,"Higiene cada 6 meses. Sin antecedentes.",higiene,rutina
+Ana Sofía,Ramírez,Torres,ana.ramirez@ejemplo.mx,55 3456 7890,1992-11-08,F,2026-03-28,"Blanqueamiento en proceso. Sensible al frío.",blanqueamiento,estetica
+Luis Alberto,Sánchez,Gómez,luis.sanchez@ejemplo.mx,55 4567 8901,1965-07-19,M,2026-03-10,"Prótesis parcial inferior. Revisión semestral.",protesis,senior
+Carmen Elena,Rodríguez,Díaz,carmen.rodriguez@ejemplo.mx,55 5678 9012,1989-02-14,F,2026-02-25,"Caries en 16 restaurada con resina.",resina
+Roberto,Pérez,Vázquez,roberto.perez@ejemplo.mx,55 6789 0123,1972-05-30,M,2025-12-08,"Endodoncia en 26 hace 3 años. Sin sintomatología.",endodoncia
+Patricia,Flores,Mendoza,patricia.flores@ejemplo.mx,55 7890 1234,1981-10-17,F,2025-11-15,"Embarazo 2024 - sin radiografías por precaución.",embarazo
+Andrés,Castillo,Ruiz,andres.castillo@ejemplo.mx,55 8901 2345,1995-03-25,M,2025-10-20,"Tercer molar 38 con erupción incompleta. Eval. quirúrgica pendiente.",cirugia,pendiente
+Sofía,Morales,Jiménez,sofia.morales@ejemplo.mx,55 9012 3456,1987-08-04,F,2025-10-02,"Implante 36 colocado 2024. Control anual.",implante,senior
+Miguel Ángel,Reyes,Ortiz,miguel.reyes@ejemplo.mx,55 0123 4567,1969-12-11,M,2025-09-18,"Periodontitis controlada. Mantenimiento trimestral originalmente.",periodontitis
+Lucía,González,Aguilar,lucia.gonzalez@ejemplo.mx,55 1357 2468,1990-06-21,F,2025-07-30,"Bruxismo. Férula nocturna prescrita.",bruxismo,ferula
+Fernando,Vega,Cruz,fernando.vega@ejemplo.mx,55 2468 1357,1976-01-09,M,2025-06-14,"Múltiples restauraciones antiguas. Revisión integral pendiente.",revision,prioritario
+Adriana,Méndez,Salinas,adriana.mendez@ejemplo.mx,55 3579 2468,1984-11-28,F,2025-05-22,"Caries en 36 y 37. Tratamiento pospuesto por viaje.",caries,pendiente
+Diego,Romero,Espinoza,diego.romero@ejemplo.mx,55 4680 3579,1998-04-16,M,2025-03-05,"Limpieza inicial. Sin antecedentes relevantes.",higiene,joven
+Esther,Navarro,Acosta,esther.navarro@ejemplo.mx,55 5791 4680,1955-09-12,F,2024-11-18,"Dentadura completa. Última revisión hace +1 año.",dentadura,senior,prioritario

@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseScribe, canUseCerebro, canUseRecetas, canUseAgenda, canUsePacientes, type SubscriptionTier } from "@/lib/entitlements";
 import { applyCapturedReferralCode } from "./referidos/actions";
 import { DashboardSidebar } from "./dashboard-sidebar";
+import { PricingSurveyGate } from "@/components/pricing-survey-gate";
 
 export default async function DashboardLayout({
   children,
@@ -54,6 +56,9 @@ export default async function DashboardLayout({
         canPacientes={canUsePacientes(tier)}
       />
       <div className="min-w-0">{children}</div>
+      <Suspense fallback={null}>
+        <PricingSurveyGate />
+      </Suspense>
     </div>
   );
 }
