@@ -21,9 +21,10 @@ export const PROFILE_TYPE_LABELS: Record<ProfileType, string> = {
 
 export const TIER_DESCRIPTIONS = {
   free: "Acceso al panel — 5 notas SOAP, sin cerebro",
-  esencial: "100 SOAPs + cerebro lectura + recetas básicas",
-  pilot: "Scribe ilimitado durante piloto",
-  pro: "Scribe + cerebro + diferencial bayesiano + agenda",
+  esencial:
+    "100 SOAPs + cerebro lectura + recetas + agenda + pacientes",
+  pilot: "Esencial + Scribe ilimitado durante piloto",
+  pro: "Scribe + cerebro completo + diferencial + agenda avanzada",
   enterprise: "Todo + RCM + multi-médico + SLA",
 } as const;
 
@@ -34,7 +35,7 @@ const ESENCIAL_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterpr
 const SCRIBE_TIERS: SubscriptionTier[] = ["pilot", "pro", "enterprise"];
 const CEREBRO_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RECETAS_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
-const AGENDA_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
+const AGENDA_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
 const PACIENTES_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
 const PACIENTES_RECALL_AUTO_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RCM_TIERS: SubscriptionTier[] = ["enterprise"];

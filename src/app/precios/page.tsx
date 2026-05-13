@@ -32,6 +32,7 @@ const FEATURES_BY_TIER: Record<
   esencial: [
     { label: "100 SOAPs al mes (cargados manual)", ok: true },
     { label: "Padrón de pacientes + import CSV + recordatorios manuales", ok: true },
+    { label: "Agenda + reservación pública (link tipo Calendly)", ok: true },
     { label: "Cerebro lectura — IMSS, CENETEC, KDIGO, ESC, AHA", ok: true },
     { label: "Recetas digitales con estructura NOM-024", ok: true },
     { label: "Odontograma + export PDF", ok: true },
