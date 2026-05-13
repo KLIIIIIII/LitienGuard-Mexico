@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { InviteForm } from "./invite-form";
-import { RevokeButton } from "./revoke-button";
+import { InvitationActionsMenu } from "./invitation-actions-menu";
 import { ApprovePreregistroRow } from "./approve-preregistro-row";
 import { TierSelect } from "./tier-select";
 import { CopyDemoLink } from "./copy-demo-link";
@@ -216,7 +216,11 @@ export default async function InvitacionesPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <RevokeButton id={i.id} disabled={i.usada} />
+                        <InvitationActionsMenu
+                          id={i.id}
+                          email={i.email}
+                          usada={i.usada}
+                        />
                       </td>
                     </tr>
                   );

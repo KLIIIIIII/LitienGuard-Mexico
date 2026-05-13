@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { recordAudit } from "@/lib/audit";
 import { getResend, RESEND_FROM } from "@/lib/resend-client";
 import {
@@ -11,6 +12,25 @@ import {
 } from "@/lib/email-templates/invitacion-bienvenida";
 import { TIER_LABELS, TIER_DESCRIPTIONS } from "@/lib/entitlements";
 import { SITE_URL } from "@/lib/utils";
+
+async function requireAdmin(): Promise<
+  | { ok: true; userId: string; userNombre: string | null }
+  | { ok: false; error: string }
+> {
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { ok: false, error: "No autenticado" };
+  const { data: me } = await supa
+    .from("profiles")
+    .select("role, nombre")
+    .eq("id", user.id)
+    .single();
+  if (me?.role !== "admin")
+    return { ok: false, error: "Solo admins pueden hacer esto" };
+  return { ok: true, userId: user.id, userNombre: me?.nombre ?? null };
+}
 
 const inviteSchema = z.object({
   email: z.string().email("Correo inválido"),
@@ -156,6 +176,291 @@ export async function revokeInvite(id: string): Promise<void> {
 
   await supa.from("invitaciones").delete().eq("id", id);
   revalidatePath("/admin/invitaciones");
+}
+
+// =============================================================
+// Admin recovery actions: reiniciar / reenviar / revocar completo
+// =============================================================
+
+type ActionResult = { status: "ok"; message: string } | { status: "error"; message: string };
+
+/**
+ * Reinicia una invitación marcada como usada o expirada:
+ * - usada = false
+ * - expires_at = ahora + 60 días
+ * - reenvía el email de bienvenida con el link a /login
+ *
+ * Útil cuando el médico nunca pudo entrar pero el sistema marcó
+ * la invitación como consumida (ej. el escáner de email pre-fetcheó
+ * el magic link antes de que el usuario le diera click).
+ */
+export async function resetInvitation(id: string): Promise<ActionResult> {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { status: "error", message: auth.error };
+
+  const supa = await createSupabaseServer();
+  const { data: invite, error: readErr } = await supa
+    .from("invitaciones")
+    .select(
+      "email, role, subscription_tier, nombre, usada, expires_at",
+    )
+    .eq("id", id)
+    .single();
+  if (readErr || !invite) {
+    return { status: "error", message: "Invitación no encontrada" };
+  }
+
+  const newExpires = new Date(
+    Date.now() + 60 * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
+  const { error: updErr } = await supa
+    .from("invitaciones")
+    .update({ usada: false, expires_at: newExpires })
+    .eq("id", id);
+
+  if (updErr) {
+    console.error("[admin] reset invitation err:", updErr);
+    return { status: "error", message: "No pudimos reiniciar la invitación" };
+  }
+
+  // Reenviar email
+  const resend = getResend();
+  let emailEnviado = false;
+  let emailError: string | null = null;
+  if (resend) {
+    try {
+      const loginUrl = `${SITE_URL.replace(/\/$/, "")}/login?email=${encodeURIComponent(invite.email)}`;
+      const tierLabel = TIER_LABELS[invite.subscription_tier as keyof typeof TIER_LABELS];
+      const tierDescription =
+        TIER_DESCRIPTIONS[invite.subscription_tier as keyof typeof TIER_DESCRIPTIONS];
+      const data = {
+        pacienteNombre: invite.nombre ?? null,
+        email: invite.email,
+        tierLabel,
+        tierDescription,
+        invitadoPorNombre: auth.userNombre,
+        expiresAt: newExpires,
+        loginUrl,
+      };
+      await resend.emails.send({
+        from: RESEND_FROM,
+        to: invite.email,
+        subject: `Tu acceso reiniciado a LitienGuard · plan ${tierLabel}`,
+        html: buildInvitacionHtml(data),
+        text: buildInvitacionText(data),
+      });
+      emailEnviado = true;
+    } catch (err) {
+      emailError = err instanceof Error ? err.message : "Error desconocido";
+      console.error("[admin] reset resend err:", err);
+    }
+  } else {
+    emailError = "Resend no configurado";
+  }
+
+  void recordAudit({
+    userId: auth.userId,
+    action: "admin.invitation_reset",
+    resource: `invitacion:${invite.email}`,
+    metadata: {
+      target_email: invite.email,
+      previous_usada: invite.usada,
+      previous_expires_at: invite.expires_at,
+      new_expires_at: newExpires,
+      email_resent: emailEnviado,
+      email_error: emailError,
+    },
+  });
+
+  revalidatePath("/admin/invitaciones");
+  return {
+    status: "ok",
+    message: emailEnviado
+      ? `Invitación reiniciada y correo reenviado a ${invite.email}.`
+      : `Invitación reiniciada — el correo no se envió (${emailError ?? "razón desconocida"}). Copia el link manual.`,
+  };
+}
+
+/**
+ * Reenvía el email de bienvenida sin modificar la invitación. Útil
+ * cuando el médico simplemente perdió el correo y la invitación
+ * sigue válida.
+ */
+export async function resendInvitationEmail(id: string): Promise<ActionResult> {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { status: "error", message: auth.error };
+
+  const supa = await createSupabaseServer();
+  const { data: invite, error: readErr } = await supa
+    .from("invitaciones")
+    .select("email, subscription_tier, nombre, expires_at, usada")
+    .eq("id", id)
+    .single();
+  if (readErr || !invite) {
+    return { status: "error", message: "Invitación no encontrada" };
+  }
+
+  if (invite.usada) {
+    return {
+      status: "error",
+      message:
+        "Esta invitación está marcada como usada — usa 'Reiniciar' en su lugar.",
+    };
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    return {
+      status: "error",
+      message: "Resend no configurado. Copia el link manual de la tabla.",
+    };
+  }
+
+  try {
+    const loginUrl = `${SITE_URL.replace(/\/$/, "")}/login?email=${encodeURIComponent(invite.email)}`;
+    const tierLabel =
+      TIER_LABELS[invite.subscription_tier as keyof typeof TIER_LABELS];
+    const tierDescription =
+      TIER_DESCRIPTIONS[invite.subscription_tier as keyof typeof TIER_DESCRIPTIONS];
+    const data = {
+      pacienteNombre: invite.nombre ?? null,
+      email: invite.email,
+      tierLabel,
+      tierDescription,
+      invitadoPorNombre: auth.userNombre,
+      expiresAt: invite.expires_at ?? new Date().toISOString(),
+      loginUrl,
+    };
+    await resend.emails.send({
+      from: RESEND_FROM,
+      to: invite.email,
+      subject: `Recordatorio: tu acceso a LitienGuard · plan ${tierLabel}`,
+      html: buildInvitacionHtml(data),
+      text: buildInvitacionText(data),
+    });
+
+    void recordAudit({
+      userId: auth.userId,
+      action: "admin.invitation_resent",
+      resource: `invitacion:${invite.email}`,
+      metadata: { target_email: invite.email },
+    });
+
+    return {
+      status: "ok",
+      message: `Correo reenviado a ${invite.email}.`,
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Error desconocido";
+    console.error("[admin] resend invitation err:", err);
+    return {
+      status: "error",
+      message: `No pudimos reenviar el correo (${msg}).`,
+    };
+  }
+}
+
+/**
+ * Revoca por completo el acceso del médico:
+ * - elimina la invitación
+ * - elimina la cuenta de Supabase Auth (si existe)
+ * - elimina el profile (cascade desde Auth)
+ *
+ * Esto es DESTRUCTIVO. Solo usar cuando se quiere borrar todo
+ * para volver a empezar (ej. médico se equivocó de correo).
+ */
+export async function revokeFullAccess(
+  id: string,
+  motivo: string,
+): Promise<ActionResult> {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { status: "error", message: auth.error };
+
+  const cleanMotivo = motivo.trim().slice(0, 500);
+  if (!cleanMotivo) {
+    return { status: "error", message: "Indica un motivo de revocación" };
+  }
+
+  const supa = await createSupabaseServer();
+  const { data: invite, error: readErr } = await supa
+    .from("invitaciones")
+    .select("email, role, subscription_tier")
+    .eq("id", id)
+    .single();
+  if (readErr || !invite) {
+    return { status: "error", message: "Invitación no encontrada" };
+  }
+
+  const supaAdmin = getSupabaseAdmin();
+  let authUserDeleted = false;
+  let authError: string | null = null;
+
+  if (supaAdmin) {
+    try {
+      // Buscar usuario en Auth por email
+      const { data: usersList, error: listErr } =
+        await supaAdmin.auth.admin.listUsers();
+      if (!listErr && usersList?.users) {
+        const targetUser = usersList.users.find(
+          (u) =>
+            u.email?.toLowerCase() === invite.email.toLowerCase(),
+        );
+        if (targetUser) {
+          const { error: delErr } = await supaAdmin.auth.admin.deleteUser(
+            targetUser.id,
+          );
+          if (delErr) {
+            authError = delErr.message;
+          } else {
+            authUserDeleted = true;
+          }
+        }
+      } else if (listErr) {
+        authError = listErr.message;
+      }
+    } catch (err) {
+      authError = err instanceof Error ? err.message : "Error desconocido";
+      console.error("[admin] revoke auth delete err:", err);
+    }
+  } else {
+    authError = "Service role no configurado";
+  }
+
+  // Eliminar invitación (independiente del Auth delete)
+  const { error: invDelErr } = await supa
+    .from("invitaciones")
+    .delete()
+    .eq("id", id);
+
+  if (invDelErr) {
+    return {
+      status: "error",
+      message: `Auth ${authUserDeleted ? "borrado" : "no afectado"}, pero no pudimos borrar la invitación: ${invDelErr.message}`,
+    };
+  }
+
+  void recordAudit({
+    userId: auth.userId,
+    action: "admin.invitation_revoked_full",
+    resource: `invitacion:${invite.email}`,
+    metadata: {
+      target_email: invite.email,
+      motivo: cleanMotivo,
+      auth_user_deleted: authUserDeleted,
+      auth_error: authError,
+    },
+  });
+
+  revalidatePath("/admin/invitaciones");
+  return {
+    status: "ok",
+    message: authUserDeleted
+      ? `Acceso de ${invite.email} revocado por completo (invitación + cuenta Auth eliminadas).`
+      : authError
+        ? `Invitación de ${invite.email} eliminada, pero la cuenta Auth no se pudo borrar: ${authError}`
+        : `Invitación de ${invite.email} eliminada (no había cuenta Auth asociada).`,
+  };
 }
 
 const approveSchema = z.object({
