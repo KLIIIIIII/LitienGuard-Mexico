@@ -26,8 +26,7 @@ export function FloatingMockup() {
       >
         {/* Top header strip */}
         <div className="flex items-center justify-between border-b border-line pb-3">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-validation" />
+          <div className="flex items-center">
             <span className="text-caption font-medium text-ink-strong">
               Consulta · DM2
             </span>

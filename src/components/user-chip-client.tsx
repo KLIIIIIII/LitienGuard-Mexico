@@ -107,10 +107,7 @@ export function UserChipClient({
                   <span>Administrador</span>
                 </>
               ) : (
-                <>
-                  <span className="h-1.5 w-1.5 rounded-full bg-validation" />
-                  <span>Médico · Plan piloto</span>
-                </>
+                <span>Médico · Plan piloto</span>
               )}
             </div>
           </div>

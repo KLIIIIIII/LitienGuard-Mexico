@@ -56,12 +56,8 @@ export function TrustRow() {
           {items.map((src, i) => (
             <span
               key={`${src}-${i}`}
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-4 py-2 text-caption font-medium text-ink-strong"
+              className="inline-flex items-center whitespace-nowrap rounded-full border border-line bg-surface px-4 py-2 text-caption font-medium text-ink-strong"
             >
-              <span
-                aria-hidden
-                className="h-1.5 w-1.5 rounded-full bg-validation"
-              />
               {src}
             </span>
           ))}

@@ -156,22 +156,12 @@ export function ProfileOnboardingModal() {
             >
               {/* Header editorial */}
               <header className="space-y-4 text-center">
-                <motion.div
+                <motion.p
                   variants={itemVariants}
-                  className="inline-flex items-center gap-2 text-[0.72rem] uppercase tracking-[0.18em] font-semibold text-validation"
+                  className="text-[0.72rem] uppercase tracking-[0.18em] font-semibold text-validation"
                 >
-                  <motion.span
-                    aria-hidden
-                    className="h-1.5 w-1.5 rounded-full bg-validation"
-                    animate={{ opacity: [0.4, 1, 0.4] }}
-                    transition={{
-                      duration: 2.4,
-                      ease: "easeInOut",
-                      repeat: Infinity,
-                    }}
-                  />
                   LitienGuard · Bienvenida
-                </motion.div>
+                </motion.p>
 
                 <motion.h1
                   id="onboarding-title"

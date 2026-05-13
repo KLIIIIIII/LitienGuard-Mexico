@@ -1,13 +1,12 @@
 import {
   Calendar,
-  Clock,
   User,
   CheckCircle2,
   Plus,
-  Globe,
   ChevronRight,
 } from "lucide-react";
 import { AppChrome } from "@/components/demos/app-chrome";
+import { AppChromeMobile } from "@/components/demos/app-chrome-mobile";
 
 /**
  * Demo dual de la agenda dental:
@@ -203,109 +202,87 @@ export function DentalAgendaDemo() {
         </AppChrome>
       </div>
 
-      {/* SEGUNDA VISTA — portal público de reservación */}
-      <div className="relative">
-        <div
-          aria-hidden
-          className="absolute -inset-8 -z-10 rounded-[40px] bg-gradient-to-br from-accent-soft via-warn-soft to-transparent opacity-40 blur-3xl"
-        />
+      {/*
+       * SEGUNDA VISTA — portal público de reservación.
+       * Renderizada dentro de un frame iPhone Safari porque los
+       * pacientes reservan desde móvil 99% del tiempo. Acompañada
+       * de caption editorial al lado que rompe el patrón
+       * eyebrow→h1→sub que se repite en todas las secciones.
+       */}
+      <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+        {/* Caption editorial al lado */}
+        <div className="space-y-4 lg:order-2">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-accent">
+            ↳ Lo que ven tus pacientes
+          </p>
+          <p className="text-h3 font-medium leading-snug text-ink-strong">
+            En su celular, sin login, sin app. Eligen horario, escriben
+            sus datos, reservan en menos de un minuto.
+          </p>
+          <p className="text-body-sm text-ink-muted leading-relaxed">
+            Confirmación por correo apenas tocan el botón. Recordatorio
+            automático 24 horas antes. Cancela hasta 4 horas antes sin
+            costo.
+          </p>
+          <ul className="mt-3 space-y-2 text-caption text-ink-muted">
+            <li className="flex items-baseline gap-2">
+              <span className="font-mono text-validation">→</span>
+              <span>Link único por dentista (tipo Calendly)</span>
+            </li>
+            <li className="flex items-baseline gap-2">
+              <span className="font-mono text-validation">→</span>
+              <span>Solo muestra horarios libres en tu agenda real</span>
+            </li>
+            <li className="flex items-baseline gap-2">
+              <span className="font-mono text-validation">→</span>
+              <span>Sincroniza al instante con tu dashboard</span>
+            </li>
+          </ul>
+        </div>
 
-        <AppChrome
-          path="agendar/dra-sandoval"
-          breadcrumb={["litienguard.mx", "agendar", "Dra. Sandoval"]}
-          badge="Lo que ven tus pacientes"
-        >
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-            {/* LEFT — Perfil público del dentista */}
-            <section className="space-y-3">
-              <div className="flex items-center gap-1.5">
-                <Globe
-                  className="h-3.5 w-3.5 text-accent"
-                  strokeWidth={2.2}
-                />
-                <p className="text-[0.65rem] uppercase tracking-eyebrow font-bold text-accent">
-                  Reservación pública · sin login
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-line bg-surface px-4 py-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-body-sm font-bold text-accent">
-                    PS
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-body-sm font-bold text-ink-strong">
-                      Dra. Pamela Sandoval
-                    </p>
-                    <p className="text-caption text-ink-muted">
-                      Odontología general · Cédula 7842316
-                    </p>
-                    <p className="mt-1.5 text-caption text-ink-muted leading-snug">
-                      Consulta privada en Polanco, CDMX. 12+ años de
-                      experiencia, atención personalizada en español.
-                    </p>
-                  </div>
+        {/* iPhone Safari frame */}
+        <div className="lg:order-1">
+          <AppChromeMobile path="litienguard.mx/agendar/dra-sandoval">
+            <div className="space-y-4">
+              {/* Perfil compacto */}
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-body-sm font-bold text-accent">
+                  PS
                 </div>
-              </div>
-
-              <div className="rounded-lg border border-line bg-surface px-3 py-2.5">
-                <p className="text-[0.6rem] uppercase tracking-eyebrow font-bold text-ink-soft">
-                  Datos del paciente
-                </p>
-                <div className="mt-2 space-y-1.5">
-                  <div className="h-6 rounded border border-line bg-surface-alt px-2 text-[0.65rem] flex items-center text-ink-quiet">
-                    Nombre completo
-                  </div>
-                  <div className="h-6 rounded border border-line bg-surface-alt px-2 text-[0.65rem] flex items-center text-ink-quiet">
-                    Correo electrónico
-                  </div>
-                  <div className="h-6 rounded border border-line bg-surface-alt px-2 text-[0.65rem] flex items-center text-ink-quiet">
-                    Teléfono · WhatsApp
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* RIGHT — Slots disponibles */}
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Clock
-                    className="h-3.5 w-3.5 text-validation"
-                    strokeWidth={2.2}
-                  />
-                  <p className="text-[0.65rem] uppercase tracking-eyebrow font-bold text-validation">
-                    Horarios disponibles · Jue 15 may
+                <div className="min-w-0 flex-1">
+                  <p className="text-body-sm font-bold text-ink-strong leading-tight">
+                    Dra. Pamela Sandoval
+                  </p>
+                  <p className="mt-0.5 text-[0.7rem] text-ink-muted">
+                    Odontología general · Polanco
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                {SLOTS_DISPONIBLES.map((s) => (
-                  <button
-                    key={s.hora}
-                    type="button"
-                    disabled
-                    className={`rounded-lg border px-2 py-2.5 text-caption font-semibold transition-colors ${
-                      s.highlight
-                        ? "border-validation bg-validation text-canvas"
-                        : "border-line bg-surface text-ink-strong hover:border-validation-soft"
-                    }`}
-                  >
-                    {s.label}
-                    {s.highlight && (
-                      <span className="ml-1">
-                        <CheckCircle2
-                          className="inline h-3 w-3"
-                          strokeWidth={2.4}
-                        />
-                      </span>
-                    )}
-                  </button>
-                ))}
+              {/* Slot picker */}
+              <div className="space-y-2">
+                <p className="text-[0.62rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+                  Horarios · Jue 15 may
+                </p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {SLOTS_DISPONIBLES.map((s) => (
+                    <button
+                      key={s.hora}
+                      type="button"
+                      disabled
+                      className={`rounded-lg border px-1.5 py-2 text-[0.65rem] font-semibold ${
+                        s.highlight
+                          ? "border-validation bg-validation text-canvas"
+                          : "border-line bg-surface text-ink-strong"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Confirmación destacada */}
+              {/* Confirmación */}
               <div className="rounded-xl border border-validation bg-validation-soft/40 px-3 py-3">
                 <div className="flex items-start gap-2">
                   <CheckCircle2
@@ -314,26 +291,26 @@ export function DentalAgendaDemo() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-caption font-bold text-ink-strong">
-                      Jueves 15 de mayo · 2:30 PM
+                      Jueves 15 mayo · 2:30 PM
                     </p>
-                    <p className="mt-0.5 text-[0.65rem] text-ink-muted leading-snug">
-                      Recibirás confirmación por correo + recordatorio 24h
-                      antes. Cancela hasta 4 horas antes sin costo.
+                    <p className="mt-0.5 text-[0.62rem] text-ink-muted leading-snug">
+                      30 minutos · Consulta inicial · Recordatorio
+                      automático 24h antes.
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
                   disabled
-                  className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-validation py-2 text-caption font-bold text-canvas"
+                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-validation py-2.5 text-caption font-bold text-canvas"
                 >
                   Confirmar reservación
                   <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.4} />
                 </button>
               </div>
-            </section>
-          </div>
-        </AppChrome>
+            </div>
+          </AppChromeMobile>
+        </div>
       </div>
     </div>
   );
