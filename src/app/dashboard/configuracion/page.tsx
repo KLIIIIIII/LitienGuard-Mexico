@@ -9,6 +9,7 @@ import {
   ChevronRight,
   type LucideIcon,
 } from "lucide-react";
+import { ReplayTutorialButton } from "@/components/replay-tutorial-button";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { CollectiveToggle } from "./collective-toggle";
@@ -108,6 +109,7 @@ export default async function ConfiguracionPage() {
                 label="Refiere y gana"
                 hint="Tu código de referidos y comisiones"
               />
+              <ReplayTutorialButton />
             </div>
           </section>
 

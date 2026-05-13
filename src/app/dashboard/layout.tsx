@@ -18,6 +18,7 @@ import { DashboardSidebar } from "./dashboard-sidebar";
 import { DashboardMobileBar } from "./dashboard-mobile-bar";
 import { PricingSurveyGate } from "@/components/pricing-survey-gate";
 import { ProfileOnboardingGate } from "@/components/profile-onboarding-gate";
+import { WelcomeTutorialGate } from "@/components/welcome-tutorial-gate";
 
 export default async function DashboardLayout({
   children,
@@ -87,6 +88,9 @@ export default async function DashboardLayout({
       </Suspense>
       <Suspense fallback={null}>
         <ProfileOnboardingGate />
+      </Suspense>
+      <Suspense fallback={null}>
+        <WelcomeTutorialGate />
       </Suspense>
     </div>
   );

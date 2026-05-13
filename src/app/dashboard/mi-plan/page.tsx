@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
+import { ReplayTutorialButton } from "@/components/replay-tutorial-button";
 import {
   canUseScribe,
   canUseCerebro,
@@ -480,6 +481,19 @@ export default async function MiPlanPage() {
           </ul>
         </section>
       )}
+
+      {/* Replay tutorial */}
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface-alt px-5 py-4">
+        <div>
+          <p className="text-body-sm font-semibold text-ink-strong">
+            ¿Quieres repasar las funciones?
+          </p>
+          <p className="mt-0.5 text-caption text-ink-muted">
+            El tour de bienvenida de 60 segundos te muestra lo esencial.
+          </p>
+        </div>
+        <ReplayTutorialButton variant="inline" />
+      </section>
 
       {/* Footer: gestión y soporte */}
       <section className="grid gap-4 md:grid-cols-2">
