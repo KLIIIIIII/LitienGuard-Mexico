@@ -19,6 +19,14 @@ import {
   ArrowLeft,
   CheckCircle2,
   Building2,
+  Palette,
+  Gift,
+  Search,
+  Quote,
+  Clock,
+  UserCheck,
+  AlertCircle,
+  DollarSign,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -27,6 +35,20 @@ import {
 } from "@/app/dashboard/tutorial/actions";
 import type { ProfileType } from "@/lib/entitlements";
 
+type VisualKind =
+  | "welcome"
+  | "scribe"
+  | "cerebro"
+  | "recetas"
+  | "agenda"
+  | "pacientes"
+  | "odontograma"
+  | "hospital"
+  | "rcm"
+  | "pdfBranding"
+  | "referidos"
+  | "done";
+
 interface Slide {
   icon: LucideIcon;
   eyebrow: string;
@@ -34,7 +56,8 @@ interface Slide {
   titleAccent: string;
   description: string;
   bullets: string[];
-  visualBg: string; // tailwind gradient classes
+  visualBg: string;
+  visualKind: VisualKind;
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -54,6 +77,39 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
       "Soporte directo con quien construye el producto",
     ],
     visualBg: "from-validation-soft via-accent-soft to-canvas",
+    visualKind: "welcome",
+  };
+
+  const pdfBranding: Slide = {
+    icon: Palette,
+    eyebrow: "Branding propio",
+    title: "Tus PDFs con",
+    titleAccent: "tu marca.",
+    description:
+      "Personaliza el encabezado de notas SOAP, recetas, odontograma y diferencial con el nombre de tu consultorio. Los pacientes ven tu marca, no la nuestra.",
+    bullets: [
+      "Título y subtítulo customizables en /Configuración",
+      "Aplica a los 4 tipos de PDF que generas",
+      "Footer mantiene cumplimiento NOM-024 + LFPDPPP",
+    ],
+    visualBg: "from-warn-soft via-validation-soft to-canvas",
+    visualKind: "pdfBranding",
+  };
+
+  const referidos: Slide = {
+    icon: Gift,
+    eyebrow: "Refiere y gana",
+    title: "Trae colegas,",
+    titleAccent: "elige tu premio.",
+    description:
+      "Cada médico que invites con tu código y suscriba un plan, te genera recompensa. Tú eliges entre efectivo o suscripción gratis — lo que más te convenga.",
+    bullets: [
+      "Tu código único en /Configuración → Refiere y gana",
+      "Premio activo desde el primer pago del referido",
+      "Elige $ MXN o meses gratis de tu plan",
+    ],
+    visualBg: "from-validation-soft via-warn-soft to-canvas",
+    visualKind: "referidos",
   };
 
   const final: Slide = {
@@ -69,9 +125,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
       "Tu primera consulta es la prueba real — pruébalo hoy",
     ],
     visualBg: "from-accent-soft via-validation-soft to-canvas",
+    visualKind: "done",
   };
 
-  // Slides según perfil
   if (profileType === "dentista") {
     return [
       welcome,
@@ -88,6 +144,7 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
           "El paciente firma en papel antes de salir",
         ],
         visualBg: "from-warn-soft via-accent-soft to-canvas",
+        visualKind: "odontograma",
       },
       {
         icon: Pill,
@@ -102,7 +159,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
           "Exporta como PDF para imprimir o mandar por correo",
         ],
         visualBg: "from-validation-soft via-accent-soft to-canvas",
+        visualKind: "recetas",
       },
+      pdfBranding,
       {
         icon: Users,
         eyebrow: "Padrón de pacientes",
@@ -116,6 +175,7 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
           "Cooldown 30 días entre recordatorios al mismo paciente",
         ],
         visualBg: "from-rose-soft via-validation-soft to-canvas",
+        visualKind: "pacientes",
       },
       {
         icon: Calendar,
@@ -130,7 +190,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
           "Pacientes nuevos se agregan a tu padrón automáticamente",
         ],
         visualBg: "from-accent-soft via-warn-soft to-canvas",
+        visualKind: "agenda",
       },
+      referidos,
       final,
     ];
   }
@@ -151,6 +213,7 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
           "Onboarding personalizado + SLA dedicado",
         ],
         visualBg: "from-validation-soft via-accent-soft to-canvas",
+        visualKind: "hospital",
       },
       {
         icon: BookOpen,
@@ -165,7 +228,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
           "Anonimización local — PII no sale del consultorio",
         ],
         visualBg: "from-accent-soft via-validation-soft to-canvas",
+        visualKind: "cerebro",
       },
+      pdfBranding,
       {
         icon: Sparkles,
         eyebrow: "Próximamente",
@@ -179,7 +244,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
           "Integración bidireccional con tu HIS existente",
         ],
         visualBg: "from-warn-soft via-accent-soft to-canvas",
+        visualKind: "rcm",
       },
+      referidos,
       final,
     ];
   }
@@ -200,6 +267,7 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
         "Citas verbatim al cerebro clínico para sustentar el plan",
       ],
       visualBg: "from-validation-soft via-accent-soft to-canvas",
+      visualKind: "scribe",
     },
     {
       icon: BookOpen,
@@ -214,6 +282,7 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
         "Diferencial bayesiano para casos complejos",
       ],
       visualBg: "from-accent-soft via-warn-soft to-canvas",
+      visualKind: "cerebro",
     },
     {
       icon: Pill,
@@ -228,7 +297,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
         "Recordatorios automáticos 24 horas antes",
       ],
       visualBg: "from-warn-soft via-validation-soft to-canvas",
+      visualKind: "recetas",
     },
+    pdfBranding,
     {
       icon: Users,
       eyebrow: "Padrón de pacientes",
@@ -242,7 +313,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
         "Cooldown 30 días para no saturar al paciente",
       ],
       visualBg: "from-rose-soft via-accent-soft to-canvas",
+      visualKind: "pacientes",
     },
+    referidos,
     final,
   ];
 }
@@ -250,7 +323,6 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
 interface Props {
   profileType: ProfileType;
   nombre: string | null;
-  /** Si true, se cerrará al terminar sin recargar. Si false (default), recarga al cerrar. */
   inlineMode?: boolean;
   onClose?: () => void;
 }
@@ -346,8 +418,6 @@ export function WelcomeTutorialModal({
     }),
   };
 
-  const Icon = slide.icon;
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -359,7 +429,6 @@ export function WelcomeTutorialModal({
       aria-labelledby="tutorial-title"
     >
       <div className="relative w-full max-w-5xl px-6 py-8 sm:py-12">
-        {/* Skip button */}
         <button
           type="button"
           onClick={skip}
@@ -380,53 +449,19 @@ export function WelcomeTutorialModal({
             exit="exit"
             className="grid items-center gap-10 lg:grid-cols-[1.1fr_minmax(0,1fr)]"
           >
-            {/* LEFT — Visual */}
+            {/* LEFT — Visual coherente con el contenido */}
             <div className="relative order-2 lg:order-1">
               <motion.div
-                initial={{ opacity: 0, scale: 0.92 }}
+                initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={SOFT_SPRING}
-                className={`relative aspect-[4/3] overflow-hidden rounded-3xl border border-line bg-gradient-to-br ${slide.visualBg} p-8 shadow-lift`}
+                className={`relative aspect-[4/3] overflow-hidden rounded-3xl border border-line bg-gradient-to-br ${slide.visualBg} p-6 shadow-lift`}
               >
-                {/* Big icon centered */}
-                <div className="flex h-full items-center justify-center">
-                  <motion.div
-                    initial={{ scale: 0.6, opacity: 0, rotate: -8 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    transition={{ ...SOFT_SPRING, delay: 0.15 }}
-                    className="relative"
-                  >
-                    <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-canvas/60 shadow-deep backdrop-blur-sm">
-                      <Icon
-                        className="h-14 w-14 text-validation"
-                        strokeWidth={1.6}
-                      />
-                    </div>
-                    {/* Pulse ring */}
-                    <motion.div
-                      aria-hidden
-                      initial={{ scale: 1, opacity: 0.5 }}
-                      animate={{ scale: 1.5, opacity: 0 }}
-                      transition={{
-                        duration: 2.4,
-                        ease: "easeOut",
-                        repeat: Infinity,
-                      }}
-                      className="absolute inset-0 rounded-3xl border-2 border-validation"
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Decorative dots */}
-                <div className="absolute bottom-4 left-4 flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-validation/40" />
-                  <span className="h-2 w-2 rounded-full bg-validation/30" />
-                  <span className="h-2 w-2 rounded-full bg-validation/20" />
-                </div>
+                <SlideVisual kind={slide.visualKind} />
               </motion.div>
             </div>
 
-            {/* RIGHT — Text */}
+            {/* RIGHT — Texto */}
             <div className="space-y-5 order-1 lg:order-2">
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
@@ -489,9 +524,7 @@ export function WelcomeTutorialModal({
           </motion.div>
         </AnimatePresence>
 
-        {/* Bottom controls */}
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
-          {/* Progress dots */}
           <div className="flex items-center gap-1.5">
             {slides.map((_, i) => (
               <button
@@ -539,7 +572,6 @@ export function WelcomeTutorialModal({
           </div>
         </div>
 
-        {/* Keyboard hint */}
         <p className="mt-4 text-center text-[0.65rem] text-ink-soft">
           <kbd className="rounded border border-line bg-surface px-1.5 py-0.5 font-mono">
             ←
@@ -555,5 +587,689 @@ export function WelcomeTutorialModal({
         </p>
       </div>
     </motion.div>
+  );
+}
+
+// =============================================================
+// SlideVisual — visual coherente con el contenido del slide
+// =============================================================
+
+function SlideVisual({ kind }: { kind: VisualKind }) {
+  switch (kind) {
+    case "welcome":
+      return <WelcomeVisual />;
+    case "scribe":
+      return <ScribeVisual />;
+    case "cerebro":
+      return <CerebroVisual />;
+    case "recetas":
+      return <RecetasVisual />;
+    case "agenda":
+      return <AgendaVisual />;
+    case "pacientes":
+      return <PacientesVisual />;
+    case "odontograma":
+      return <OdontogramaVisual />;
+    case "hospital":
+      return <HospitalVisual />;
+    case "rcm":
+      return <RcmVisual />;
+    case "pdfBranding":
+      return <PdfBrandingVisual />;
+    case "referidos":
+      return <ReferidosVisual />;
+    case "done":
+      return <DoneVisual />;
+    default:
+      return null;
+  }
+}
+
+function MockChrome({ children, title }: { children: React.ReactNode; title?: string }) {
+  return (
+    <div className="h-full w-full rounded-2xl border border-line bg-canvas shadow-deep overflow-hidden flex flex-col">
+      <div className="flex items-center gap-1.5 border-b border-line bg-surface-alt px-3 py-2">
+        <span className="h-2 w-2 rounded-full bg-rose/40" />
+        <span className="h-2 w-2 rounded-full bg-warn/40" />
+        <span className="h-2 w-2 rounded-full bg-validation/40" />
+        {title && (
+          <span className="ml-2 text-[0.55rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+            {title}
+          </span>
+        )}
+      </div>
+      <div className="flex-1 min-h-0 overflow-hidden p-3">{children}</div>
+    </div>
+  );
+}
+
+// --- Welcome ---
+function WelcomeVisual() {
+  return (
+    <div className="flex h-full items-center justify-center">
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0, rotate: -8 }}
+        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+        transition={{ ...SOFT_SPRING, delay: 0.15 }}
+        className="relative"
+      >
+        <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-canvas/60 shadow-deep backdrop-blur-sm">
+          <Sparkles className="h-14 w-14 text-validation" strokeWidth={1.6} />
+        </div>
+        <motion.div
+          aria-hidden
+          initial={{ scale: 1, opacity: 0.5 }}
+          animate={{ scale: 1.5, opacity: 0 }}
+          transition={{ duration: 2.4, ease: "easeOut", repeat: Infinity }}
+          className="absolute inset-0 rounded-3xl border-2 border-validation"
+        />
+      </motion.div>
+    </div>
+  );
+}
+
+// --- Scribe (audio waveform → SOAP) ---
+function ScribeVisual() {
+  return (
+    <MockChrome title="Scribe">
+      <div className="flex h-full flex-col gap-3">
+        {/* Audio waveform animado */}
+        <div className="flex items-end justify-center gap-1 rounded-lg bg-validation-soft px-4 py-3">
+          <Mic className="h-4 w-4 text-validation" strokeWidth={2.2} />
+          {Array.from({ length: 18 }).map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ height: 4 }}
+              animate={{ height: [4, 14 + (i % 5) * 4, 4] }}
+              transition={{
+                duration: 0.9,
+                repeat: Infinity,
+                delay: i * 0.06,
+                ease: "easeInOut",
+              }}
+              className="w-1 rounded-full bg-validation"
+            />
+          ))}
+          <span className="ml-2 text-[0.6rem] font-mono text-validation">
+            00:13
+          </span>
+        </div>
+        {/* SOAP que aparece */}
+        <div className="flex-1 min-h-0 grid grid-cols-2 gap-1.5">
+          {[
+            { l: "S", t: "Subjetivo", c: "Dolor torácico 2 días…" },
+            { l: "O", t: "Objetivo", c: "TA 130/85, FC 88…" },
+            { l: "A", t: "Análisis", c: "Angina inestable…" },
+            { l: "P", t: "Plan", c: "ASA 100 mg, derivar…" },
+          ].map((row, i) => (
+            <motion.div
+              key={row.l}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 + i * 0.15, duration: 0.4, ease: EASE }}
+              className="rounded-md border border-line bg-surface p-1.5"
+            >
+              <p className="text-[0.55rem] uppercase tracking-eyebrow font-bold text-validation">
+                {row.l} · {row.t}
+              </p>
+              <p className="mt-0.5 text-[0.6rem] text-ink-strong leading-tight">
+                {row.c}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- Cerebro (búsqueda → cita) ---
+function CerebroVisual() {
+  return (
+    <MockChrome title="Cerebro clínico">
+      <div className="flex h-full flex-col gap-2">
+        <div className="flex items-center gap-2 rounded-lg border border-line bg-surface px-2.5 py-2">
+          <Search className="h-3 w-3 text-ink-quiet" strokeWidth={2} />
+          <motion.span
+            initial={{ width: 0 }}
+            animate={{ width: "auto" }}
+            transition={{ duration: 1.2, ease: EASE, delay: 0.3 }}
+            className="text-[0.65rem] text-ink-strong overflow-hidden whitespace-nowrap"
+          >
+            tratamiento DM2 segunda línea
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 1 }}
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 0.8, repeat: 3 }}
+            className="text-validation text-[0.65rem]"
+          >
+            |
+          </motion.span>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.4, duration: 0.5, ease: EASE }}
+          className="flex-1 min-h-0 rounded-lg border-2 border-validation-soft bg-validation-soft/40 p-2.5"
+        >
+          <div className="flex items-start gap-1.5">
+            <Quote className="h-3 w-3 shrink-0 text-validation mt-0.5" strokeWidth={2.2} />
+            <p className="text-[0.6rem] text-ink-strong leading-tight italic">
+              &ldquo;Metformina + iSGLT2 reduce mortalidad CV en DM2 con
+              enfermedad CV establecida (Clase I, NE A).&rdquo;
+            </p>
+          </div>
+          <p className="mt-1.5 text-[0.55rem] text-ink-soft">
+            GPC-IMSS-103 · pág. 47 · ESC 2023
+          </p>
+        </motion.div>
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- Recetas (campos llenándose) ---
+function RecetasVisual() {
+  const fields = [
+    { l: "Paciente", v: "Juan Pérez · 54 a" },
+    { l: "Diagnóstico", v: "DM2 (E11.9)" },
+    { l: "Medicamento", v: "Metformina 850 mg" },
+    { l: "Posología", v: "1 tab c/12h x 30 días" },
+  ];
+  return (
+    <MockChrome title="Receta digital">
+      <div className="flex h-full flex-col gap-1.5">
+        <div className="flex items-center justify-between border-b border-line pb-1.5">
+          <Pill className="h-3.5 w-3.5 text-validation" strokeWidth={2.2} />
+          <span className="text-[0.55rem] font-mono text-ink-soft">
+            #RX-0024-2026
+          </span>
+        </div>
+        {fields.map((f, i) => (
+          <motion.div
+            key={f.l}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 + i * 0.18, duration: 0.4, ease: EASE }}
+            className="rounded-md bg-surface-alt px-2 py-1.5"
+          >
+            <p className="text-[0.5rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+              {f.l}
+            </p>
+            <p className="text-[0.65rem] font-semibold text-ink-strong leading-tight">
+              {f.v}
+            </p>
+          </motion.div>
+        ))}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.2, ...SOFT_SPRING }}
+          className="mt-auto inline-flex items-center gap-1 self-end rounded-full bg-validation px-2 py-0.5 text-[0.55rem] font-bold text-surface"
+        >
+          <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2.5} />
+          NOM-024 ✓
+        </motion.div>
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- Agenda (slots se llenan) ---
+function AgendaVisual() {
+  const slots = [
+    { h: "09:00", taken: true },
+    { h: "10:00", taken: true },
+    { h: "11:00", taken: false },
+    { h: "12:00", taken: false },
+    { h: "16:00", taken: true },
+    { h: "17:00", taken: false },
+  ];
+  return (
+    <MockChrome title="litienguard.mx/agendar/…">
+      <div className="flex h-full flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <p className="text-[0.6rem] font-semibold text-ink-strong">
+            Martes 14 mayo
+          </p>
+          <Calendar className="h-3 w-3 text-validation" strokeWidth={2.2} />
+        </div>
+        <div className="grid grid-cols-3 gap-1.5">
+          {slots.map((s, i) => (
+            <motion.button
+              key={s.h}
+              type="button"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.08, duration: 0.3, ease: EASE }}
+              className={`rounded-md border px-2 py-1.5 text-[0.6rem] font-mono ${
+                s.taken
+                  ? "border-line bg-surface-alt text-ink-quiet line-through"
+                  : "border-validation bg-validation-soft text-validation font-bold"
+              }`}
+            >
+              {s.h}
+            </motion.button>
+          ))}
+        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.4 }}
+          className="mt-auto flex items-center gap-1.5 rounded-md bg-validation/10 px-2 py-1.5"
+        >
+          <UserCheck className="h-3 w-3 text-validation" strokeWidth={2.2} />
+          <p className="text-[0.55rem] text-ink-strong">
+            Recordatorio 24h: enviado
+          </p>
+        </motion.div>
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- Pacientes (lista con flags inactividad) ---
+function PacientesVisual() {
+  const pts = [
+    { n: "Ana M.", meses: 2, ok: true },
+    { n: "Carlos R.", meses: 8, ok: false },
+    { n: "Luisa F.", meses: 14, ok: false },
+    { n: "Roberto V.", meses: 4, ok: true },
+  ];
+  return (
+    <MockChrome title="Padrón">
+      <div className="flex h-full flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 text-[0.55rem] text-ink-soft">
+          <Users className="h-3 w-3 text-validation" strokeWidth={2.2} />
+          <span>624 pacientes</span>
+          <span className="ml-auto rounded-full bg-warn-soft px-1.5 py-0.5 font-bold text-warn">
+            2 inactivos
+          </span>
+        </div>
+        {pts.map((p, i) => (
+          <motion.div
+            key={p.n}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 + i * 0.12, duration: 0.35 }}
+            className={`flex items-center justify-between rounded-md border px-2 py-1.5 ${
+              p.ok ? "border-line bg-surface" : "border-warn-soft bg-warn-soft/50"
+            }`}
+          >
+            <span className="text-[0.6rem] font-semibold text-ink-strong">
+              {p.n}
+            </span>
+            <span
+              className={`flex items-center gap-1 text-[0.55rem] font-mono ${
+                p.ok ? "text-ink-soft" : "text-warn font-bold"
+              }`}
+            >
+              {!p.ok && <AlertCircle className="h-2.5 w-2.5" />}
+              {p.meses} m
+            </span>
+          </motion.div>
+        ))}
+        <motion.button
+          type="button"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9, duration: 0.4 }}
+          className="mt-auto inline-flex items-center justify-center gap-1 rounded-md bg-validation px-2 py-1.5 text-[0.6rem] font-bold text-surface"
+        >
+          <Clock className="h-2.5 w-2.5" strokeWidth={2.5} />
+          Enviar recordatorio
+        </motion.button>
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- Odontograma (dientes se marcan) ---
+function OdontogramaVisual() {
+  const teeth = [
+    18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28,
+  ];
+  const states = ["", "caries", "", "", "restaurado", "", "", "", "", "", "endodoncia", "", "", "corona", "", ""];
+  const stateColor: Record<string, string> = {
+    caries: "bg-warn",
+    restaurado: "bg-validation",
+    endodoncia: "bg-accent",
+    corona: "bg-ink",
+  };
+  return (
+    <MockChrome title="Odontograma">
+      <div className="flex h-full flex-col gap-2">
+        <p className="text-[0.55rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+          Maxilar superior · Notación FDI
+        </p>
+        <div className="grid grid-cols-8 gap-1">
+          {teeth.map((t, i) => {
+            const state = states[i];
+            return (
+              <motion.div
+                key={t}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
+                className="flex flex-col items-center gap-0.5"
+              >
+                <motion.div
+                  initial={{ backgroundColor: "#fff" }}
+                  animate={
+                    state ? { backgroundColor: undefined } : undefined
+                  }
+                  transition={{ delay: 0.8 + i * 0.05 }}
+                  className={`h-5 w-5 rounded border border-line ${
+                    state ? stateColor[state] : "bg-surface"
+                  }`}
+                />
+                <span className="text-[0.45rem] text-ink-soft">{t}</span>
+              </motion.div>
+            );
+          })}
+        </div>
+        <div className="mt-auto flex flex-wrap items-center gap-2 text-[0.5rem]">
+          <span className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded bg-warn" /> Caries
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded bg-validation" /> Restaurado
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded bg-accent" /> Endodoncia
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded bg-ink" /> Corona
+          </span>
+        </div>
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- Hospital (multi-médico dashboard) ---
+function HospitalVisual() {
+  const docs = [
+    { n: "Dra. López", rol: "médico", csl: 18 },
+    { n: "Dr. Ortiz", rol: "médico", csl: 22 },
+    { n: "Recepción", rol: "admin", csl: 0 },
+    { n: "Director", rol: "director", csl: 0 },
+  ];
+  return (
+    <MockChrome title="Panel multi-médico">
+      <div className="flex h-full flex-col gap-2">
+        <div className="grid grid-cols-2 gap-1.5">
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-md bg-validation-soft p-1.5"
+          >
+            <p className="text-[0.5rem] text-ink-soft">Consultas hoy</p>
+            <p className="text-h3 font-bold text-validation leading-none">40</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="rounded-md bg-warn-soft p-1.5"
+          >
+            <p className="text-[0.5rem] text-ink-soft">Pendientes</p>
+            <p className="text-h3 font-bold text-warn leading-none">7</p>
+          </motion.div>
+        </div>
+        {docs.map((d, i) => (
+          <motion.div
+            key={d.n}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 + i * 0.1 }}
+            className="flex items-center gap-2 rounded-md border border-line bg-surface px-2 py-1"
+          >
+            <Building2 className="h-3 w-3 text-validation" strokeWidth={2.2} />
+            <span className="text-[0.6rem] font-semibold text-ink-strong">
+              {d.n}
+            </span>
+            <span className="ml-auto text-[0.5rem] uppercase tracking-eyebrow text-ink-soft">
+              {d.rol}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- RCM (claim validation) ---
+function RcmVisual() {
+  return (
+    <MockChrome title="RCM · Validación">
+      <div className="flex h-full flex-col gap-2">
+        <div className="rounded-lg border border-line bg-surface p-2">
+          <p className="text-[0.55rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+            Claim #4729
+          </p>
+          <p className="mt-0.5 text-[0.6rem] text-ink-strong">
+            Apendicectomía laparoscópica
+          </p>
+        </div>
+        {[
+          { l: "Póliza activa", ok: true, delay: 0.3 },
+          { l: "Cobertura quirúrgica", ok: true, delay: 0.6 },
+          { l: "Pre-autorización", ok: true, delay: 0.9 },
+          { l: "Riesgo denegación", ok: false, label: "Bajo (12%)", delay: 1.2 },
+        ].map((c) => (
+          <motion.div
+            key={c.l}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: c.delay, duration: 0.4 }}
+            className="flex items-center justify-between rounded-md bg-surface-alt px-2 py-1.5"
+          >
+            <span className="text-[0.6rem] text-ink-strong">{c.l}</span>
+            <span
+              className={`flex items-center gap-1 text-[0.55rem] font-bold ${
+                c.ok ? "text-validation" : "text-warn"
+              }`}
+            >
+              {c.ok ? (
+                <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2.5} />
+              ) : null}
+              {c.label ?? "OK"}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- PDF Branding (default vs custom) ---
+function PdfBrandingVisual() {
+  return (
+    <div className="grid h-full grid-cols-2 gap-3">
+      {/* Default */}
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="rounded-xl border-2 border-line bg-canvas p-2.5 shadow-deep"
+      >
+        <p className="text-[0.5rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+          Antes
+        </p>
+        <div className="mt-2 border-b-2 border-ink pb-1.5">
+          <p className="text-[0.5rem] uppercase tracking-eyebrow font-bold text-validation">
+            Documento clínico
+          </p>
+          <p className="text-[0.85rem] font-bold tracking-tight text-ink-strong leading-none mt-0.5">
+            LitienGuard
+          </p>
+          <p className="text-[0.4rem] text-ink-muted mt-0.5">
+            Inteligencia médica para México
+          </p>
+        </div>
+        <div className="mt-2 space-y-1">
+          <div className="h-1 rounded bg-line w-3/4" />
+          <div className="h-1 rounded bg-line w-1/2" />
+        </div>
+      </motion.div>
+      {/* Custom */}
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+        className="rounded-xl border-2 border-validation bg-canvas p-2.5 shadow-lift relative"
+      >
+        <motion.div
+          initial={{ scale: 0, rotate: -20 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: 1.1, ...SOFT_SPRING }}
+          className="absolute -top-2 -right-2 rounded-full bg-validation p-1"
+        >
+          <Palette className="h-2.5 w-2.5 text-surface" strokeWidth={2.5} />
+        </motion.div>
+        <p className="text-[0.5rem] uppercase tracking-eyebrow font-bold text-validation">
+          Después
+        </p>
+        <div className="mt-2 border-b-2 border-ink pb-1.5">
+          <p className="text-[0.5rem] uppercase tracking-eyebrow font-bold text-validation">
+            Documento clínico
+          </p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+            className="text-[0.8rem] font-bold tracking-tight text-ink-strong leading-none mt-0.5"
+          >
+            Clínica Dental Sandoval
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.1 }}
+            className="text-[0.4rem] text-ink-muted mt-0.5"
+          >
+            Odontología integral · CDMX
+          </motion.p>
+        </div>
+        <div className="mt-2 space-y-1">
+          <div className="h-1 rounded bg-line w-3/4" />
+          <div className="h-1 rounded bg-line w-1/2" />
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// --- Referidos (código + recompensa) ---
+function ReferidosVisual() {
+  return (
+    <MockChrome title="Refiere y gana">
+      <div className="flex h-full flex-col gap-2.5">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          className="rounded-lg border-2 border-dashed border-validation bg-validation-soft px-3 py-2.5 text-center"
+        >
+          <p className="text-[0.5rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+            Tu código
+          </p>
+          <p className="mt-0.5 font-mono text-h3 font-bold text-validation tracking-tight">
+            DRG-CARLOS-2026
+          </p>
+        </motion.div>
+
+        <p className="text-[0.55rem] uppercase tracking-eyebrow font-bold text-ink-soft text-center">
+          Cuando un colega se suscribe…
+        </p>
+
+        <div className="grid grid-cols-2 gap-2">
+          <motion.div
+            initial={{ scale: 0.85, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.7, ...SOFT_SPRING }}
+            className="rounded-lg bg-warn-soft p-2 text-center"
+          >
+            <DollarSign
+              className="mx-auto h-4 w-4 text-warn"
+              strokeWidth={2.2}
+            />
+            <p className="mt-1 text-[0.6rem] font-bold text-ink-strong">
+              Efectivo
+            </p>
+            <p className="text-[0.5rem] text-ink-muted">MXN al banco</p>
+          </motion.div>
+          <motion.div
+            initial={{ scale: 0.85, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.9, ...SOFT_SPRING }}
+            className="rounded-lg bg-validation-soft p-2 text-center"
+          >
+            <Gift
+              className="mx-auto h-4 w-4 text-validation"
+              strokeWidth={2.2}
+            />
+            <p className="mt-1 text-[0.6rem] font-bold text-ink-strong">
+              Meses gratis
+            </p>
+            <p className="text-[0.5rem] text-ink-muted">de tu plan</p>
+          </motion.div>
+        </div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="mt-auto text-center text-[0.55rem] text-ink-soft italic"
+        >
+          Tú decides cómo cobrarlo
+        </motion.p>
+      </div>
+    </MockChrome>
+  );
+}
+
+// --- Done (checkmark + sparkles) ---
+function DoneVisual() {
+  return (
+    <div className="flex h-full items-center justify-center">
+      <motion.div
+        initial={{ scale: 0, rotate: -30 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={SOFT_SPRING}
+        className="relative"
+      >
+        <div className="flex h-32 w-32 items-center justify-center rounded-full bg-validation shadow-deep">
+          <CheckCircle2
+            className="h-16 w-16 text-surface"
+            strokeWidth={2}
+          />
+        </div>
+        {[0, 60, 120, 180, 240, 300].map((deg, i) => (
+          <motion.div
+            key={deg}
+            aria-hidden
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{
+              scale: [0, 1, 0],
+              opacity: [0, 1, 0],
+              x: Math.cos((deg * Math.PI) / 180) * 80,
+              y: Math.sin((deg * Math.PI) / 180) * 80,
+            }}
+            transition={{
+              duration: 1.5,
+              delay: 0.3 + i * 0.05,
+              repeat: Infinity,
+              repeatDelay: 0.6,
+            }}
+            className="absolute inset-0 m-auto h-3 w-3"
+          >
+            <Sparkles className="h-full w-full text-validation" />
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
   );
 }
