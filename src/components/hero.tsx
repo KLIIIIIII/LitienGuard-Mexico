@@ -26,18 +26,21 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 const STATS = [
   {
     number: "6.1 años",
-    label: "Retraso diagnóstico promedio en ATTR-CM",
+    label:
+      "Tarda diagnosticarse ATTR-CM hoy. El diferencial bayesiano de LitienGuard la sugiere en la primera consulta.",
     sub: "Mayo Clin Proc 2021",
   },
   {
-    number: "4-6 hrs",
-    label: "Que un médico dedica a notas cada día",
-    sub: "FunSalud · Dr. Gustavo Ross 2026",
+    number: "49 min/día",
+    label:
+      "Lo que recuperan médicos usando ambient scribes. Exactamente lo que LitienGuard Scribe te da.",
+    sub: "JAMA Network Open 2024",
   },
   {
-    number: "25.8%",
-    label: "De diabéticos en control glucémico",
-    sub: "ENSANUT 2023",
+    number: "17 años",
+    label:
+      "Tarda la evidencia clínica nueva en llegar al consultorio. El cerebro de LitienGuard cita guías 2024-2025 al momento.",
+    sub: "Balas & Boren · IOM",
   },
 ];
 
