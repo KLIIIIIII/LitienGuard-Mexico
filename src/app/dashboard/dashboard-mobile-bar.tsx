@@ -12,15 +12,11 @@ import {
   ShieldCheck,
   Lock,
   Settings,
-  Download,
   MessageCircle,
   Smile,
   Pill,
   Calendar,
-  CreditCard,
   Sparkles,
-  Gift,
-  Compass,
   Users,
   Menu,
   X,
@@ -103,6 +99,8 @@ export function DashboardMobileBar({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // Mi plan / Facturación / Seguridad / Exportar datos / Refiere y gana
+  // están consolidados dentro de /dashboard/configuracion.
   const items: NavItem[] = [
     {
       href: "/dashboard",
@@ -172,36 +170,6 @@ export function DashboardMobileBar({
           } satisfies NavItem,
         ]
       : []),
-    {
-      href: "/dashboard/exportar",
-      label: "Exportar datos",
-      icon: Download,
-      match: (p) => p.startsWith("/dashboard/exportar"),
-    },
-    {
-      href: "/dashboard/seguridad",
-      label: "Seguridad",
-      icon: Lock,
-      match: (p) => p.startsWith("/dashboard/seguridad"),
-    },
-    {
-      href: "/dashboard/mi-plan",
-      label: "Mi plan",
-      icon: Compass,
-      match: (p) => p.startsWith("/dashboard/mi-plan"),
-    },
-    {
-      href: "/dashboard/billing",
-      label: "Facturación",
-      icon: CreditCard,
-      match: (p) => p.startsWith("/dashboard/billing"),
-    },
-    {
-      href: "/dashboard/referidos",
-      label: "Refiere y gana",
-      icon: Gift,
-      match: (p) => p.startsWith("/dashboard/referidos"),
-    },
     {
       href: "/dashboard/configuracion",
       label: "Configuración",

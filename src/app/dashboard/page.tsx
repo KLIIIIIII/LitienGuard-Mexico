@@ -117,10 +117,15 @@ export default async function DashboardPage() {
               <Plus className="h-4 w-4" />
               Nueva nota
             </Link>
-          ) : (
-            <Link href="/contacto" className="lg-cta-ghost">
+          ) : tier === "free" ? (
+            <Link href="/precios" className="lg-cta-ghost">
               <Lock className="h-4 w-4" />
-              Solicitar acceso piloto
+              Subir de plan
+            </Link>
+          ) : (
+            <Link href="/dashboard/notas" className="lg-cta-primary">
+              <Plus className="h-4 w-4" />
+              Nueva nota
             </Link>
           )}
         </div>
@@ -209,15 +214,15 @@ export default async function DashboardPage() {
                 </div>
               </div>
               <p className="mt-3 text-body-sm text-ink-muted">
-                Función de suscripción. Solicita acceso al piloto cerrado o al
-                plan Pro para grabar consultas y obtener notas SOAP
-                estructuradas en segundos.
+                {tier === "free"
+                  ? "Función de suscripción. Solicita acceso al piloto o suscríbete al plan Pro para grabar consultas y obtener notas SOAP estructuradas en segundos."
+                  : "Tu plan Esencial incluye notas manuales. Para grabar la consulta y obtener SOAP automático en 13 segundos, sube a plan Profesional."}
               </p>
               <Link
-                href="/contacto"
+                href={tier === "free" ? "/contacto" : "/precios"}
                 className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-warn hover:bg-warn-soft/80"
               >
-                Solicitar acceso →
+                {tier === "free" ? "Solicitar acceso" : "Ver plan Profesional"} →
               </Link>
             </div>
           )}

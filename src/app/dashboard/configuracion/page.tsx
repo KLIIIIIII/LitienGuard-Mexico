@@ -1,4 +1,14 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import {
+  Compass,
+  CreditCard,
+  Lock as LockIcon,
+  Download,
+  Gift,
+  ChevronRight,
+  type LucideIcon,
+} from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { CollectiveToggle } from "./collective-toggle";
@@ -58,6 +68,48 @@ export default async function ConfiguracionPage() {
         </p>
 
         <div className="mt-10 max-w-3xl space-y-6">
+          {/* Atajos a las pages consolidadas dentro de Configuración */}
+          <section>
+            <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
+              Tu cuenta
+            </h2>
+            <p className="mt-1 text-body-sm text-ink-muted">
+              Plan, facturación, seguridad y datos personales.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <CuentaCard
+                href="/dashboard/mi-plan"
+                icon={Compass}
+                label="Mi plan"
+                hint="Qué incluye tu tier actual y cómo usarlo"
+              />
+              <CuentaCard
+                href="/dashboard/billing"
+                icon={CreditCard}
+                label="Facturación"
+                hint="Método de pago, recibos, cambiar plan"
+              />
+              <CuentaCard
+                href="/dashboard/seguridad"
+                icon={LockIcon}
+                label="Seguridad"
+                hint="MFA, contraseña, dispositivos conocidos"
+              />
+              <CuentaCard
+                href="/dashboard/exportar"
+                icon={Download}
+                label="Exportar datos"
+                hint="Descarga tu información clínica completa"
+              />
+              <CuentaCard
+                href="/dashboard/referidos"
+                icon={Gift}
+                label="Refiere y gana"
+                hint="Tu código de referidos y comisiones"
+              />
+            </div>
+          </section>
+
           <ProfileTypeForm current={profileType} />
 
           <ConsultorioForm
@@ -103,7 +155,7 @@ export default async function ConfiguracionPage() {
             </p>
           </div>
 
-          <div className="lg-card border-warn-soft">
+          <div className="lg-card border-warn-soft" id="arco">
             <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
               Derechos ARCO (LFPDPPP)
             </h2>
@@ -146,5 +198,36 @@ export default async function ConfiguracionPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function CuentaCard({
+  href,
+  icon: Icon,
+  label,
+  hint,
+}: {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  hint: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 transition-colors hover:border-line-strong hover:bg-surface-alt"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-validation-soft text-validation">
+        <Icon className="h-4 w-4" strokeWidth={2} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-body-sm font-semibold text-ink-strong">{label}</p>
+        <p className="truncate text-caption text-ink-muted">{hint}</p>
+      </div>
+      <ChevronRight
+        className="h-4 w-4 shrink-0 text-ink-quiet transition-transform group-hover:translate-x-0.5"
+        strokeWidth={2}
+      />
+    </Link>
   );
 }
