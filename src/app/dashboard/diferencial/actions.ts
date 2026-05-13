@@ -14,6 +14,11 @@ import {
   suggestFindingsToConfirm,
   type SuggestedFinding,
 } from "@/lib/inference/bayesian";
+import {
+  generateDifferentialFromContext,
+  type LlmDifferential,
+  type LlmHypothesisEval,
+} from "@/lib/inference/llm-differential";
 import { DISEASES, LIKELIHOOD_RATIOS } from "@/lib/inference/knowledge-base";
 import type { InferenceResult } from "@/lib/inference/types";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
@@ -231,6 +236,21 @@ const procesarSchema = z.object({
   contextoClinico: z.string().trim().min(20).max(8000),
 });
 
+export interface DiferencialHibrido {
+  /** Nombre de la enfermedad como la nombra el LLM */
+  nombre: string;
+  /** ID del catálogo bayesiano si la enfermedad SÍ está en las 28; null si no */
+  idCatalogo: string | null;
+  /** Razonamiento clínico explícito del LLM citando hallazgos */
+  razonamiento: string;
+  /** Nivel cualitativo siempre presente */
+  nivelSospecha: "alta" | "media" | "baja";
+  /** Posterior bayesiano numérico, solo si idCatalogo no es null */
+  posterior: number | null;
+  /** Findings/estudios concretos para confirmar este diagnóstico */
+  findingsAConfirmar: string[];
+}
+
 export type ProcesarResult =
   | {
       status: "ok";
@@ -238,14 +258,12 @@ export type ProcesarResult =
       extractions: ExtractedFinding[];
       /** Posterior del Dx del médico (null si no matchea el catálogo) */
       posteriorPropuesto: number | null;
-      /** Top-5 diferenciales alternativos ordenados por posterior desc */
-      alternativas: Array<{
-        diseaseId: string;
-        diseaseLabel: string;
-        posterior: number;
-      }>;
-      /** Findings sugeridos para confirmar/descartar el Dx propuesto */
-      findingsSugeridos: SuggestedFinding[];
+      /** Diferenciales generados por LLM con overlay bayesiano cuando aplica */
+      diferenciales: DiferencialHibrido[];
+      /** Evaluación honesta del LLM sobre si la hipótesis del médico encaja */
+      evaluacionHipotesis: LlmHypothesisEval;
+      /** Findings del catálogo bayesiano sugeridos para confirmar el Dx propuesto */
+      findingsSugeridosBayesianos: SuggestedFinding[];
       latencyMs: number;
     }
   | { status: "error"; message: string };
@@ -286,10 +304,14 @@ export async function procesarCasoCompleto(input: {
   const t0 = Date.now();
 
   try {
-    // Paralelizar: extracción de findings + match del Dx
-    const [extractResult, dxMatch] = await Promise.all([
+    // Paralelizar las 3 llamadas LLM: extracción + match + generación
+    const [extractResult, dxMatch, llmDiff] = await Promise.all([
       extractFindings(parsed.data.contextoClinico),
       matchDxToCatalog(parsed.data.dxHipotesis),
+      generateDifferentialFromContext({
+        hipotesisDx: parsed.data.dxHipotesis,
+        contextoClinico: parsed.data.contextoClinico,
+      }),
     ]);
 
     const observations = extractResult.extractions.map((e) => ({
@@ -297,7 +319,7 @@ export async function procesarCasoCompleto(input: {
       present: e.present,
     }));
 
-    // Inferencia bayesiana sobre todas las enfermedades
+    // Inferencia bayesiana sobre todas las enfermedades del catálogo
     const inferenceResults = inferDifferential(
       observations,
       DISEASES,
@@ -316,35 +338,49 @@ export async function procesarCasoCompleto(input: {
       posteriorPropuesto = match?.posterior ?? null;
     }
 
-    // Top-5 alternativas (excluyendo el Dx del médico si está)
-    const alternativas = inferenceResults
-      .filter((r: InferenceResult) =>
-        dxMatch.matchedId ? r.disease.id !== dxMatch.matchedId : true,
-      )
-      .slice(0, 5)
-      .map((r: InferenceResult) => ({
-        diseaseId: r.disease.id,
-        diseaseLabel: r.disease.label,
-        posterior: r.posterior,
-      }));
+    // Combinar diferenciales LLM con overlay bayesiano cuando aplica
+    const diferenciales: DiferencialHibrido[] = (
+      llmDiff.diferenciales as LlmDifferential[]
+    ).map((d) => {
+      let posterior: number | null = null;
+      if (d.idCatalogo) {
+        const bayesMatch = inferenceResults.find(
+          (r) => r.disease.id === d.idCatalogo,
+        );
+        posterior = bayesMatch?.posterior ?? null;
+      }
+      return {
+        nombre: d.nombre,
+        idCatalogo: d.idCatalogo,
+        razonamiento: d.razonamiento,
+        nivelSospecha: d.nivelSospecha,
+        posterior,
+        findingsAConfirmar: d.findingsAConfirmar,
+      };
+    });
 
-    // Findings sugeridos para confirmar el Dx propuesto
-    const findingsSugeridos = dxMatch.matchedId
-      ? suggestFindingsToConfirm(dxMatch.matchedId, observations, 8)
+    // Findings del catálogo bayesiano para confirmar el Dx propuesto (si aplica)
+    const findingsSugeridosBayesianos = dxMatch.matchedId
+      ? suggestFindingsToConfirm(dxMatch.matchedId, observations, 6)
       : [];
 
     void recordAudit({
       userId: user.id,
-      action: "diferencial.case_processed",
+      action: "diferencial.case_processed_v3",
       metadata: {
         dx_hipotesis: parsed.data.dxHipotesis.slice(0, 100),
         dx_matched: dxMatch.matchedId,
         dx_confidence: dxMatch.confidence,
+        hypothesis_fits_context: llmDiff.evaluacionHipotesis.encajaConContexto,
+        hypothesis_rank: llmDiff.evaluacionHipotesis.posicionEnRanking,
         n_findings_present: observations.filter((o) => o.present === true)
           .length,
-        n_alternativas: alternativas.length,
-        n_sugeridos: findingsSugeridos.length,
+        n_diferenciales: diferenciales.length,
+        n_in_catalog: diferenciales.filter((d) => d.idCatalogo !== null).length,
         posterior_propuesto: posteriorPropuesto,
+        llm_latency_ms: llmDiff.latencyMs,
+        llm_tokens_in: llmDiff.tokensInput,
+        llm_tokens_out: llmDiff.tokensOutput,
       },
     });
 
@@ -353,8 +389,9 @@ export async function procesarCasoCompleto(input: {
       dxMatch,
       extractions: extractResult.extractions,
       posteriorPropuesto,
-      alternativas,
-      findingsSugeridos,
+      diferenciales,
+      evaluacionHipotesis: llmDiff.evaluacionHipotesis,
+      findingsSugeridosBayesianos,
       latencyMs: Date.now() - t0,
     };
   } catch (err) {

@@ -14,13 +14,16 @@ import {
   RotateCcw,
   TrendingUp,
   Eye,
-  Plus,
+  ChevronDown,
+  HelpCircle,
+  AlertTriangle,
 } from "lucide-react";
 import {
   procesarCasoCompleto,
   saveDiferencialSession,
   type ProcesarResult,
   type SaveDiferencialInput,
+  type DiferencialHibrido,
 } from "./actions";
 import {
   inferDifferential,
@@ -51,6 +54,19 @@ const CAT_LABELS: Record<string, string> = {
   genetic: "Genética",
 };
 
+const NIVEL_STYLES: Record<
+  "alta" | "media" | "baja",
+  { bg: string; text: string; label: string }
+> = {
+  alta: {
+    bg: "bg-validation-soft",
+    text: "text-validation",
+    label: "Alta sospecha",
+  },
+  media: { bg: "bg-warn-soft", text: "text-warn", label: "Sospecha media" },
+  baja: { bg: "bg-surface-alt", text: "text-ink-muted", label: "Considerar" },
+};
+
 export function DiferencialEngine({
   initialClinicalText,
   initialPatient,
@@ -62,7 +78,6 @@ export function DiferencialEngine({
 } = {}) {
   const router = useRouter();
 
-  // Patient context
   const [iniciales, setIniciales] = useState(initialPatient?.iniciales ?? "");
   const [edad, setEdad] = useState<string>(
     initialPatient?.edad != null ? String(initialPatient.edad) : "",
@@ -71,19 +86,16 @@ export function DiferencialEngine({
     initialPatient?.sexo ?? "",
   );
 
-  // Inputs
   const [dxHipotesis, setDxHipotesis] = useState("");
   const [contextoClinico, setContextoClinico] = useState(
     initialClinicalText ?? "",
   );
 
-  // Result state
   const [result, setResult] = useState<ProcesarResult | null>(null);
   const [findings, setFindings] = useState<Map<string, TriState>>(new Map());
-
-  // Notas del médico
   const [notas, setNotas] = useState("");
   const [override, setOverride] = useState("");
+  const [expandedDx, setExpandedDx] = useState<string | null>(null);
 
   const [processing, startProcessing] = useTransition();
   const [saving, startSaving] = useTransition();
@@ -109,19 +121,18 @@ export function DiferencialEngine({
       });
       if (r.status === "ok") {
         setResult(r);
-        // Inicializar findings desde lo extraído
         const m = new Map<string, TriState>();
         for (const e of r.extractions) {
           if (e.present !== null) m.set(e.finding_id, e.present);
         }
         setFindings(m);
+        setExpandedDx(null);
       } else {
         setError(r.message);
       }
     });
   }
 
-  // Recálculo en vivo cuando el médico edita findings manualmente
   const liveObservations: FindingObservation[] = useMemo(
     () =>
       FINDINGS.map((f) => ({
@@ -136,16 +147,6 @@ export function DiferencialEngine({
     return inferDifferential(liveObservations, DISEASES, LIKELIHOOD_RATIOS);
   }, [result, liveObservations]);
 
-  const liveSugeridos = useMemo(() => {
-    if (!result || result.status !== "ok" || !result.dxMatch.matchedId)
-      return [];
-    return suggestFindingsToConfirm(
-      result.dxMatch.matchedId,
-      liveObservations,
-      8,
-    );
-  }, [result, liveObservations]);
-
   const livePosteriorPropuesto = useMemo(() => {
     if (!liveInference || !result || result.status !== "ok") return null;
     if (!result.dxMatch.matchedId) return null;
@@ -155,25 +156,31 @@ export function DiferencialEngine({
     return match?.posterior ?? null;
   }, [liveInference, result]);
 
-  const liveAlternativas = useMemo(() => {
-    if (!liveInference || !result || result.status !== "ok") return [];
-    return liveInference
-      .filter((r) =>
-        result.dxMatch.matchedId
-          ? r.disease.id !== result.dxMatch.matchedId
-          : true,
-      )
-      .slice(0, 5);
-  }, [liveInference, result]);
+  // Re-overlay bayesian onto LLM-generated differentials when findings change
+  const liveDiferenciales: DiferencialHibrido[] = useMemo(() => {
+    if (!result || result.status !== "ok") return [];
+    return result.diferenciales.map((d) => {
+      if (!d.idCatalogo) return d;
+      const m = liveInference?.find((r) => r.disease.id === d.idCatalogo);
+      return { ...d, posterior: m?.posterior ?? d.posterior };
+    });
+  }, [result, liveInference]);
 
-  function toggleFinding(id: string) {
+  const liveSugeridos = useMemo(() => {
+    if (!result || result.status !== "ok" || !result.dxMatch.matchedId)
+      return [];
+    return suggestFindingsToConfirm(
+      result.dxMatch.matchedId,
+      liveObservations,
+      6,
+    );
+  }, [result, liveObservations]);
+
+  function setFindingState(id: string, state: TriState) {
     setFindings((prev) => {
       const next = new Map(prev);
-      const cur = next.get(id) ?? null;
-      const newVal: TriState =
-        cur === null ? true : cur === true ? false : null;
-      if (newVal === null) next.delete(id);
-      else next.set(id, newVal);
+      if (state === null) next.delete(id);
+      else next.set(id, state);
       return next;
     });
     setSavedId(null);
@@ -191,13 +198,11 @@ export function DiferencialEngine({
       findings_observed: Array.from(findings.entries()).map(
         ([finding, present]) => ({ finding, present: present ?? null }),
       ),
-      top_diagnoses: (liveInference ?? [])
-        .slice(0, 5)
-        .map((r) => ({
-          disease: r.disease.id,
-          label: r.disease.label,
-          posterior: r.posterior,
-        })),
+      top_diagnoses: liveDiferenciales.slice(0, 5).map((d) => ({
+        disease: d.idCatalogo ?? d.nombre,
+        label: d.nombre,
+        posterior: d.posterior ?? 0,
+      })),
       medico_diagnostico_principal: dxHipotesis.trim(),
       medico_notas: notas.trim(),
       override_razonamiento: override.trim(),
@@ -230,11 +235,12 @@ export function DiferencialEngine({
     setFindings(new Map());
     setNotas("");
     setOverride("");
+    setExpandedDx(null);
     setSavedId(null);
     setError(null);
   }
 
-  // Vista inicial — captura del caso
+  // ============ Vista inicial ============
   if (!result || result.status !== "ok") {
     return (
       <div className="space-y-6">
@@ -257,10 +263,10 @@ export function DiferencialEngine({
                 Paso 1 · ¿Cuál es tu hipótesis diagnóstica?
               </h2>
               <p className="mt-1 text-caption text-ink-muted">
-                Lo que sospechas que tiene el paciente. El motor calculará
-                la probabilidad de tu hipótesis con los hallazgos del caso y
-                te mostrará diferenciales alternativos por si vale la pena
-                considerar.
+                Escribe lo que sospechas. El motor analizará el caso
+                completo y te dirá si tu hipótesis encaja con los hallazgos,
+                qué diferenciales podrías estar pasando por alto, y qué
+                estudios faltan confirmar.
               </p>
             </div>
           </div>
@@ -269,7 +275,7 @@ export function DiferencialEngine({
             type="text"
             value={dxHipotesis}
             onChange={(e) => setDxHipotesis(e.target.value)}
-            placeholder="Ej. amiloidosis cardiaca por transtiretina"
+            placeholder="Ej. amiloidosis cardiaca, enfermedad de Whipple, lupus seronegativo, linfoma de células T…"
             maxLength={300}
             disabled={processing}
             className="lg-input text-body"
@@ -284,12 +290,12 @@ export function DiferencialEngine({
             </div>
             <div>
               <h2 className="text-h3 font-semibold tracking-tight text-ink-strong">
-                Paso 2 · Pega el contexto clínico
+                Paso 2 · Pega el contexto clínico completo
               </h2>
               <p className="mt-1 text-caption text-ink-muted">
-                Pega la historia clínica, transcripción de la consulta, o
-                escribe libremente. El motor extraerá los findings con
-                Claude Sonnet 4.6 y los marcará automáticamente.
+                Historia, exploración, laboratorios, estudios de imagen,
+                biopsia — todo lo que tengas. Cuanto más contexto, mejor el
+                razonamiento del motor. Acepta texto libre.
               </p>
             </div>
           </div>
@@ -297,7 +303,7 @@ export function DiferencialEngine({
           <textarea
             value={contextoClinico}
             onChange={(e) => setContextoClinico(e.target.value)}
-            placeholder="Ej. Hombre 72 años, disnea progresiva 8 meses, ortopnea NYHA III. ECG: voltajes bajos en periféricas, eje superior. Eco: HVI concéntrica septum 17mm, FE preservada 58%, strain longitudinal con apical sparing pattern. Lab: NT-proBNP 4200 pg/mL, troponina T 28 ng/L. Antecedente: STC bilateral hace 4 años…"
+            placeholder={`Ej.\nVarón 47 años, 4 años artralgias migratorias, mala respuesta a AINE/MTX. 9 meses diarrea crónica + esteatorrea + pérdida 14 kg. 3 meses deterioro cognitivo, ataxia. Examen: IMC 18.2, hiperpigmentación, oftalmoplejía. Lab: anemia, albúmina 2.4, PCR/VSG elevadas. TAC: adenopatías mesentéricas, engrosamiento intestino delgado. Biopsia duodenal: macrófagos PAS+. PCR Tropheryma whipplei positiva.`}
             rows={10}
             maxLength={8000}
             disabled={processing}
@@ -307,7 +313,7 @@ export function DiferencialEngine({
           <div className="flex items-center justify-between text-caption text-ink-soft">
             <span>{contextoClinico.length} / 8000 caracteres</span>
             <span>
-              Mínimo 20 caracteres ·{" "}
+              Mínimo 20 ·{" "}
               {contextoClinico.trim().length >= 20 ? "✓" : "faltan"}
             </span>
           </div>
@@ -336,7 +342,7 @@ export function DiferencialEngine({
           {processing ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Procesando con Claude Sonnet 4.6…
+              Razonando con Claude Sonnet 4.6 + motor bayesiano…
             </>
           ) : (
             <>
@@ -348,18 +354,20 @@ export function DiferencialEngine({
 
         {processing && (
           <p className="text-center text-caption text-ink-soft">
-            Extrayendo hallazgos y calculando probabilidades · ~3-8 segundos
+            Generando diferenciales · extrayendo hallazgos · calculando
+            probabilidades · ~6-12 segundos
           </p>
         )}
       </div>
     );
   }
 
-  // Vista de resultado
+  // ============ Vista de resultado ============
   const dxMatch = result.dxMatch;
   const dxIsInCatalog =
     dxMatch.matchedId !== null &&
     (dxMatch.confidence === "alta" || dxMatch.confidence === "media");
+  const evalHipotesis = result.evaluacionHipotesis;
 
   return (
     <div className="space-y-6">
@@ -371,6 +379,29 @@ export function DiferencialEngine({
         sexo={sexo}
         setSexo={setSexo}
       />
+
+      {/* Evaluación honesta de tu hipótesis (anti-anchoring) */}
+      {!evalHipotesis.encajaConContexto && (
+        <section className="rounded-xl border-2 border-warn bg-warn-soft/60 p-5">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-warn text-surface">
+              <AlertTriangle className="h-4 w-4" strokeWidth={2.5} />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-h3 font-semibold tracking-tight text-ink-strong">
+                Tu hipótesis no parece encajar con el contexto
+              </h2>
+              <p className="mt-1 text-body-sm text-ink-strong leading-relaxed">
+                {evalHipotesis.razonamiento}
+              </p>
+              <p className="mt-2 text-caption text-ink-muted">
+                Revisa los diferenciales sugeridos abajo — el motor encontró
+                hipótesis con mejor encaje clínico.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Tu hipótesis */}
       <section className="lg-card">
@@ -388,24 +419,27 @@ export function DiferencialEngine({
               </h2>
               {dxIsInCatalog ? (
                 <p className="mt-1 text-caption text-validation">
-                  ✓ Mapeado a: {dxMatch.matchedLabel}{" "}
-                  <span className="text-ink-soft">
-                    · confianza {dxMatch.confidence}
-                  </span>
+                  ✓ En catálogo bayesiano: {dxMatch.matchedLabel}
                 </p>
               ) : (
-                <p className="mt-1 text-caption text-warn">
-                  ⚠ No está en el catálogo del motor (28 enfermedades). El
-                  registro se guarda igual pero sin probabilidad bayesiana
-                  para tu hipótesis. {dxMatch.reasoning}
+                <p className="mt-1 text-caption text-ink-muted">
+                  Fuera del catálogo bayesiano de 28 enfermedades — el
+                  análisis se hace por razonamiento LLM sobre el contexto.
                 </p>
               )}
+              {evalHipotesis.encajaConContexto &&
+                evalHipotesis.posicionEnRanking !== null && (
+                  <p className="mt-1 text-caption text-validation">
+                    Posición en ranking del motor: #
+                    {evalHipotesis.posicionEnRanking}
+                  </p>
+                )}
             </div>
           </div>
           {livePosteriorPropuesto !== null && (
             <div className="text-right shrink-0">
               <p className="text-[0.6rem] uppercase tracking-eyebrow font-bold text-ink-soft">
-                Probabilidad
+                Probabilidad bayesiana
               </p>
               <p className="text-h2 font-bold text-validation">
                 {Math.round(livePosteriorPropuesto * 100)}%
@@ -426,7 +460,7 @@ export function DiferencialEngine({
         )}
       </section>
 
-      {/* Findings sugeridos para confirmar */}
+      {/* Findings sugeridos para confirmar (del catálogo bayesiano, solo si Dx está en catálogo) */}
       {liveSugeridos.length > 0 && (
         <section className="lg-card">
           <div className="flex items-start gap-3">
@@ -438,56 +472,71 @@ export function DiferencialEngine({
                 Para confirmar o descartar tu hipótesis
               </h2>
               <p className="mt-1 text-caption text-ink-muted">
-                Hallazgos con mayor poder discriminativo para {dxMatch.matchedLabel}{" "}
-                que aún no marcaste. Si los confirmas, la probabilidad sube;
-                si los descartas, baja.
+                Hallazgos del catálogo con mayor poder discriminativo para{" "}
+                {dxMatch.matchedLabel}. Click ✓ si está presente, ✗ si está
+                ausente, o ? para no marcar.
               </p>
             </div>
           </div>
 
           <ul className="mt-4 space-y-2">
-            {liveSugeridos.slice(0, 5).map((s) => (
-              <li
-                key={s.finding.id}
-                className="flex items-start gap-3 rounded-lg border border-line bg-surface px-3 py-2.5"
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleFinding(s.finding.id)}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 border-line bg-surface-alt transition-colors hover:border-line-strong"
-                  title="Marcar como presente"
+            {liveSugeridos.slice(0, 5).map((s) => {
+              const state = findings.get(s.finding.id) ?? null;
+              return (
+                <li
+                  key={s.finding.id}
+                  className="flex items-start gap-3 rounded-lg border border-line bg-surface px-3 py-2.5"
                 >
-                  <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-                </button>
-                <div className="min-w-0 flex-1">
-                  <p className="text-body-sm font-semibold text-ink-strong">
-                    {s.finding.label}
-                  </p>
-                  {s.finding.detail && (
-                    <p className="mt-0.5 text-caption text-ink-muted">
-                      {s.finding.detail}
-                    </p>
-                  )}
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[0.65rem] text-ink-soft">
-                    <span>
-                      LR+ <strong>{s.lrPlus.toFixed(1)}</strong>
-                    </span>
-                    <span>
-                      LR− <strong>{s.lrMinus.toFixed(2)}</strong>
-                    </span>
-                    <span className="capitalize">
-                      {CAT_LABELS[s.finding.category]}
-                    </span>
+                  <div className="flex shrink-0 gap-1">
+                    <TriToggleButton
+                      active={state === true}
+                      onClick={() =>
+                        setFindingState(s.finding.id, state === true ? null : true)
+                      }
+                      tone="validation"
+                      icon={<CheckCircle2 className="h-3 w-3" strokeWidth={2.5} />}
+                      title="Presente"
+                    />
+                    <TriToggleButton
+                      active={state === false}
+                      onClick={() =>
+                        setFindingState(s.finding.id, state === false ? null : false)
+                      }
+                      tone="rose"
+                      icon={<XCircle className="h-3 w-3" strokeWidth={2.5} />}
+                      title="Ausente"
+                    />
                   </div>
-                </div>
-              </li>
-            ))}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-body-sm font-semibold text-ink-strong">
+                      {s.finding.label}
+                    </p>
+                    {s.finding.detail && (
+                      <p className="mt-0.5 text-caption text-ink-muted">
+                        {s.finding.detail}
+                      </p>
+                    )}
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[0.65rem] text-ink-soft">
+                      <span>
+                        LR+ <strong>{s.lrPlus.toFixed(1)}</strong>
+                      </span>
+                      <span>
+                        LR− <strong>{s.lrMinus.toFixed(2)}</strong>
+                      </span>
+                      <span className="capitalize">
+                        {CAT_LABELS[s.finding.category]}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
 
-      {/* Diferenciales alternativos */}
-      {liveAlternativas.length > 0 && (
+      {/* Diferenciales — generados por LLM con razonamiento explícito */}
+      {liveDiferenciales.length > 0 && (
         <section className="lg-card">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
@@ -495,46 +544,109 @@ export function DiferencialEngine({
             </div>
             <div>
               <h2 className="text-h3 font-semibold tracking-tight text-ink-strong">
-                Diferenciales alternativos
+                Diferenciales del motor
               </h2>
               <p className="mt-1 text-caption text-ink-muted">
-                Otras enfermedades que también explican los hallazgos del
-                caso. Considera si alguna merece evaluación antes de cerrar
-                tu hipótesis (anti-anchoring).
+                Generados por Sonnet 4.6 razonando sobre el contexto
+                completo. Click en cada uno para ver razonamiento clínico y
+                qué estudios faltan confirmar.
               </p>
             </div>
           </div>
 
           <ul className="mt-4 space-y-2">
-            {liveAlternativas.map((alt, idx) => (
-              <li
-                key={alt.disease.id}
-                className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2.5"
-              >
-                <span className="text-caption font-bold text-ink-soft tabular-nums w-5">
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-body-sm font-semibold text-ink-strong">
-                    {alt.disease.label}
-                  </p>
-                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-line">
-                    <div
-                      className="h-full rounded-full bg-accent transition-all"
-                      style={{ width: `${Math.max(2, alt.posterior * 100)}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="shrink-0 tabular-nums text-body-sm font-bold text-accent">
-                  {Math.round(alt.posterior * 100)}%
-                </span>
-              </li>
-            ))}
+            {liveDiferenciales.map((d, idx) => {
+              const niv = NIVEL_STYLES[d.nivelSospecha];
+              const expanded = expandedDx === `${idx}-${d.nombre}`;
+              return (
+                <li
+                  key={`${idx}-${d.nombre}`}
+                  className="rounded-lg border border-line bg-surface overflow-hidden"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedDx(expanded ? null : `${idx}-${d.nombre}`)
+                    }
+                    className="w-full flex items-center gap-3 px-3 py-3 text-left hover:bg-surface-alt transition-colors"
+                  >
+                    <span className="text-caption font-bold text-ink-soft tabular-nums w-5">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-body-sm font-semibold text-ink-strong">
+                        {d.nombre}
+                      </p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[0.65rem]">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 font-bold ${niv.bg} ${niv.text}`}
+                        >
+                          {niv.label}
+                        </span>
+                        {d.idCatalogo ? (
+                          <span className="text-validation">
+                            Catálogo bayesiano ✓
+                          </span>
+                        ) : (
+                          <span className="text-ink-soft">
+                            Fuera de catálogo · razonamiento LLM
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {d.posterior !== null && (
+                        <span className="tabular-nums text-body-sm font-bold text-accent">
+                          {Math.round(d.posterior * 100)}%
+                        </span>
+                      )}
+                      <ChevronDown
+                        className={`h-4 w-4 text-ink-quiet transition-transform ${
+                          expanded ? "rotate-180" : ""
+                        }`}
+                        strokeWidth={2}
+                      />
+                    </div>
+                  </button>
+
+                  {expanded && (
+                    <div className="border-t border-line bg-surface-alt px-3 py-3 space-y-3">
+                      <div>
+                        <p className="text-[0.6rem] uppercase tracking-eyebrow font-bold text-ink-soft mb-1">
+                          Razonamiento clínico
+                        </p>
+                        <p className="text-body-sm text-ink-strong leading-relaxed">
+                          {d.razonamiento}
+                        </p>
+                      </div>
+                      {d.findingsAConfirmar.length > 0 && (
+                        <div>
+                          <p className="text-[0.6rem] uppercase tracking-eyebrow font-bold text-ink-soft mb-1">
+                            Para confirmar o descartar
+                          </p>
+                          <ul className="space-y-1">
+                            {d.findingsAConfirmar.map((f, i) => (
+                              <li
+                                key={i}
+                                className="flex items-start gap-2 text-caption text-ink-strong"
+                              >
+                                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-validation" />
+                                <span>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
 
-      {/* Findings extraídos — editable */}
+      {/* Hallazgos detectados — editable */}
       <section className="lg-card">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-alt text-ink-strong">
@@ -542,27 +654,26 @@ export function DiferencialEngine({
           </div>
           <div>
             <h2 className="text-h3 font-semibold tracking-tight text-ink-strong">
-              Hallazgos detectados ({findings.size} marcados)
+              Hallazgos extraídos ({findings.size} marcados)
             </h2>
             <p className="mt-1 text-caption text-ink-muted">
-              Sonnet 4.6 extrajo estos hallazgos del texto. Edítalos si hay
-              error — el motor recalcula en vivo.
+              Sonnet 4.6 extrajo estos hallazgos del catálogo del motor.
+              Click para cambiar de estado o quitar.
             </p>
           </div>
         </div>
 
-        <FindingsList findings={findings} onToggle={toggleFinding} />
+        <FindingsChips findings={findings} onSet={setFindingState} />
       </section>
 
-      {/* Notas del médico */}
+      {/* Notas */}
       <section className="lg-card">
         <h2 className="text-h3 font-semibold tracking-tight text-ink-strong">
           Notas y razonamiento
         </h2>
         <p className="mt-1 text-caption text-ink-muted">
-          Captura tu razonamiento clínico final, especialmente si te
-          apartas del top-1 del motor (anti-anchoring trabaja en ambos
-          sentidos).
+          Tu conclusión clínica final y razonamiento si te apartas del
+          motor.
         </p>
         <div className="mt-3 space-y-3">
           <textarea
@@ -574,19 +685,17 @@ export function DiferencialEngine({
             className="lg-input"
             suppressHydrationWarning
           />
-          {liveAlternativas[0] &&
-            livePosteriorPropuesto !== null &&
-            liveAlternativas[0].posterior > livePosteriorPropuesto && (
-              <textarea
-                value={override}
-                onChange={(e) => setOverride(e.target.value)}
-                placeholder={`Tu hipótesis tiene menor probabilidad que ${liveAlternativas[0].disease.label}. ¿Qué te hace mantenerla?`}
-                rows={2}
-                maxLength={1000}
-                className="lg-input border-warn-soft"
-                suppressHydrationWarning
-              />
-            )}
+          {!evalHipotesis.encajaConContexto && (
+            <textarea
+              value={override}
+              onChange={(e) => setOverride(e.target.value)}
+              placeholder="El motor sugiere que tu hipótesis no encaja. Si la mantienes, justifica clínicamente."
+              rows={2}
+              maxLength={1000}
+              className="lg-input border-warn"
+              suppressHydrationWarning
+            />
+          )}
         </div>
       </section>
 
@@ -637,6 +746,38 @@ export function DiferencialEngine({
 // =============================================================
 // Subcomponents
 // =============================================================
+
+function TriToggleButton({
+  active,
+  onClick,
+  tone,
+  icon,
+  title,
+}: {
+  active: boolean;
+  onClick: () => void;
+  tone: "validation" | "rose";
+  icon: React.ReactNode;
+  title: string;
+}) {
+  const activeBg = tone === "validation" ? "bg-validation" : "bg-rose";
+  const activeText = "text-surface";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-pressed={active}
+      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 transition-colors ${
+        active
+          ? `${activeBg} ${activeText} border-transparent`
+          : "border-line bg-surface-alt text-ink-muted hover:border-line-strong"
+      }`}
+    >
+      {icon}
+    </button>
+  );
+}
 
 function PatientStrip({
   iniciales,
@@ -704,12 +845,12 @@ function PatientStrip({
   );
 }
 
-function FindingsList({
+function FindingsChips({
   findings,
-  onToggle,
+  onSet,
 }: {
   findings: Map<string, TriState>;
-  onToggle: (id: string) => void;
+  onSet: (id: string, state: TriState) => void;
 }) {
   const presentes = Array.from(findings.entries())
     .filter(([, v]) => v === true)
@@ -729,16 +870,13 @@ function FindingsList({
           </p>
           <div className="flex flex-wrap gap-2">
             {presentes.map((f) => (
-              <button
+              <ChipFinding
                 key={f.id}
-                type="button"
-                onClick={() => onToggle(f.id)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1.5 text-caption font-medium text-validation hover:bg-validation hover:text-surface transition-colors"
-                title="Click para cambiar"
-              >
-                <CheckCircle2 className="h-3 w-3" strokeWidth={2.5} />
-                {f.label}
-              </button>
+                label={f.label}
+                tone="validation"
+                onCycle={() => onSet(f.id, false)}
+                onRemove={() => onSet(f.id, null)}
+              />
             ))}
           </div>
         </div>
@@ -747,20 +885,17 @@ function FindingsList({
       {ausentes.length > 0 && (
         <div>
           <p className="text-[0.65rem] uppercase tracking-eyebrow font-bold text-rose mb-2">
-            Ausentes / Descartados ({ausentes.length})
+            Ausentes ({ausentes.length})
           </p>
           <div className="flex flex-wrap gap-2">
             {ausentes.map((f) => (
-              <button
+              <ChipFinding
                 key={f.id}
-                type="button"
-                onClick={() => onToggle(f.id)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-rose-soft px-3 py-1.5 text-caption font-medium text-rose hover:bg-rose hover:text-surface transition-colors"
-                title="Click para cambiar"
-              >
-                <XCircle className="h-3 w-3" strokeWidth={2.5} />
-                {f.label}
-              </button>
+                label={f.label}
+                tone="rose"
+                onCycle={() => onSet(f.id, true)}
+                onRemove={() => onSet(f.id, null)}
+              />
             ))}
           </div>
         </div>
@@ -768,11 +903,55 @@ function FindingsList({
 
       {presentes.length === 0 && ausentes.length === 0 && (
         <p className="rounded-lg border border-dashed border-line bg-surface-alt px-4 py-6 text-center text-caption italic text-ink-quiet">
-          El motor no extrajo findings reconocibles del texto. Si esperabas
-          encontrar algo específico, marca manualmente desde el catálogo
-          completo (próximamente).
+          El motor no extrajo findings reconocibles del catálogo. Los
+          diferenciales arriba se calcularon por razonamiento LLM sobre el
+          contexto libre.
         </p>
       )}
     </div>
+  );
+}
+
+function ChipFinding({
+  label,
+  tone,
+  onCycle,
+  onRemove,
+}: {
+  label: string;
+  tone: "validation" | "rose";
+  onCycle: () => void;
+  onRemove: () => void;
+}) {
+  const cls =
+    tone === "validation"
+      ? "bg-validation-soft text-validation"
+      : "bg-rose-soft text-rose";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full pl-3 pr-1.5 py-1.5 text-caption font-medium ${cls}`}
+    >
+      <button
+        type="button"
+        onClick={onCycle}
+        title={tone === "validation" ? "Cambiar a ausente" : "Cambiar a presente"}
+        className="hover:opacity-70 transition-opacity"
+      >
+        {tone === "validation" ? (
+          <CheckCircle2 className="h-3 w-3" strokeWidth={2.5} />
+        ) : (
+          <XCircle className="h-3 w-3" strokeWidth={2.5} />
+        )}
+      </button>
+      <span>{label}</span>
+      <button
+        type="button"
+        onClick={onRemove}
+        title="Quitar"
+        className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-surface hover:text-ink-strong transition-colors"
+      >
+        <HelpCircle className="h-2.5 w-2.5" strokeWidth={2.5} />
+      </button>
+    </span>
   );
 }
