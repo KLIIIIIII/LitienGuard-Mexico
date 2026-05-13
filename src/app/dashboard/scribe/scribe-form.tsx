@@ -8,7 +8,11 @@ import { generarNotaScribe } from "./actions";
 
 type Mode = "idle" | "recording" | "uploading" | "transcribing" | "error";
 
-export function ScribeForm() {
+export function ScribeForm({
+  consultaId,
+}: {
+  consultaId?: string | null;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [mode, setMode] = useState<Mode>("idle");
@@ -100,12 +104,17 @@ export function ScribeForm() {
     }
     const fd = new FormData(e.currentTarget);
     fd.set("audio", file);
+    if (consultaId) fd.set("consulta_id", consultaId);
     setError(null);
     setMode("transcribing");
     startTransition(async () => {
       const result = await generarNotaScribe(fd);
       if (result.status === "ok") {
-        router.push(`/dashboard/notas/${result.notaId}`);
+        // Si venimos de una consulta, regresar a la ficha
+        const dest = consultaId
+          ? `/dashboard/consultas/${consultaId}`
+          : `/dashboard/notas/${result.notaId}`;
+        router.push(dest);
         router.refresh();
       } else {
         setError(result.message);

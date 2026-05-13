@@ -54,6 +54,7 @@ type TriState = boolean | null;
 export function DiferencialEngine({
   initialClinicalText,
   initialPatient,
+  consultaId,
 }: {
   initialClinicalText?: string;
   initialPatient?: {
@@ -61,6 +62,7 @@ export function DiferencialEngine({
     edad: number | null;
     sexo: "M" | "F" | "O" | null;
   };
+  consultaId?: string | null;
 } = {}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -138,13 +140,18 @@ export function DiferencialEngine({
       medico_diagnostico_principal: dxPrincipal.trim(),
       medico_notas: notas.trim(),
       override_razonamiento: override.trim(),
+      consulta_id: consultaId ?? null,
     };
 
     startTransition(async () => {
       const r = await saveDiferencialSession(payload);
       if (r.status === "ok") {
         setSavedId(r.id);
-        router.refresh();
+        if (consultaId) {
+          router.push(`/dashboard/consultas/${consultaId}`);
+        } else {
+          router.refresh();
+        }
       }
     });
   }

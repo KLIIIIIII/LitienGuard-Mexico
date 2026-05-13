@@ -27,7 +27,11 @@ function emptyItem(): ItemState {
   };
 }
 
-export function RecetaForm() {
+export function RecetaForm({
+  consultaId,
+}: {
+  consultaId?: string | null;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -92,12 +96,17 @@ export function RecetaForm() {
       indicaciones_generales: indicaciones_generales.trim(),
       observaciones: "",
       items: cleanItems,
+      consulta_id: consultaId ?? null,
     };
 
     startTransition(async () => {
       const r = await createReceta(payload);
       if (r.status === "ok") {
-        router.push(`/dashboard/recetas/${r.recetaId}`);
+        // Si viene de una consulta, regresar a la ficha
+        const dest = consultaId
+          ? `/dashboard/consultas/${consultaId}`
+          : `/dashboard/recetas/${r.recetaId}`;
+        router.push(dest);
       } else {
         setError(r.message);
       }

@@ -41,6 +41,7 @@ const saveSchema = z.object({
     .max(1000)
     .optional()
     .or(z.literal("")),
+  consulta_id: z.string().uuid().nullable().optional(),
 });
 
 export type SaveDiferencialInput = z.infer<typeof saveSchema>;
@@ -81,6 +82,7 @@ export async function saveDiferencialSession(
       medico_diagnostico_principal: d.medico_diagnostico_principal || null,
       medico_notas: d.medico_notas || null,
       override_razonamiento: d.override_razonamiento || null,
+      consulta_id: d.consulta_id ?? null,
     })
     .select("id")
     .single();

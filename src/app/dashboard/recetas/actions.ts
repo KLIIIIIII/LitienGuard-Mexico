@@ -27,6 +27,7 @@ const recetaSchema = z.object({
   indicaciones_generales: z.string().trim().max(1000).optional().or(z.literal("")),
   observaciones: z.string().trim().max(1000).optional().or(z.literal("")),
   items: z.array(itemSchema).min(1, "Agrega al menos un medicamento").max(20),
+  consulta_id: z.string().uuid().nullable().optional(),
 });
 
 export type RecetaInput = z.infer<typeof recetaSchema>;
@@ -96,6 +97,7 @@ export async function createReceta(input: RecetaInput): Promise<ActionResult> {
       indicaciones_generales: data.indicaciones_generales || null,
       observaciones: data.observaciones || null,
       status: "borrador",
+      consulta_id: data.consulta_id ?? null,
     })
     .select("id")
     .single();

@@ -151,7 +151,6 @@ export default async function ConfiguracionPage() {
           <PdfBrandingForm
             currentTitulo={profile?.pdf_brand_titulo ?? null}
             currentSubtitulo={profile?.pdf_brand_subtitulo ?? null}
-            medicoNombre={profile?.nombre ?? null}
             consultorioNombre={profile?.consultorio_nombre ?? null}
           />
 

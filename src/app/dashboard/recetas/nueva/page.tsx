@@ -13,7 +13,12 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function NuevaRecetaPage() {
+export default async function NuevaRecetaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ consulta_id?: string }>;
+}) {
+  const sp = await searchParams;
   const supa = await createSupabaseServer();
   const {
     data: { user },
@@ -67,7 +72,7 @@ export default async function NuevaRecetaPage() {
         </p>
       </header>
 
-      <RecetaForm />
+      <RecetaForm consultaId={sp.consulta_id ?? null} />
     </div>
   );
 }

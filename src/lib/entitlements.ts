@@ -157,19 +157,19 @@ export function shouldShowDiferencial(p: ProfileType | null | undefined): boolea
   return p === "medico_general" || p === "hospital";
 }
 
-export function shouldShowCerebro(p: ProfileType | null | undefined): boolean {
+export function shouldShowCerebro(_p: ProfileType | null | undefined): boolean {
   return true; // todos los perfiles se benefician del cerebro clínico
 }
 
-export function shouldShowRecetas(p: ProfileType | null | undefined): boolean {
+export function shouldShowRecetas(_p: ProfileType | null | undefined): boolean {
   return true; // todos prescriben
 }
 
-export function shouldShowAgenda(p: ProfileType | null | undefined): boolean {
+export function shouldShowAgenda(_p: ProfileType | null | undefined): boolean {
   return true; // todos agendan
 }
 
-export function shouldShowPacientes(p: ProfileType | null | undefined): boolean {
+export function shouldShowPacientes(_p: ProfileType | null | undefined): boolean {
   return true; // todos tienen padrón
 }
 
@@ -178,6 +178,6 @@ export function shouldShowRcm(p: ProfileType | null | undefined): boolean {
   return p === "hospital";
 }
 
-export function shouldShowScribe(p: ProfileType | null | undefined): boolean {
+export function shouldShowScribe(_p: ProfileType | null | undefined): boolean {
   return true; // todos los perfiles usan Scribe
 }

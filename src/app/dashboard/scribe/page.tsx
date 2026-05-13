@@ -17,7 +17,12 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function ScribePage() {
+export default async function ScribePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ consulta_id?: string }>;
+}) {
+  const sp = await searchParams;
   const supa = await createSupabaseServer();
   const {
     data: { user },
@@ -83,13 +88,20 @@ export default async function ScribePage() {
               versión final.
             </p>
           </div>
-          <Link href="/dashboard/notas" className="lg-cta-ghost">
-            Ver mis notas
+          <Link
+            href={
+              sp.consulta_id
+                ? `/dashboard/consultas/${sp.consulta_id}`
+                : "/dashboard/consultas"
+            }
+            className="lg-cta-ghost"
+          >
+            {sp.consulta_id ? "Volver a la consulta" : "Mis consultas"}
           </Link>
         </div>
 
         <div className="mt-10 max-w-3xl">
-          <ScribeForm />
+          <ScribeForm consultaId={sp.consulta_id ?? null} />
         </div>
       </div>
     </div>

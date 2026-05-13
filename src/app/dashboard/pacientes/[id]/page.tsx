@@ -131,12 +131,20 @@ export default async function PacienteDetailPage({
           <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
             {fullName}
           </h1>
-          {inactivo && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption font-semibold text-warn">
-              <AlertCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
-              {meses} meses sin consulta
-            </span>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {inactivo && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption font-semibold text-warn">
+                <AlertCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
+                {meses} meses sin consulta
+              </span>
+            )}
+            <Link
+              href={`/dashboard/consultas/nueva?paciente_id=${paciente.id}`}
+              className="lg-cta-primary"
+            >
+              Iniciar consulta
+            </Link>
+          </div>
         </div>
         {paciente.etiquetas.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">

@@ -14,12 +14,10 @@ import { setPdfBranding } from "./actions";
 export function PdfBrandingForm({
   currentTitulo,
   currentSubtitulo,
-  medicoNombre,
   consultorioNombre,
 }: {
   currentTitulo: string | null;
   currentSubtitulo: string | null;
-  medicoNombre: string | null;
   consultorioNombre: string | null;
 }) {
   const router = useRouter();

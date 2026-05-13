@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export default async function DiferencialPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from_nota?: string }>;
+  searchParams: Promise<{ from_nota?: string; consulta_id?: string }>;
 }) {
   const supa = await createSupabaseServer();
   const {
@@ -152,6 +152,7 @@ export default async function DiferencialPage({
         <DiferencialEngine
           initialClinicalText={initialClinicalText}
           initialPatient={fromNotaContext ?? undefined}
+          consultaId={params.consulta_id ?? null}
         />
       </section>
 

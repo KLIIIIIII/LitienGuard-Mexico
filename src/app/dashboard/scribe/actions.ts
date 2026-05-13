@@ -152,6 +152,11 @@ export async function generarNotaScribe(
     paciente_edad: formData.get("paciente_edad") ?? undefined,
     paciente_sexo: formData.get("paciente_sexo") ?? undefined,
   });
+  const consultaIdRaw = formData.get("consulta_id");
+  const consultaId =
+    typeof consultaIdRaw === "string" && /^[0-9a-f-]{36}$/i.test(consultaIdRaw)
+      ? consultaIdRaw
+      : null;
   if (!ctx.success) {
     return {
       status: "error",
@@ -327,6 +332,7 @@ export async function generarNotaScribe(
         rag_memoria_usada: memoria.map((m) => m.fecha),
       },
       status: "borrador",
+      consulta_id: consultaId,
     })
     .select("id")
     .single();

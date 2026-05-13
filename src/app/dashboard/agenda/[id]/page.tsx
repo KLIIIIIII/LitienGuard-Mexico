@@ -93,11 +93,21 @@ export default async function CitaDetailPage({
             {fullName}
           </h1>
         </div>
-        <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-caption font-semibold ${status.cls}`}
-        >
-          {status.label}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-caption font-semibold ${status.cls}`}
+          >
+            {status.label}
+          </span>
+          {(cita.status === "confirmada" || cita.status === "agendada") && (
+            <Link
+              href={`/dashboard/consultas/nueva?cita_id=${id}`}
+              className="lg-cta-primary"
+            >
+              Iniciar consulta
+            </Link>
+          )}
+        </div>
       </header>
 
       <div className="lg-card space-y-3">

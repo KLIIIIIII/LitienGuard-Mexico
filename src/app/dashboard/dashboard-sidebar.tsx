@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Mic,
-  FileText,
+  ClipboardList,
   BookOpen,
   ShieldCheck,
   Lock,
@@ -90,10 +90,12 @@ export function DashboardSidebar({
           locked: !canScribe,
         },
         {
-          href: "/dashboard/notas",
-          label: "Mis notas",
-          icon: FileText,
-          match: (p) => p.startsWith("/dashboard/notas"),
+          href: "/dashboard/consultas",
+          label: "Mis consultas",
+          icon: ClipboardList,
+          match: (p) =>
+            p.startsWith("/dashboard/consultas") ||
+            p.startsWith("/dashboard/notas"),
         },
         ...(showOdontograma
           ? [
