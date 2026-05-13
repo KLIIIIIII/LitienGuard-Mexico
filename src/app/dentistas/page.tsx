@@ -14,67 +14,67 @@ import { Printer, ShieldCheck, FileText, Layers } from "lucide-react";
 export const metadata: Metadata = {
   title: "Para dentistas — LitienGuard",
   description:
-    "Notas SOAP odontológicas dictadas, plan de tratamiento listo para firma física del paciente, odontograma digital y arquitectura de datos clínicos por capas. Diseñado para consultorio mexicano.",
+    "Graba tu consulta y obtén SOAP estructurado en 13 segundos. Odontograma digital, plan de tratamiento listo para firma del paciente, recetas con estructura NOM-024. Para consultorios dentales en México.",
 };
 
 const FEATURES = [
   {
-    title: "Notas SOAP odontológicas dictadas, no escritas",
-    desc: "La consulta se transcribe en tiempo real y se estructura en español: motivo, exploración, diagnóstico y plan de tratamiento. Tú revisas y firmas. Recupera 1.5 a 2 horas al día.",
+    title: "Notas SOAP por voz",
+    desc: "Habla normal durante la consulta. En 13 segundos tienes el SOAP estructurado: motivo, exploración, diagnóstico y plan. Tú revisas y firmas. Recuperas 1.5 a 2 horas al día que hoy se van en redactar al cierre.",
   },
   {
-    title: "Plan de tratamiento listo para imprimir y firmar",
-    desc: "Procedimientos numerados, secuencia recomendada y consentimiento informado base, en un PDF listo para que el paciente firme en papel antes de salir del consultorio.",
+    title: "Plan de tratamiento que el paciente firma antes de salir",
+    desc: "El PDF queda con los procedimientos numerados, la secuencia sugerida por prioridad y el consentimiento informado base. El paciente firma en papel antes de salir del consultorio. Sin Word, sin formato suelto.",
   },
   {
-    title: "Odontograma digital con exportación a PDF",
-    desc: "Mapa interactivo de las 32 piezas dentales con estados clínicos completos. Se actualiza durante la consulta y se imprime junto con la historia clínica firmable.",
+    title: "Odontograma digital con 7 estados clínicos",
+    desc: "Mapa interactivo de las 32 piezas con 7 estados: sano, caries, restaurado, endodoncia, corona, implante, ausente. Se actualiza durante la consulta y exporta a PDF junto con la historia clínica.",
   },
   {
-    title: "Guías clínicas curadas, citadas verbatim",
-    desc: "Endodoncia, periodoncia, operatoria, implantes y odontopediatría — con evidencia de la ADA, el Colegio Mexicano de Odontología y normas oficiales mexicanas. Cero alucinación, cita siempre disponible.",
+    title: "Guías clínicas con cita verbatim",
+    desc: "Endodoncia, periodoncia, operatoria, implantes, odontopediatría. Cada recomendación cita ADA, Colegio Mexicano de Odontología o la NOM correspondiente con el número de página del documento fuente. Nunca inventa.",
   },
   {
     title: "Validación de seguros dentales en segundos",
-    desc: "Cobertura de Metlife Dental, AXA Dental, GNP Dental y planes corporativos identificada antes de iniciar el tratamiento. Cero sorpresas al cobrar.",
+    desc: "Verifica cobertura Metlife Dental, AXA Dental, GNP Dental y planes corporativos antes de iniciar el tratamiento. El paciente ve en pantalla qué cubre y qué no. Cero llamadas a la aseguradora, cero sorpresas al cobrar.",
   },
 ];
 
 const ARCHITECTURE = [
   {
     icon: Layers,
-    title: "Arquitectura por capas",
-    desc: "Información clínica, administrativa y fiscal viven en capas separadas con accesos independientes. Quien revisa una no entra a las otras.",
+    title: "Tres capas independientes",
+    desc: "El expediente clínico vive aparte del módulo administrativo y del fiscal. Tu contador entra a los CFDIs sin ver una sola consulta. Tu recepcionista agenda sin abrir notas clínicas.",
   },
   {
     icon: ShieldCheck,
-    title: "Cumplimiento NOM-024 y LFPDPPP",
-    desc: "El expediente clínico electrónico se construye siguiendo los requerimientos técnicos vigentes en México, con resguardo cifrado y trazabilidad de accesos.",
+    title: "Estructura conforme NOM-024-SSA3 y LFPDPPP",
+    desc: "Expediente electrónico estructurado siguiendo NOM-024-SSA3-2012. TLS 1.3 en tránsito + cifrado en reposo (Supabase). Cada lectura y escritura queda registrada en el audit log con usuario, fecha y dispositivo.",
   },
   {
     icon: Printer,
-    title: "PDF firmable a un clic",
-    desc: "Consentimientos, planes de tratamiento, odontograma y alta voluntaria se imprimen listos para firma física cuando la práctica clínica o el paciente lo requieran.",
+    title: "PDF firmable en un click",
+    desc: "Consentimientos, plan de tratamiento, odontograma y alta voluntaria salen como PDF listo para imprimir. Sin formatos a mano, sin Word, sin copy-paste de plantillas viejas.",
   },
   {
     icon: FileText,
-    title: "Exportación clínica controlada",
-    desc: "Generas el expediente completo de un paciente cuando lo necesitas — para referir a especialista, para entregar al paciente, o para cumplir una solicitud formal.",
+    title: "Exportación completa del expediente",
+    desc: "Cuando refieres al paciente con un especialista, generas el expediente entero en un PDF. Mismo PDF si el paciente lo solicita ejerciendo derecho de acceso bajo la LFPDPPP.",
   },
 ];
 
 const FOR_WHOM = [
   {
     label: "Consultorio individual",
-    desc: "Un solo profesional, agenda completa, busca recuperar horas que hoy se van en notas y planes de tratamiento al cierre del día.",
+    desc: "Tú solo, agenda llena. Cierras consulta a las 8pm y luego pasas 2 horas redactando notas en Word. Esas 2 horas desaparecen el primer día.",
   },
   {
     label: "Clínica de 2 a 5 dentistas",
-    desc: "Equipo pequeño con recepción compartida que necesita estandarizar planes de tratamiento, odontograma y cobranza entre sillones.",
+    desc: "2 a 5 sillones con una sola recepción. Cada sillón usa el mismo formato de plan, el mismo odontograma, la misma cobranza. Adiós a los Excels paralelos.",
   },
   {
-    label: "Clínicas con mezcla de seguros",
-    desc: "Operaciones donde conviven pacientes privados y con cobertura, y donde la validación de pólizas en segundos transforma el flujo de admisión.",
+    label: "Mezcla de privados y aseguradoras",
+    desc: "Pacientes privados conviven con pacientes Metlife Dental o AXA. La validación de póliza en segundos elimina la llamada de \"déjame checar tu cobertura\" en admisión.",
   },
 ];
 
@@ -92,7 +92,7 @@ export default function DentistasPage() {
             . Imprime listo para firma.
           </>
         }
-        description="LitienGuard escucha la consulta, redacta la nota SOAP odontológica y prepara el plan de tratamiento listo para imprimir y firmar con el paciente. Construido en español mexicano, con guías clínicas citadas y compatible con la realidad legal del consultorio."
+        description="Graba la consulta. En 13 segundos tienes el SOAP estructurado y el plan de tratamiento listo para imprimir. El paciente firma en papel antes de salir. Recetas con estructura NOM-024 incluidas."
         variant="alt"
       />
 
@@ -103,7 +103,7 @@ export default function DentistasPage() {
           <div className="mb-12 max-w-2xl">
             <Eyebrow>Lo que cambia en tu consultorio</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Menos tiempo frente a la pantalla. Más tiempo con el paciente.
+              Menos pantalla, más paciente.
             </h2>
           </div>
           <FeatureList items={FEATURES} />
@@ -116,13 +116,12 @@ export default function DentistasPage() {
           <div className="mb-10 max-w-3xl">
             <Eyebrow tone="validation">Cómo se ve en la app</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Odontograma interactivo + plan de tratamiento sugerido.
+              Odontograma + plan de tratamiento priorizado.
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
-              Esta es una captura real del odontograma de LitienGuard tal como
-              se ve dentro de la app. Marca cada pieza con su estado clínico,
-              genera el plan de tratamiento priorizado y deja la nota firmada
-              lista para exportar.
+              Captura real de la app. Click en cada pieza para marcar su
+              estado, genera el plan de tratamiento priorizado y firma la
+              nota clínica. El PDF firmable sale en menos de un minuto.
             </p>
           </div>
           <DentalOdontogramDemo />
@@ -135,13 +134,13 @@ export default function DentistasPage() {
           <div className="mb-10 max-w-3xl">
             <Eyebrow tone="accent">Lo que el paciente firma</Eyebrow>
             <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Plan de tratamiento listo para imprimir y firmar.
+              Plan de tratamiento listo para imprimir.
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
-              Un solo PDF — datos del paciente, diagnóstico, procedimientos
-              numerados con su pieza, consentimiento informado y bloque de
-              firmas. Imprime, firma con el paciente y archiva. Mismo
-              documento que exporta la app real.
+              Datos del paciente, diagnóstico, procedimientos numerados con
+              su pieza correspondiente, consentimiento informado y dos
+              bloques de firma (paciente y profesional). Imprime, firma,
+              archiva. Mismo PDF que sale de la app real.
             </p>
           </div>
           <div className="mx-auto max-w-3xl">
@@ -154,13 +153,14 @@ export default function DentistasPage() {
         <div className="lg-shell">
           <Eyebrow tone="validation">Arquitectura de datos clínicos</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            Información clínica, administrativa y fiscal claramente separadas.
+            Clínico, administrativo y fiscal viven aparte.
           </h2>
           <p className="mt-4 max-w-prose text-body text-ink-muted">
-            El expediente clínico vive en su propia capa, con sus propios
-            accesos y su propia trazabilidad. La operación administrativa y la
-            facturación son sistemas distintos que se comunican por integración,
-            no por mezcla de datos.
+            El expediente clínico tiene sus propios permisos y su propio
+            audit log. Tu contador y tu recepcionista nunca abren una nota.
+            Cuando un especialista pide referencia, exportas solo la capa
+            clínica. La operación fiscal vive en otra base y se comunica
+            por integración, no por mezcla.
           </p>
 
           <div className="mt-10 grid gap-5 sm:grid-cols-2">
@@ -200,7 +200,7 @@ export default function DentistasPage() {
         <div className="lg-shell">
           <Eyebrow>¿Es para tu consultorio?</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            Tres perfiles para los que el caso es claro.
+            Tres perfiles donde el caso es claro.
           </h2>
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {FOR_WHOM.map((s) => (
@@ -219,7 +219,7 @@ export default function DentistasPage() {
 
       <FinalCta
         title="Súmate al piloto dental."
-        description="Estamos abriendo cupos a consultorios dentales mexicanos. Cero costo durante el piloto, ajustes priorizados a tu propio caso, retroalimentación directa con quien construye el producto."
+        description="Estamos abriendo 10 cupos a consultorios dentales en México. Sin costo durante el piloto. Tu feedback va directo al producto. WhatsApp con quien lo construye, no con un soporte tercerizado."
       />
     </>
   );
