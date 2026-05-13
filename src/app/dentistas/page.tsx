@@ -9,6 +9,7 @@ import { ComplianceStrip } from "@/components/compliance-strip";
 import { DiferenciadorStrip } from "@/components/diferenciador-strip";
 import { DentalOdontogramDemo } from "@/components/dentistas/dental-odontogram-demo";
 import { DentalPdfPreview } from "@/components/dentistas/dental-pdf-preview";
+import { DentalAgendaDemo } from "@/components/dentistas/dental-agenda-demo";
 import { Printer, ShieldCheck, FileText, Layers } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -98,19 +99,7 @@ export default function DentistasPage() {
 
       <ComplianceStrip />
 
-      <section className="border-b border-line bg-canvas py-20">
-        <div className="lg-shell">
-          <div className="mb-12 max-w-2xl">
-            <Eyebrow>Lo que cambia en tu consultorio</Eyebrow>
-            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-              Menos pantalla, más paciente.
-            </h2>
-          </div>
-          <FeatureList items={FEATURES} />
-        </div>
-      </section>
-
-      {/* Demo 1 — Odontograma interactivo */}
+      {/* Demo 1 — Odontograma interactivo (SUBIDO arriba del fold) */}
       <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
           <div className="mb-10 max-w-3xl">
@@ -119,9 +108,9 @@ export default function DentistasPage() {
               Odontograma + plan de tratamiento priorizado.
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
-              Captura real de la app. Click en cada pieza para marcar su
-              estado, genera el plan de tratamiento priorizado y firma la
-              nota clínica. El PDF firmable sale en menos de un minuto.
+              Captura real. Click en cada pieza para marcar su estado,
+              genera el plan priorizado y firma la nota. PDF firmable en
+              menos de un minuto.
             </p>
           </div>
           <DentalOdontogramDemo />
@@ -138,9 +127,8 @@ export default function DentistasPage() {
             </h2>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
               Datos del paciente, diagnóstico, procedimientos numerados con
-              su pieza correspondiente, consentimiento informado y dos
-              bloques de firma (paciente y profesional). Imprime, firma,
-              archiva. Mismo PDF que sale de la app real.
+              su pieza, consentimiento informado y dos bloques de firma.
+              Imprime, firma, archiva.
             </p>
           </div>
           <div className="mx-auto max-w-3xl">
@@ -149,7 +137,39 @@ export default function DentistasPage() {
         </div>
       </section>
 
+      {/* Demo 3 — Agenda + portal público (NUEVO) */}
+      <section className="border-b border-line bg-canvas py-20">
+        <div className="lg-shell">
+          <div className="mb-10 max-w-3xl">
+            <Eyebrow tone="validation">Agenda + portal público</Eyebrow>
+            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+              Tu agenda semanal. Tus pacientes reservan solos.
+            </h2>
+            <p className="mt-3 max-w-prose text-body text-ink-muted">
+              Tú ves tu semana con cada cita, paciente y duración. Tus
+              pacientes entran a un link público estilo Calendly, eligen
+              horario disponible y reservan sin llamarte. Recordatorios
+              automáticos 24 horas antes.
+            </p>
+          </div>
+          <DentalAgendaDemo />
+        </div>
+      </section>
+
+      {/* Lo que cambia (BAJADO después de los 3 demos) */}
       <section className="border-b border-line bg-surface-alt py-20">
+        <div className="lg-shell">
+          <div className="mb-12 max-w-2xl">
+            <Eyebrow>Lo que cambia en tu consultorio</Eyebrow>
+            <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+              Menos pantalla, más paciente.
+            </h2>
+          </div>
+          <FeatureList items={FEATURES} />
+        </div>
+      </section>
+
+      <section className="border-b border-line bg-canvas py-20">
         <div className="lg-shell">
           <Eyebrow tone="validation">Arquitectura de datos clínicos</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
