@@ -159,7 +159,84 @@ export default async function InvitacionesPage() {
             {invitaciones?.length ?? 0} en total
           </p>
 
-          <div className="mt-5 overflow-hidden rounded-lg border border-line bg-surface">
+          {/* MOBILE: cards stacked verticalmente */}
+          <div className="mt-5 space-y-3 md:hidden">
+            {(invitaciones ?? []).map((i) => {
+              const tier =
+                (i.subscription_tier as SubscriptionTier | null) ?? "pilot";
+              return (
+                <div
+                  key={`m-${i.id}`}
+                  className="rounded-xl border border-line bg-surface p-4 space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-body-sm font-semibold text-ink-strong break-all">
+                        {i.email}
+                      </p>
+                      {i.nombre && (
+                        <p className="mt-0.5 text-caption text-ink-soft">
+                          {i.nombre}
+                          {i.hospital ? ` · ${i.hospital}` : ""}
+                        </p>
+                      )}
+                    </div>
+                    <InvitationActionsMenu
+                      id={i.id}
+                      email={i.email}
+                      usada={i.usada}
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center rounded-full border border-line bg-surface-alt px-2 py-0.5 text-[0.65rem] font-medium text-ink-strong capitalize">
+                      {i.role}
+                    </span>
+                    {i.usada ? (
+                      <span className="inline-flex items-center rounded-full bg-validation-soft px-2 py-0.5 text-[0.65rem] font-bold text-validation">
+                        Activada
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-warn-soft px-2 py-0.5 text-[0.65rem] font-bold text-warn">
+                        Pendiente
+                      </span>
+                    )}
+                    {i.expires_at && (
+                      <span className="text-[0.65rem] text-ink-muted">
+                        Expira{" "}
+                        {new Date(i.expires_at).toLocaleDateString("es-MX")}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 border-t border-line pt-3">
+                    <div>
+                      <p className="mb-1 text-[0.6rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+                        Plan
+                      </p>
+                      <TierSelect inviteId={i.id} current={tier} />
+                    </div>
+                    {!i.usada && (
+                      <div>
+                        <p className="mb-1 text-[0.6rem] uppercase tracking-eyebrow font-bold text-ink-soft">
+                          Demo link
+                        </p>
+                        <CopyDemoLink email={i.email} siteUrl={SITE_URL} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {(invitaciones?.length ?? 0) === 0 && (
+              <div className="rounded-xl border border-dashed border-line bg-surface-alt p-6 text-center text-body-sm text-ink-soft">
+                Aún no hay invitaciones. Crea la primera arriba.
+              </div>
+            )}
+          </div>
+
+          {/* DESKTOP: tabla */}
+          <div className="mt-5 hidden overflow-x-auto rounded-lg border border-line bg-surface md:block">
             <table className="w-full text-body-sm">
               <thead className="bg-surface-alt text-caption uppercase tracking-eyebrow text-ink-muted">
                 <tr>
