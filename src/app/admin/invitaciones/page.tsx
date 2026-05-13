@@ -5,6 +5,7 @@ import { RevokeButton } from "./revoke-button";
 import { ApprovePreregistroRow } from "./approve-preregistro-row";
 import { TierSelect } from "./tier-select";
 import { CopyDemoLink } from "./copy-demo-link";
+import { TierGuide } from "./tier-guide";
 import { Eyebrow } from "@/components/eyebrow";
 import { type SubscriptionTier } from "@/lib/entitlements";
 import { SITE_URL } from "@/lib/utils";
@@ -139,6 +140,12 @@ export default async function InvitacionesPage() {
           <p className="mt-1 text-body-sm text-ink-muted">
             Útil cuando alguien te contacta fuera del formulario público.
           </p>
+
+          {/* Guía de tiers — desplegable */}
+          <div className="mt-5">
+            <TierGuide />
+          </div>
+
           <div className="mt-5">
             <InviteForm />
           </div>
