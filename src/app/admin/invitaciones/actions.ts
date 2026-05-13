@@ -4,6 +4,13 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { recordAudit } from "@/lib/audit";
+import { getResend, RESEND_FROM } from "@/lib/resend-client";
+import {
+  buildInvitacionHtml,
+  buildInvitacionText,
+} from "@/lib/email-templates/invitacion-bienvenida";
+import { TIER_LABELS, TIER_DESCRIPTIONS } from "@/lib/entitlements";
+import { SITE_URL } from "@/lib/utils";
 
 const inviteSchema = z.object({
   email: z.string().email("Correo inválido"),
@@ -42,25 +49,28 @@ export async function inviteUser(formData: FormData): Promise<InviteState> {
 
   const { data: me } = await supa
     .from("profiles")
-    .select("role")
+    .select("role, nombre")
     .eq("id", user.id)
     .single();
   if (me?.role !== "admin") {
     return { status: "error", message: "Solo admins pueden invitar" };
   }
 
+  const emailNormalizado = parsed.data.email.toLowerCase().trim();
+  const expiresAt = new Date(
+    Date.now() + 60 * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
   const { error } = await supa.from("invitaciones").upsert(
     {
-      email: parsed.data.email.toLowerCase().trim(),
+      email: emailNormalizado,
       role: parsed.data.role,
       subscription_tier: parsed.data.subscription_tier,
       nombre: parsed.data.nombre ?? null,
       hospital: parsed.data.hospital ?? null,
       invitada_por: user.id,
       usada: false,
-      expires_at: new Date(
-        Date.now() + 60 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
+      expires_at: expiresAt,
     },
     { onConflict: "email" },
   );
@@ -70,10 +80,63 @@ export async function inviteUser(formData: FormData): Promise<InviteState> {
     return { status: "error", message: "No pudimos guardar la invitación" };
   }
 
+  // Enviar correo de bienvenida con link directo a /login?email=X
+  // Best-effort: si Resend no está configurado o falla, NO bloquear
+  // la creación. El admin siempre puede copiar el link manual desde
+  // la tabla y mandarlo por WhatsApp/SMS.
+  let emailEnviado = false;
+  let emailErrorMsg: string | null = null;
+  const resend = getResend();
+  if (resend) {
+    try {
+      const loginUrl = `${SITE_URL.replace(/\/$/, "")}/login?email=${encodeURIComponent(emailNormalizado)}`;
+      const tierLabel = TIER_LABELS[parsed.data.subscription_tier];
+      const tierDescription =
+        TIER_DESCRIPTIONS[parsed.data.subscription_tier];
+      const data = {
+        pacienteNombre: parsed.data.nombre ?? null,
+        email: emailNormalizado,
+        tierLabel,
+        tierDescription,
+        invitadoPorNombre: me?.nombre ?? null,
+        expiresAt,
+        loginUrl,
+      };
+      await resend.emails.send({
+        from: RESEND_FROM,
+        to: emailNormalizado,
+        subject: `Tu acceso a LitienGuard · plan ${tierLabel}`,
+        html: buildInvitacionHtml(data),
+        text: buildInvitacionText(data),
+      });
+      emailEnviado = true;
+    } catch (err) {
+      console.error("[admin/invitaciones] resend send err:", err);
+      emailErrorMsg =
+        err instanceof Error ? err.message : "Error al enviar correo";
+    }
+  } else {
+    emailErrorMsg = "Resend no configurado (RESEND_API_KEY ausente)";
+  }
+
+  void recordAudit({
+    userId: user.id,
+    action: "admin.invitation_created",
+    resource: `invitacion:${emailNormalizado}`,
+    metadata: {
+      target_email: emailNormalizado,
+      tier: parsed.data.subscription_tier,
+      email_sent: emailEnviado,
+      email_error: emailErrorMsg,
+    },
+  });
+
   revalidatePath("/admin/invitaciones");
   return {
     status: "ok",
-    message: `Invitación lista para ${parsed.data.email}. Ya puede pedir su magic link.`,
+    message: emailEnviado
+      ? `Invitación creada y correo enviado a ${emailNormalizado}.`
+      : `Invitación creada — pero el correo no se envió (${emailErrorMsg ?? "razón desconocida"}). Usa "Copiar link" y mándalo manual.`,
   };
 }
 
