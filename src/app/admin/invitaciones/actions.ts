@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { recordAudit } from "@/lib/audit";
 
 const inviteSchema = z.object({
   email: z.string().email("Correo inválido"),
@@ -220,6 +221,14 @@ export async function updateInvitationTier(
     return { status: "error", message: "Solo admins pueden cambiar planes" };
   }
 
+  // Leer el tier actual antes del UPDATE para registrar el cambio
+  const { data: invitePrev } = await supa
+    .from("invitaciones")
+    .select("email, subscription_tier")
+    .eq("id", parsed.data.inviteId)
+    .single();
+  const tierAnterior = invitePrev?.subscription_tier ?? null;
+
   // Update the invitation tier first
   const { data: invite, error: inviteErr } = await supa
     .from("invitaciones")
@@ -233,8 +242,12 @@ export async function updateInvitationTier(
     return { status: "error", message: "No pudimos actualizar la invitación" };
   }
 
-  // Sync the profile too if the user already exists (already activated)
-  // The audit_profile_privilege_change trigger logs the change automatically.
+  // Sync the profile too if the user already exists (already activated).
+  // Si el profile existe, el trigger audit_subscription_tier_change
+  // registra automáticamente el cambio en audit_log. Aquí además
+  // dejamos rastro explícito de la acción admin (porque cubrimos
+  // también el caso "invitación no activada todavía" donde el trigger
+  // del profile no se dispara).
   const { error: profileErr } = await supa
     .from("profiles")
     .update({ subscription_tier: parsed.data.tier })
@@ -246,6 +259,18 @@ export async function updateInvitationTier(
       profileErr,
     );
   }
+
+  // Audit log explícito de la acción admin sobre la invitación
+  void recordAudit({
+    userId: user.id,
+    action: "admin.invitation_tier_changed",
+    resource: `invitacion:${parsed.data.inviteId}`,
+    metadata: {
+      target_email: invite.email,
+      tier_anterior: tierAnterior,
+      tier_nuevo: parsed.data.tier,
+    },
+  });
 
   revalidatePath("/admin/invitaciones");
   return { status: "ok" };

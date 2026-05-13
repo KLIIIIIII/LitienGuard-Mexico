@@ -4,7 +4,12 @@ import { Eyebrow } from "@/components/eyebrow";
 import { CollectiveToggle } from "./collective-toggle";
 import { ConsultorioForm } from "./consultorio-form";
 import { BookingForm } from "./booking-form";
-import { canUseAgenda, type SubscriptionTier } from "@/lib/entitlements";
+import { ProfileTypeForm } from "./profile-type-form";
+import {
+  canUseAgenda,
+  type SubscriptionTier,
+  type ProfileType,
+} from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +28,13 @@ export default async function ConfiguracionPage() {
   const { data: profile } = await supa
     .from("profiles")
     .select(
-      "share_with_collective,nombre,email,role,subscription_tier,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio",
+      "share_with_collective,nombre,email,role,subscription_tier,profile_type,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio",
     )
     .eq("id", user.id)
     .single();
 
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const profileType = (profile?.profile_type ?? "sin_definir") as ProfileType;
   const canBookings = canUseAgenda(tier);
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://litien-guard-mexico.vercel.app";
@@ -52,6 +58,8 @@ export default async function ConfiguracionPage() {
         </p>
 
         <div className="mt-10 max-w-3xl space-y-6">
+          <ProfileTypeForm current={profileType} />
+
           <ConsultorioForm
             initial={{
               nombre: profile?.nombre ?? null,

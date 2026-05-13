@@ -6,6 +6,19 @@ export const TIER_LABELS = {
   enterprise: "Clínica",
 } as const;
 
+export type ProfileType =
+  | "sin_definir"
+  | "medico_general"
+  | "dentista"
+  | "hospital";
+
+export const PROFILE_TYPE_LABELS: Record<ProfileType, string> = {
+  sin_definir: "Sin definir",
+  medico_general: "Medicina general o especialidad",
+  dentista: "Odontología",
+  hospital: "Hospital o clínica multi-médico",
+};
+
 export const TIER_DESCRIPTIONS = {
   free: "Acceso al panel — 5 notas SOAP, sin cerebro",
   esencial: "100 SOAPs + cerebro lectura + recetas básicas",
@@ -124,4 +137,46 @@ export function tierBadgeClass(tier: SubscriptionTier | null | undefined): strin
     default:
       return "bg-warn-soft text-warn";
   }
+}
+
+// ============================================================
+// Filtrado de features por profile_type (vertical de práctica)
+// ============================================================
+// Estos helpers NO bloquean acceso — solo ocultan elementos del
+// sidebar/dashboard que no son relevantes para ese perfil. El tier
+// sigue siendo lo que autoriza el USO real de cada feature.
+
+export function shouldShowOdontograma(p: ProfileType | null | undefined): boolean {
+  if (!p || p === "sin_definir") return true; // todavía no eligieron, mostrar todo
+  return p === "dentista" || p === "hospital";
+}
+
+export function shouldShowDiferencial(p: ProfileType | null | undefined): boolean {
+  if (!p || p === "sin_definir") return true;
+  return p === "medico_general" || p === "hospital";
+}
+
+export function shouldShowCerebro(p: ProfileType | null | undefined): boolean {
+  return true; // todos los perfiles se benefician del cerebro clínico
+}
+
+export function shouldShowRecetas(p: ProfileType | null | undefined): boolean {
+  return true; // todos prescriben
+}
+
+export function shouldShowAgenda(p: ProfileType | null | undefined): boolean {
+  return true; // todos agendan
+}
+
+export function shouldShowPacientes(p: ProfileType | null | undefined): boolean {
+  return true; // todos tienen padrón
+}
+
+export function shouldShowRcm(p: ProfileType | null | undefined): boolean {
+  if (!p || p === "sin_definir") return true;
+  return p === "hospital";
+}
+
+export function shouldShowScribe(p: ProfileType | null | undefined): boolean {
+  return true; // todos los perfiles usan Scribe
 }

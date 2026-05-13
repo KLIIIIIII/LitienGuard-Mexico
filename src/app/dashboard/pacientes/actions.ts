@@ -293,7 +293,9 @@ export async function enviarRecallManual(
   const supa = await createSupabaseServer();
   const { data: paciente, error: pErr } = await supa
     .from("pacientes")
-    .select("id, nombre, apellido_paterno, email, ultima_consulta_at")
+    .select(
+      "id, nombre, apellido_paterno, email, ultima_consulta_at, recall_enviado_at",
+    )
     .eq("id", parsed.data.pacienteId)
     .eq("medico_id", session.userId)
     .single();
@@ -306,6 +308,22 @@ export async function enviarRecallManual(
       status: "error",
       message: "El paciente no tiene correo registrado",
     };
+  }
+
+  // Lock #2: cooldown de 30 días entre recordatorios al mismo paciente.
+  // Evita spam accidental (click múltiple) o malicioso del médico.
+  if (paciente.recall_enviado_at) {
+    const last = new Date(paciente.recall_enviado_at);
+    const daysSinceLast = Math.floor(
+      (Date.now() - last.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    if (daysSinceLast < 30) {
+      const remaining = 30 - daysSinceLast;
+      return {
+        status: "error",
+        message: `Enviaste un recordatorio hace ${daysSinceLast} día${daysSinceLast === 1 ? "" : "s"}. Espera ${remaining} día${remaining === 1 ? "" : "s"} más antes del siguiente — para no saturar al paciente.`,
+      };
+    }
   }
 
   // Datos del médico para el cuerpo del correo

@@ -45,6 +45,9 @@ export function DashboardSidebar({
   canRecetas,
   canAgenda,
   canPacientes,
+  showOdontograma = true,
+  showDiferencial = true,
+  showRcm = true,
 }: {
   tier: SubscriptionTier;
   isAdmin: boolean;
@@ -53,8 +56,12 @@ export function DashboardSidebar({
   canRecetas: boolean;
   canAgenda: boolean;
   canPacientes: boolean;
+  showOdontograma?: boolean;
+  showDiferencial?: boolean;
+  showRcm?: boolean;
 }) {
   const pathname = usePathname();
+  void showRcm; // reservado para items futuros RCM si se agregan al sidebar
 
   const items: NavItem[] = [
     {
@@ -76,12 +83,16 @@ export function DashboardSidebar({
       icon: FileText,
       match: (p) => p.startsWith("/dashboard/notas"),
     },
-    {
-      href: "/dashboard/odontograma",
-      label: "Odontograma",
-      icon: Smile,
-      match: (p) => p.startsWith("/dashboard/odontograma"),
-    },
+    ...(showOdontograma
+      ? [
+          {
+            href: "/dashboard/odontograma",
+            label: "Odontograma",
+            icon: Smile,
+            match: (p: string) => p.startsWith("/dashboard/odontograma"),
+          } satisfies NavItem,
+        ]
+      : []),
     {
       href: "/dashboard/recetas",
       label: "Recetas",
@@ -110,13 +121,17 @@ export function DashboardSidebar({
       match: (p) => p.startsWith("/dashboard/cerebro"),
       locked: !canCerebro,
     },
-    {
-      href: "/dashboard/diferencial",
-      label: "Diferencial",
-      icon: Sparkles,
-      match: (p) => p.startsWith("/dashboard/diferencial"),
-      locked: !canCerebro,
-    },
+    ...(showDiferencial
+      ? [
+          {
+            href: "/dashboard/diferencial",
+            label: "Diferencial",
+            icon: Sparkles,
+            match: (p: string) => p.startsWith("/dashboard/diferencial"),
+            locked: !canCerebro,
+          } satisfies NavItem,
+        ]
+      : []),
     {
       href: "/dashboard/exportar",
       label: "Exportar datos",

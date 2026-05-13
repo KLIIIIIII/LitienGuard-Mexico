@@ -1,10 +1,22 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { canUseScribe, canUseCerebro, canUseRecetas, canUseAgenda, canUsePacientes, type SubscriptionTier } from "@/lib/entitlements";
+import {
+  canUseScribe,
+  canUseCerebro,
+  canUseRecetas,
+  canUseAgenda,
+  canUsePacientes,
+  shouldShowOdontograma,
+  shouldShowDiferencial,
+  shouldShowRcm,
+  type SubscriptionTier,
+  type ProfileType,
+} from "@/lib/entitlements";
 import { applyCapturedReferralCode } from "./referidos/actions";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { PricingSurveyGate } from "@/components/pricing-survey-gate";
+import { ProfileOnboardingGate } from "@/components/profile-onboarding-gate";
 
 export default async function DashboardLayout({
   children,
@@ -33,11 +45,12 @@ export default async function DashboardLayout({
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("role, subscription_tier")
+    .select("role, subscription_tier, profile_type")
     .eq("id", user.id)
     .single();
 
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const profileType = (profile?.profile_type ?? "sin_definir") as ProfileType;
   const isAdmin = profile?.role === "admin";
 
   // Fire-and-forget: apply captured referral cookie if first dashboard visit.
@@ -54,10 +67,16 @@ export default async function DashboardLayout({
         canRecetas={canUseRecetas(tier)}
         canAgenda={canUseAgenda(tier)}
         canPacientes={canUsePacientes(tier)}
+        showOdontograma={shouldShowOdontograma(profileType)}
+        showDiferencial={shouldShowDiferencial(profileType)}
+        showRcm={shouldShowRcm(profileType)}
       />
       <div className="min-w-0">{children}</div>
       <Suspense fallback={null}>
         <PricingSurveyGate />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ProfileOnboardingGate />
       </Suspense>
     </div>
   );
