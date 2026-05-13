@@ -283,7 +283,7 @@ export default async function PacientesPage({
             </button>
           </form>
 
-          {/* Tabla */}
+          {/* Lista de pacientes — cards en mobile, tabla en md+ */}
           {pacientes.length === 0 ? (
             <div className="rounded-xl border border-line bg-surface p-10 text-center">
               <AlertCircle
@@ -308,73 +308,25 @@ export default async function PacientesPage({
               )}
             </div>
           ) : (
-            <div className="overflow-hidden rounded-xl border border-line bg-surface">
-              <table className="w-full text-body-sm">
-                <thead className="bg-surface-alt text-caption uppercase tracking-eyebrow text-ink-muted">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium">
-                      Paciente
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium">
-                      Contacto
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium">
-                      Última consulta
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium">
-                      Recordatorio
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pacientes.map((p) => {
-                    const meses = mesesDesde(p.ultima_consulta_at);
-                    const inactivo = meses !== null && meses >= 6;
-                    return (
-                      <tr
-                        key={p.id}
-                        className="border-t border-line hover:bg-surface-alt/40"
-                      >
-                        <td className="px-4 py-3">
-                          <Link
-                            href={`/dashboard/pacientes/${p.id}`}
-                            className="font-medium text-ink-strong hover:text-validation"
-                          >
+            <>
+              {/* Mobile: cards apiladas */}
+              <div className="space-y-2.5 md:hidden">
+                {pacientes.map((p) => {
+                  const meses = mesesDesde(p.ultima_consulta_at);
+                  const inactivo = meses !== null && meses >= 6;
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/dashboard/pacientes/${p.id}`}
+                      className="block rounded-xl border border-line bg-surface px-4 py-3.5 transition-colors hover:border-line-strong"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-ink-strong">
                             {fullName(p)}
-                          </Link>
-                          {p.etiquetas.length > 0 && (
-                            <div className="mt-1 flex flex-wrap gap-1">
-                              {p.etiquetas.slice(0, 3).map((t) => (
-                                <span
-                                  key={t}
-                                  className="rounded-full bg-accent-soft px-2 py-0.5 text-[0.65rem] text-accent"
-                                >
-                                  {t}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-caption text-ink-muted">
-                          {p.email && (
-                            <div className="flex items-center gap-1.5">
-                              <Mail className="h-3 w-3" strokeWidth={2} />
-                              {p.email}
-                            </div>
-                          )}
-                          {p.telefono && (
-                            <div className="mt-0.5 flex items-center gap-1.5">
-                              <Phone className="h-3 w-3" strokeWidth={2} />
-                              {p.telefono}
-                            </div>
-                          )}
-                          {!p.email && !p.telefono && (
-                            <span className="text-ink-quiet">Sin contacto</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`text-caption ${
+                          </p>
+                          <p
+                            className={`mt-0.5 text-caption ${
                               inactivo
                                 ? "font-semibold text-warn"
                                 : meses === null
@@ -383,19 +335,152 @@ export default async function PacientesPage({
                             }`}
                           >
                             {relativoLabel(p.ultima_consulta_at)}
+                          </p>
+                        </div>
+                        {inactivo && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-warn-soft px-2 py-0.5 text-[0.65rem] font-semibold text-warn">
+                            <AlertCircle
+                              className="h-2.5 w-2.5"
+                              strokeWidth={2.4}
+                            />
+                            +6m
                           </span>
-                        </td>
-                        <td className="px-4 py-3 text-caption text-ink-muted">
-                          {p.recall_enviado_at
-                            ? `Enviado ${relativoLabel(p.recall_enviado_at).toLowerCase()}`
-                            : "—"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        )}
+                      </div>
+
+                      {(p.email || p.telefono) && (
+                        <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-caption text-ink-muted">
+                          {p.email && (
+                            <span className="inline-flex items-center gap-1">
+                              <Mail className="h-3 w-3" strokeWidth={2} />
+                              <span className="truncate">{p.email}</span>
+                            </span>
+                          )}
+                          {p.telefono && (
+                            <span className="inline-flex items-center gap-1">
+                              <Phone className="h-3 w-3" strokeWidth={2} />
+                              {p.telefono}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {p.etiquetas.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {p.etiquetas.slice(0, 3).map((t) => (
+                            <span
+                              key={t}
+                              className="rounded-full bg-accent-soft px-2 py-0.5 text-[0.65rem] text-accent"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {p.recall_enviado_at && (
+                        <p className="mt-2 border-t border-line pt-2 text-[0.65rem] text-ink-soft">
+                          Recordatorio enviado{" "}
+                          {relativoLabel(p.recall_enviado_at).toLowerCase()}
+                        </p>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Desktop: tabla clásica */}
+              <div className="hidden overflow-hidden rounded-xl border border-line bg-surface md:block">
+                <table className="w-full text-body-sm">
+                  <thead className="bg-surface-alt text-caption uppercase tracking-eyebrow text-ink-muted">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Paciente
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Contacto
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Última consulta
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Recordatorio
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pacientes.map((p) => {
+                      const meses = mesesDesde(p.ultima_consulta_at);
+                      const inactivo = meses !== null && meses >= 6;
+                      return (
+                        <tr
+                          key={p.id}
+                          className="border-t border-line hover:bg-surface-alt/40"
+                        >
+                          <td className="px-4 py-3">
+                            <Link
+                              href={`/dashboard/pacientes/${p.id}`}
+                              className="font-medium text-ink-strong hover:text-validation"
+                            >
+                              {fullName(p)}
+                            </Link>
+                            {p.etiquetas.length > 0 && (
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {p.etiquetas.slice(0, 3).map((t) => (
+                                  <span
+                                    key={t}
+                                    className="rounded-full bg-accent-soft px-2 py-0.5 text-[0.65rem] text-accent"
+                                  >
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-caption text-ink-muted">
+                            {p.email && (
+                              <div className="flex items-center gap-1.5">
+                                <Mail className="h-3 w-3" strokeWidth={2} />
+                                {p.email}
+                              </div>
+                            )}
+                            {p.telefono && (
+                              <div className="mt-0.5 flex items-center gap-1.5">
+                                <Phone className="h-3 w-3" strokeWidth={2} />
+                                {p.telefono}
+                              </div>
+                            )}
+                            {!p.email && !p.telefono && (
+                              <span className="text-ink-quiet">
+                                Sin contacto
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`text-caption ${
+                                inactivo
+                                  ? "font-semibold text-warn"
+                                  : meses === null
+                                    ? "text-ink-quiet"
+                                    : "text-ink-muted"
+                              }`}
+                            >
+                              {relativoLabel(p.ultima_consulta_at)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-caption text-ink-muted">
+                            {p.recall_enviado_at
+                              ? `Enviado ${relativoLabel(p.recall_enviado_at).toLowerCase()}`
+                              : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </>
       )}

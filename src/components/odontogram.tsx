@@ -67,26 +67,34 @@ export function Odontogram({
 
   return (
     <div className="rounded-xl border border-line bg-surface p-5">
-      <div className="space-y-4">
-        <ToothRow
-          teeth={UPPER_ROW}
-          state={state}
-          onClick={applyState}
-          onHover={setHover}
-          hover={hover}
-          readOnly={readOnly}
-          label="Superior"
-        />
-        <div className="h-px bg-line-soft" aria-hidden />
-        <ToothRow
-          teeth={LOWER_ROW}
-          state={state}
-          onClick={applyState}
-          onHover={setHover}
-          hover={hover}
-          readOnly={readOnly}
-          label="Inferior"
-        />
+      {/*
+       * Wrapper con scroll horizontal en mobile. Cada arcada usa un
+       * min-width que fuerza piezas de ~40px (cómodas para tap con
+       * dedo). En md+, el min-width se elimina y las piezas vuelven
+       * a llenar el ancho disponible.
+       */}
+      <div className="-mx-1 overflow-x-auto md:mx-0 md:overflow-visible">
+        <div className="min-w-[640px] space-y-4 px-1 md:min-w-0 md:px-0">
+          <ToothRow
+            teeth={UPPER_ROW}
+            state={state}
+            onClick={applyState}
+            onHover={setHover}
+            hover={hover}
+            readOnly={readOnly}
+            label="Superior"
+          />
+          <div className="h-px bg-line-soft" aria-hidden />
+          <ToothRow
+            teeth={LOWER_ROW}
+            state={state}
+            onClick={applyState}
+            onHover={setHover}
+            hover={hover}
+            readOnly={readOnly}
+            label="Inferior"
+          />
+        </div>
       </div>
       {hover !== null && (
         <p className="mt-3 text-caption text-ink-muted">
@@ -94,6 +102,10 @@ export function Odontogram({
           {STATE_BY_VALUE[state[hover] ?? "sano"].label}
         </p>
       )}
+      <p className="mt-2 text-[0.65rem] text-ink-soft md:hidden">
+        Desliza horizontalmente para ver toda la arcada. Tap en cada pieza
+        para marcar su estado.
+      </p>
     </div>
   );
 }

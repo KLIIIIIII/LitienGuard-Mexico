@@ -15,6 +15,7 @@ import {
 } from "@/lib/entitlements";
 import { applyCapturedReferralCode } from "./referidos/actions";
 import { DashboardSidebar } from "./dashboard-sidebar";
+import { DashboardMobileBar } from "./dashboard-mobile-bar";
 import { PricingSurveyGate } from "@/components/pricing-survey-gate";
 import { ProfileOnboardingGate } from "@/components/profile-onboarding-gate";
 
@@ -57,21 +58,30 @@ export default async function DashboardLayout({
   // Idempotent — won't apply twice. Silently no-ops if no captured code.
   void applyCapturedReferralCode().catch(() => undefined);
 
+  const sidebarProps = {
+    tier,
+    isAdmin,
+    canScribe: canUseScribe(tier),
+    canCerebro: canUseCerebro(tier),
+    canRecetas: canUseRecetas(tier),
+    canAgenda: canUseAgenda(tier),
+    canPacientes: canUsePacientes(tier),
+    showOdontograma: shouldShowOdontograma(profileType),
+    showDiferencial: shouldShowDiferencial(profileType),
+  };
+
   return (
-    <div className="lg-shell grid gap-8 py-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 lg:py-8">
-      <DashboardSidebar
-        tier={tier}
-        isAdmin={isAdmin}
-        canScribe={canUseScribe(tier)}
-        canCerebro={canUseCerebro(tier)}
-        canRecetas={canUseRecetas(tier)}
-        canAgenda={canUseAgenda(tier)}
-        canPacientes={canUsePacientes(tier)}
-        showOdontograma={shouldShowOdontograma(profileType)}
-        showDiferencial={shouldShowDiferencial(profileType)}
-        showRcm={shouldShowRcm(profileType)}
-      />
+    <div className="lg-shell py-6 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 lg:py-8">
+      {/* Mobile-only: bar superior con plan + menú drawer */}
+      <DashboardMobileBar {...sidebarProps} />
+
+      {/* Desktop-only: sidebar vertical sticky */}
+      <div className="hidden lg:block">
+        <DashboardSidebar {...sidebarProps} showRcm={shouldShowRcm(profileType)} />
+      </div>
+
       <div className="min-w-0">{children}</div>
+
       <Suspense fallback={null}>
         <PricingSurveyGate />
       </Suspense>
