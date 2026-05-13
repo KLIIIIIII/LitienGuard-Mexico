@@ -1,8 +1,52 @@
 "use server";
 
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { invalidateCerebroCache } from "@/lib/bm25";
+
+export async function setRecallReplyToEmail(
+  emailOrNull: string | null,
+): Promise<{ status: "ok" } | { status: "error"; message: string }> {
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado" };
+
+  // Validar formato si se envía un email
+  let value: string | null = null;
+  if (emailOrNull && emailOrNull.trim().length > 0) {
+    const parsed = z
+      .string()
+      .email("Correo inválido")
+      .max(200)
+      .safeParse(emailOrNull.trim());
+    if (!parsed.success) {
+      return {
+        status: "error",
+        message: parsed.error.issues[0]?.message ?? "Correo inválido",
+      };
+    }
+    value = parsed.data.toLowerCase();
+  }
+
+  const { error } = await supa
+    .from("profiles")
+    .update({ recall_reply_to_email: value })
+    .eq("id", user.id);
+
+  if (error) {
+    console.error("[configuracion] reply_to update err:", error);
+    return {
+      status: "error",
+      message: "No pudimos guardar tu preferencia. Inténtalo de nuevo.",
+    };
+  }
+
+  revalidatePath("/dashboard/configuracion");
+  return { status: "ok" };
+}
 
 export interface ConsultorioData {
   nombre: string | null;

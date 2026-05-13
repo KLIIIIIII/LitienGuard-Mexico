@@ -15,6 +15,7 @@ import { CollectiveToggle } from "./collective-toggle";
 import { ConsultorioForm } from "./consultorio-form";
 import { BookingForm } from "./booking-form";
 import { ProfileTypeForm } from "./profile-type-form";
+import { ReplyToForm } from "./reply-to-form";
 import {
   canUseAgenda,
   type SubscriptionTier,
@@ -38,7 +39,7 @@ export default async function ConfiguracionPage() {
   const { data: profile } = await supa
     .from("profiles")
     .select(
-      "share_with_collective,nombre,email,role,subscription_tier,profile_type,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio",
+      "share_with_collective,nombre,email,role,subscription_tier,profile_type,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio,recall_reply_to_email",
     )
     .eq("id", user.id)
     .single();
@@ -138,6 +139,11 @@ export default async function ConfiguracionPage() {
               siteUrl={siteUrl.replace(/\/$/, "")}
             />
           )}
+
+          <ReplyToForm
+            emailLogin={profile?.email ?? user.email ?? ""}
+            current={profile?.recall_reply_to_email ?? null}
+          />
 
           <CollectiveToggle
             initial={profile?.share_with_collective ?? false}

@@ -326,10 +326,12 @@ export async function enviarRecallManual(
     }
   }
 
-  // Datos del médico para el cuerpo del correo
+  // Datos del médico para el cuerpo del correo + reply-to configurado
   const { data: medico } = await supa
     .from("profiles")
-    .select("nombre, especialidad, consultorio_nombre, consultorio_telefono, booking_slug")
+    .select(
+      "nombre, email, especialidad, consultorio_nombre, consultorio_telefono, booking_slug, recall_reply_to_email",
+    )
     .eq("id", session.userId)
     .single();
 
@@ -371,10 +373,35 @@ export async function enviarRecallManual(
     };
   }
 
+  /*
+   * Sender personalizado:
+   * - El "from" tecnico mantiene nuestro dominio verificado (DKIM/SPF)
+   *   pero usa el nombre del medico para que el paciente identifique
+   *   inmediatamente al remitente: "Dra. Pamela Sandoval · LitienGuard"
+   * - El "replyTo" prioriza recall_reply_to_email si el medico lo
+   *   configuro (ej. contacto@consultorio.mx); si no, usa su email
+   *   de login. Asi las respuestas del paciente llegan al buzon
+   *   correcto sin necesidad de dominio custom.
+   */
+  const senderName = medico?.nombre
+    ? `${medico.nombre} · LitienGuard`
+    : "LitienGuard";
+  const fromAddressMatch = /<([^>]+)>/.exec(RESEND_FROM);
+  const fromAddress = fromAddressMatch
+    ? fromAddressMatch[1]
+    : RESEND_FROM;
+  const fromWithSenderName = `${senderName} <${fromAddress}>`;
+
+  const replyTo =
+    medico?.recall_reply_to_email && medico.recall_reply_to_email.trim()
+      ? medico.recall_reply_to_email
+      : medico?.email ?? null;
+
   try {
     await resend.emails.send({
-      from: RESEND_FROM,
+      from: fromWithSenderName,
       to: paciente.email,
+      replyTo: replyTo ?? undefined,
       subject: `${data.medicoNombre} te recuerda — cita de seguimiento`,
       html: buildRecallHtml(data),
       text: buildRecallText(data),
