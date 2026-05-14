@@ -22,6 +22,7 @@ import {
   TIER_LABELS,
   type SubscriptionTier,
 } from "@/lib/entitlements";
+import { SecurityShieldBadge } from "@/components/security-shield-badge";
 
 type NavItem = {
   href: string;
@@ -254,6 +255,11 @@ export function DashboardSidebar({
             </div>
           ))}
         </nav>
+
+        {/* Sello de confianza — siempre visible, abre el certificado */}
+        <div className="mt-1 border-t border-line pt-1">
+          <SecurityShieldBadge />
+        </div>
       </div>
     </aside>
   );

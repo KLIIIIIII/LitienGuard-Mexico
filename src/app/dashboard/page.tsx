@@ -12,7 +12,6 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
 import { NoteStatusBadge } from "@/components/note-status-badge";
-import { SecurityCertificateCard } from "@/components/security-certificate-card";
 import {
   canUseScribe,
   canUseCerebro,
@@ -396,10 +395,6 @@ export default async function DashboardPage() {
             </div>
           </section>
         )}
-
-        <div className="mt-12">
-          <SecurityCertificateCard />
-        </div>
       </div>
     </div>
   );
