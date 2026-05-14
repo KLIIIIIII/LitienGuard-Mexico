@@ -60,7 +60,7 @@ export function Hero() {
             transition={{ duration: 0.4, ease: EASE }}
             className="text-[0.72rem] uppercase tracking-[0.18em] font-semibold text-ink-muted"
           >
-            LitienGuard · Para médicos en México
+            LitienGuard · Inteligencia clínica y operativa
           </motion.p>
 
           {/* Headline monumental — sans + serif italic */}
@@ -72,10 +72,10 @@ export function Hero() {
               fontSize: "clamp(2.625rem, 6.2vw, 4.5rem)",
             }}
           >
-            La consulta,
+            Somos la inteligencia médica
             <br />
             <span className="lg-serif-italic font-normal text-validation">
-              como debió ser.
+              de México.
             </span>
           </motion.h1>
 
@@ -85,8 +85,8 @@ export function Hero() {
             transition={{ duration: 0.5, ease: EASE, delay: 0.16 }}
             className="mx-auto mt-[34px] max-w-[52ch] text-[1.0625rem] leading-[1.6] text-ink-muted sm:text-[1.3125rem] sm:leading-[1.55]"
           >
-            El cerebro clínico curado en español, con cita verbatim a las
-            guías oficiales de México y del mundo.
+            La plataforma de inteligencia para hospitales y laboratorios —
+            procesos operativos, fiscales y diagnóstico de alta complejidad.
           </motion.p>
         </div>
 
