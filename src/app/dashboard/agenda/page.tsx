@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseAgenda, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
+import { ConsentBanner } from "@/components/consent-banner";
 import { AgendaWeekView } from "./agenda-week-view";
 
 export const metadata: Metadata = {
@@ -45,10 +46,11 @@ export default async function AgendaPage({
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("subscription_tier")
+    .select("subscription_tier, consentimiento_pacientes_at")
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const consentimientoOk = !!profile?.consentimiento_pacientes_at;
 
   if (!canUseAgenda(tier)) {
     return (
@@ -86,6 +88,7 @@ export default async function AgendaPage({
 
   return (
     <div className="space-y-6">
+      {!consentimientoOk && <ConsentBanner />}
       <header className="flex items-start justify-between gap-4">
         <div>
           <Eyebrow tone="validation">Agenda</Eyebrow>

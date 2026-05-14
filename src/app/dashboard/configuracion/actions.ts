@@ -241,3 +241,30 @@ export async function toggleShareWithCollective(
   revalidatePath("/dashboard/cerebro");
   return { status: "ok" };
 }
+
+export async function acceptConsentimientoPacientes(): Promise<
+  { status: "ok" } | { status: "error"; message: string }
+> {
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado." };
+
+  const { error } = await supa
+    .from("profiles")
+    .update({ consentimiento_pacientes_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .is("consentimiento_pacientes_at", null);
+
+  if (error) {
+    console.error("[configuracion] consentimiento error:", error);
+    return { status: "error", message: error.message };
+  }
+
+  revalidatePath("/dashboard/configuracion");
+  revalidatePath("/dashboard/pacientes");
+  revalidatePath("/dashboard/consultas");
+  revalidatePath("/dashboard/agenda");
+  return { status: "ok" };
+}

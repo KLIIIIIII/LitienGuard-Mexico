@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
+import { ConsentBanner } from "@/components/consent-banner";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -49,6 +50,13 @@ export default async function ConsultasPage({
     data: { user },
   } = await supa.auth.getUser();
   if (!user) redirect("/login");
+
+  const { data: profileConsent } = await supa
+    .from("profiles")
+    .select("consentimiento_pacientes_at")
+    .eq("id", user.id)
+    .single();
+  const consentimientoOk = !!profileConsent?.consentimiento_pacientes_at;
 
   let query = supa
     .from("consultas")
@@ -122,6 +130,7 @@ export default async function ConsultasPage({
 
   return (
     <div>
+      {!consentimientoOk && <ConsentBanner />}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Eyebrow tone="validation">Consultas</Eyebrow>

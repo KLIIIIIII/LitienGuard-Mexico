@@ -13,6 +13,7 @@ import { ReplayTutorialButton } from "@/components/replay-tutorial-button";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { CollectiveToggle } from "./collective-toggle";
+import { ConsentToggle } from "./consent-toggle";
 import { ConsultorioForm } from "./consultorio-form";
 import { BookingForm } from "./booking-form";
 import { ProfileTypeForm } from "./profile-type-form";
@@ -41,7 +42,7 @@ export default async function ConfiguracionPage() {
   const { data: profile } = await supa
     .from("profiles")
     .select(
-      "share_with_collective,nombre,email,role,subscription_tier,profile_type,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio,recall_reply_to_email,pdf_brand_titulo,pdf_brand_subtitulo",
+      "share_with_collective,nombre,email,role,subscription_tier,profile_type,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio,recall_reply_to_email,pdf_brand_titulo,pdf_brand_subtitulo,consentimiento_pacientes_at",
     )
     .eq("id", user.id)
     .single();
@@ -152,6 +153,11 @@ export default async function ConfiguracionPage() {
             currentTitulo={profile?.pdf_brand_titulo ?? null}
             currentSubtitulo={profile?.pdf_brand_subtitulo ?? null}
             consultorioNombre={profile?.consultorio_nombre ?? null}
+          />
+
+          <ConsentToggle
+            aceptado={!!profile?.consentimiento_pacientes_at}
+            fechaAceptacion={profile?.consentimiento_pacientes_at ?? null}
           />
 
           <CollectiveToggle

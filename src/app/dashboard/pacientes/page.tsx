@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
+import { ConsentBanner } from "@/components/consent-banner";
 import {
   canUsePacientes,
   TIER_LABELS,
@@ -85,11 +86,12 @@ export default async function PacientesPage({
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("subscription_tier")
+    .select("subscription_tier, consentimiento_pacientes_at")
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
   const unlocked = canUsePacientes(tier);
+  const consentimientoOk = !!profile?.consentimiento_pacientes_at;
 
   const sp = await searchParams;
   const filter: FilterKey = (
@@ -155,6 +157,8 @@ export default async function PacientesPage({
 
   return (
     <div className="space-y-8">
+      {unlocked && !consentimientoOk && <ConsentBanner />}
+
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Eyebrow tone="accent">Padrón de pacientes</Eyebrow>
@@ -167,7 +171,7 @@ export default async function PacientesPage({
             mantenimiento.
           </p>
         </div>
-        {unlocked && (
+        {unlocked && consentimientoOk && (
           <div className="flex flex-wrap gap-2">
             <Link href="/dashboard/pacientes/import" className="lg-cta-ghost">
               <Upload className="h-4 w-4" />
