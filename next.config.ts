@@ -47,6 +47,11 @@ const nextConfig: NextConfig = {
         ? { exclude: ["error", "warn"] }
         : false,
   },
+  // @google-cloud/kms (y su dependencia protobufjs) usan require()
+  // dinámicos que Next.js no puede bundlear correctamente. Marcarlo
+  // como external hace que se cargue como módulo Node nativo en
+  // runtime — sin pasar por webpack.
+  serverExternalPackages: ["@google-cloud/kms"],
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },
