@@ -15,7 +15,9 @@ const DAYS_BEFORE_REASK_AFTER_DISMISS = 7;
  * Condiciones para mostrar:
  *   1. Usuario autenticado
  *   2. days_since_created_at >= 3
- *   3. Tier en ('pilot', 'esencial') — son los pilotos que dan feedback
+ *   3. Tier de pago en ('pilot', 'esencial', 'pro') — todo el piloto
+ *      da feedback de precio, sin importar el tier que se les asignó.
+ *      Enterprise se excluye (son contratos negociados aparte).
  *   4. pricing_survey_answered_at IS NULL
  *   5. pricing_survey_dismissed_at IS NULL OR > 7 días pasados
  *
@@ -44,7 +46,12 @@ export async function PricingSurveyGate() {
   if (profile.pricing_survey_answered_at) return null;
 
   const tier = (profile.subscription_tier ?? "free") as SubscriptionTier;
-  if (tier !== "pilot" && tier !== "esencial") return null;
+  const TIERS_ENCUESTABLES: SubscriptionTier[] = [
+    "pilot",
+    "esencial",
+    "pro",
+  ];
+  if (!TIERS_ENCUESTABLES.includes(tier)) return null;
 
   // Días desde signup
   if (!profile.created_at) return null;
@@ -68,7 +75,9 @@ export async function PricingSurveyGate() {
   const paidPlan: PaidPlan | null =
     tier === "esencial" || tier === "pilot"
       ? "esencial"
-      : null; // pro/enterprise no llegan aquí por el filtro de arriba
+      : tier === "pro"
+        ? "profesional"
+        : null;
   const precioActualMxn = paidPlan ? PLANS[paidPlan].monthlyMxn : 499;
 
   // Marca como mostrado (fire-and-forget, no espera)
