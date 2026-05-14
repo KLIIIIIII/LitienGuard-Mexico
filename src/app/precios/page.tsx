@@ -67,6 +67,10 @@ const FEATURES_BY_TIER: Record<
 
 const FAQ = [
   {
+    q: "¿Los precios incluyen IVA?",
+    a: "Sí. Todos los precios mostrados son precio final con IVA mexicano (16%) ya incluido. No hay cargos adicionales sorpresa al momento de cobrar.",
+  },
+  {
     q: "¿Cómo se factura?",
     a: "Cobramos automáticamente mes a mes (o anualmente con 2 meses de descuento) a la tarjeta que registres en Stripe. Puedes cancelar tu suscripción cuando quieras desde tu panel; el acceso continúa hasta el fin del periodo ya pagado.",
   },
@@ -345,7 +349,12 @@ function TierCard({
         <p className="text-display font-bold text-ink-strong leading-none">
           {price}
         </p>
-        <p className="mt-1 text-caption text-ink-muted">{cycle}</p>
+        <p className="mt-1 text-caption text-ink-muted">
+          {cycle}
+          {price !== "$0" && price !== "A medida" && (
+            <span className="ml-1 text-ink-soft">· IVA incluido</span>
+          )}
+        </p>
         {annualNote && (
           <p className="mt-1 text-caption font-semibold text-validation">
             {annualNote}
