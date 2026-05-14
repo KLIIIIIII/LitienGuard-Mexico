@@ -112,9 +112,12 @@ export function FeedbackFab() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Reportar problema o sugerencia"
-        className="fixed bottom-6 left-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-ink text-surface shadow-deep transition-transform hover:scale-105 sm:h-14 sm:w-14"
+        className="group fixed bottom-6 left-6 z-40 inline-flex items-center gap-2 rounded-full bg-ink py-3 pl-3 pr-3 text-surface shadow-deep transition-all hover:scale-105 sm:pr-4"
       >
-        <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />
+        <MessageCircle className="h-5 w-5 shrink-0" strokeWidth={2} />
+        <span className="hidden text-caption font-semibold sm:inline">
+          Reportar / sugerir
+        </span>
       </button>
 
       {open && (

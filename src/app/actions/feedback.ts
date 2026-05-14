@@ -6,13 +6,16 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getResend, RESEND_FROM } from "@/lib/resend-client";
 import { checkRateLimit, extractIp } from "@/lib/rate-limit";
+import { recordAudit } from "@/lib/audit";
 
 const feedbackSchema = z.object({
   tipo: z.enum(["bug", "sugerencia", "elogio", "pregunta"]),
   severidad: z.enum(["baja", "media", "alta", "critica"]),
   titulo: z.string().max(120).optional(),
   descripcion: z.string().min(10).max(2000),
-  url: z.string().url().optional(),
+  // Acepta URLs largas con fragmentos. .optional() acepta undefined pero
+  // no string vacío — el cliente debe mandar undefined si no hay URL.
+  url: z.string().url().max(2000).optional(),
   user_agent: z.string().max(500).optional(),
 });
 
@@ -81,10 +84,53 @@ export async function enviarFeedback(
 
   if (error || !row) {
     console.error("[feedback] insert error:", error);
+    // Loggear el fallo en audit log para que el admin lo vea aunque
+    // el reporte mismo no haya quedado.
+    void recordAudit({
+      userId: user?.id ?? null,
+      action: "feedback.insert_failed",
+      metadata: {
+        error_code: error?.code ?? null,
+        error_message: error?.message ?? null,
+        tipo: parsed.data.tipo,
+        ip,
+      },
+    });
     return {
       status: "error",
-      message: "No pudimos guardar tu reporte.",
+      message:
+        "No pudimos guardar tu reporte. Si el problema persiste, escríbenos directo.",
     };
+  }
+
+  // Audit log de éxito
+  void recordAudit({
+    userId: user?.id ?? null,
+    action: "feedback.submitted",
+    resource: row.id,
+    metadata: {
+      tipo: parsed.data.tipo,
+      severidad: parsed.data.severidad,
+      titulo: parsed.data.titulo ?? null,
+      url: parsed.data.url ?? null,
+    },
+  });
+
+  // Acuse de recibo al médico (best-effort)
+  if (user?.email && getResend()) {
+    const resendUser = getResend();
+    if (resendUser) {
+      void resendUser.emails
+        .send({
+          from: RESEND_FROM,
+          to: user.email,
+          subject: "Recibimos tu reporte · LitienGuard",
+          html: `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FBFAF6;margin:0;padding:32px 16px;color:#1F1E1B;line-height:1.55;"><div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #E8E4D8;border-radius:16px;padding:32px;"><p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#4A6B5B;margin:0;font-weight:600;">LitienGuard · Feedback recibido</p><h1 style="font-size:24px;font-weight:600;margin:12px 0 0;letter-spacing:-0.02em;">Gracias por reportarnos</h1><p style="font-size:15px;color:#57554F;margin:12px 0 16px;">Recibimos tu ${TIPO_LABEL[parsed.data.tipo].toLowerCase()} y lo estamos revisando. Si necesitamos más información, te contactaremos a este correo.</p><div style="background:#F4F2EB;border-radius:8px;padding:16px;margin:16px 0;font-size:13px;color:#57554F;"><p style="margin:0 0 4px;"><strong>Folio:</strong> #${row.id.slice(0, 8).toUpperCase()}</p>${parsed.data.titulo ? `<p style="margin:0 0 4px;"><strong>Asunto:</strong> ${parsed.data.titulo.replace(/[<>"']/g, "")}</p>` : ""}<p style="margin:0;"><strong>Tipo:</strong> ${TIPO_LABEL[parsed.data.tipo]}${parsed.data.tipo === "bug" ? ` · severidad ${parsed.data.severidad}` : ""}</p></div><p style="font-size:13px;color:#8B887F;margin:16px 0 0;">Estamos en piloto cerrado, así que tu feedback nos llega directo y lo respondemos personalmente — usualmente en menos de 24h hábiles.</p></div></body></html>`,
+        })
+        .catch((e) =>
+          console.warn("[feedback] acuse al usuario warn:", e),
+        );
+    }
   }
 
   // Best-effort admin notification
