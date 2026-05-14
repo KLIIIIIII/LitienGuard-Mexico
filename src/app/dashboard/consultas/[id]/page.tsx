@@ -23,6 +23,7 @@ import {
 } from "@/lib/entitlements";
 import { ConsultaActions } from "./consulta-actions";
 import { ConsultaNotesForm } from "./consulta-notes-form";
+import { decryptField } from "@/lib/encryption";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -66,7 +67,7 @@ export default async function ConsultaDetallePage({
   if (!consulta) notFound();
 
   // Cargar artefactos vinculados
-  const [{ data: notas }, { data: recetas }, { data: diferenciales }] =
+  const [{ data: notasRaw }, { data: recetas }, { data: diferenciales }] =
     await Promise.all([
       supa
         .from("notas_scribe")
@@ -88,6 +89,16 @@ export default async function ConsultaDetallePage({
         .eq("consulta_id", id)
         .order("created_at", { ascending: false }),
     ]);
+
+  // Descifrar el snippet de SOAP de cada nota (Fase B)
+  const notas = notasRaw
+    ? await Promise.all(
+        notasRaw.map(async (n) => ({
+          ...n,
+          soap_subjetivo: await decryptField(n.soap_subjetivo),
+        })),
+      )
+    : null;
 
   const fullName =
     [

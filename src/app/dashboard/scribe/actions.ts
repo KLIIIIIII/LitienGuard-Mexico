@@ -23,6 +23,7 @@ import {
   scribeMonthlyLimit,
   type SubscriptionTier,
 } from "@/lib/entitlements";
+import { encryptField, decryptField } from "@/lib/encryption";
 
 const optionalText = (max: number) =>
   z
@@ -305,6 +306,22 @@ export async function generarNotaScribe(
     };
   }
 
+  // Cifrar contenido clínico antes de persistir (Fase B). Los campos
+  // de PII del paciente (iniciales, nombre, etc.) se cifran en Fase F.
+  const [
+    encTranscripcion,
+    encSubjetivo,
+    encObjetivo,
+    encAnalisis,
+    encPlan,
+  ] = await Promise.all([
+    encryptField(transcripcionText),
+    encryptField(soap.subjetivo),
+    encryptField(soap.objetivo),
+    encryptField(soap.analisis),
+    encryptField(soap.plan),
+  ]);
+
   const { data: nota, error } = await supa
     .from("notas_scribe")
     .insert({
@@ -316,11 +333,11 @@ export async function generarNotaScribe(
       paciente_edad: ctx.data.paciente_edad,
       paciente_sexo: ctx.data.paciente_sexo,
       audio_filename: file.name,
-      transcripcion: transcripcionText,
-      soap_subjetivo: soap.subjetivo,
-      soap_objetivo: soap.objetivo,
-      soap_analisis: soap.analisis,
-      soap_plan: soap.plan,
+      transcripcion: encTranscripcion,
+      soap_subjetivo: encSubjetivo,
+      soap_objetivo: encObjetivo,
+      soap_analisis: encAnalisis,
+      soap_plan: encPlan,
       soap_metadata: {
         whisper_model: GROQ_MODELS.whisper,
         llama_model: GROQ_MODELS.llama,
@@ -389,9 +406,19 @@ export async function actualizarNota(
   if (!user) return { status: "error", message: "No autenticado." };
 
   const { notaId, ...rest } = parsed.data;
+  const SOAP_FIELDS = new Set([
+    "soap_subjetivo",
+    "soap_objetivo",
+    "soap_analisis",
+    "soap_plan",
+  ]);
   const payload: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(rest)) {
-    if (v !== undefined) payload[k] = v;
+    if (v === undefined) continue;
+    // Cifrar campos SOAP antes de persistir (Fase B)
+    payload[k] = SOAP_FIELDS.has(k)
+      ? await encryptField(v as string)
+      : v;
   }
   if (Object.keys(payload).length === 0) return { status: "ok" };
 
@@ -406,9 +433,95 @@ export async function actualizarNota(
     return { status: "error", message: "No pudimos guardar el cambio." };
   }
 
+  // Si la nota se acaba de firmar, hacer la extracción al cerebro
+  // colectivo aquí (en la app, con contenido descifrado). Antes esto
+  // lo hacía el trigger SQL sync_nota_to_practica, pero con los campos
+  // SOAP cifrados el trigger copiaría texto cifrado. Migración 0031
+  // deshabilita ese trigger.
+  if (parsed.data.status === "firmada") {
+    void extractNotaToCerebro(supa, notaId, user.id);
+  }
+
   revalidatePath(`/dashboard/notas/${notaId}`);
   revalidatePath("/dashboard/notas");
   return { status: "ok" };
+}
+
+/**
+ * Extracción de una nota firmada al cerebro colectivo. Reemplaza al
+ * trigger SQL sync_nota_to_practica — necesario porque los campos
+ * soap_* están cifrados y SQL no puede descifrarlos.
+ *
+ * Solo actúa si el médico tiene share_with_collective = true. El
+ * contenido se anonimiza (edad redondeada a década, sin PII).
+ * Best-effort: si falla, no rompe la firma de la nota.
+ */
+async function extractNotaToCerebro(
+  supa: SupabaseClient,
+  notaId: string,
+  medicoId: string,
+): Promise<void> {
+  try {
+    const { data: profile } = await supa
+      .from("profiles")
+      .select("share_with_collective")
+      .eq("id", medicoId)
+      .single();
+    if (profile?.share_with_collective !== true) return;
+
+    const { data: nota } = await supa
+      .from("notas_scribe")
+      .select(
+        "id, soap_analisis, soap_plan, paciente_edad, paciente_sexo, status",
+      )
+      .eq("id", notaId)
+      .eq("medico_id", medicoId)
+      .single();
+    if (!nota || nota.status !== "firmada") return;
+
+    const analisis = (await decryptField(nota.soap_analisis)) ?? "";
+    const plan = (await decryptField(nota.soap_plan)) ?? "";
+    if (analisis.trim() === "" && plan.trim() === "") return;
+
+    const roundedAge =
+      nota.paciente_edad != null
+        ? Math.floor(nota.paciente_edad / 10) * 10
+        : null;
+
+    let combined = analisis;
+    if (plan.trim() !== "") {
+      combined += `\n\nPlan observado: ${plan}`;
+    }
+    if (roundedAge != null) {
+      combined += `\n\nPaciente: ${roundedAge}s`;
+      if (nota.paciente_sexo) combined += ` · ${nota.paciente_sexo}`;
+    }
+
+    const chunkId = `practica-${notaId.replace(/-/g, "")}`;
+    const shortTitle =
+      analisis.length > 0
+        ? analisis.slice(0, 80)
+        : "Práctica clínica observada";
+
+    await supa.from("cerebro_chunks").upsert(
+      {
+        id: chunkId,
+        source: "LitienGuard · práctica observada",
+        page: null,
+        title: shortTitle,
+        content: combined,
+        meta: {},
+        tipo: "practica_observada",
+        source_nota_id: notaId,
+        is_active: true,
+        created_by: medicoId,
+        updated_by: medicoId,
+      },
+      { onConflict: "id" },
+    );
+  } catch (e) {
+    console.warn("[scribe] extractNotaToCerebro warn:", e);
+  }
 }
 
 /**
@@ -423,17 +536,16 @@ async function searchDoctorMemory(
 ): Promise<MemoryChunk[]> {
   if (keywords.length === 0) return [];
 
-  const orFilters = keywords
-    .map((k) => k.replace(/[%,]/g, " ").trim())
-    .filter((k) => k.length >= 3)
-    .flatMap((k) => [
-      `soap_analisis.ilike.%${k}%`,
-      `soap_plan.ilike.%${k}%`,
-    ])
-    .join(",");
+  const cleanKeywords = keywords
+    .map((k) => k.replace(/[%,]/g, " ").trim().toLowerCase())
+    .filter((k) => k.length >= 3);
+  if (cleanKeywords.length === 0) return [];
 
-  if (!orFilters) return [];
-
+  // Los campos soap_* están cifrados (Fase B) — no se puede filtrar con
+  // ILIKE en SQL. Traemos las notas firmadas recientes, las desciframos
+  // en memoria (AES-GCM local ≈ 1ms c/u) y filtramos en JS. Límite de
+  // 60 para acotar el costo de descifrado; a escala grande conviene un
+  // índice derivado, pero al volumen de piloto es < 100ms.
   const { data, error } = await supa
     .from("notas_scribe")
     .select(
@@ -441,16 +553,22 @@ async function searchDoctorMemory(
     )
     .eq("medico_id", medicoId)
     .eq("status", "firmada")
-    .or(orFilters)
     .order("created_at", { ascending: false })
-    .limit(3);
+    .limit(60);
 
   if (error) {
     console.warn("[scribe] memory search error:", error.message);
     return [];
   }
 
-  return (data ?? []).map((n) => {
+  const matches: MemoryChunk[] = [];
+  for (const n of data ?? []) {
+    if (matches.length >= 3) break;
+    const analisis = ((await decryptField(n.soap_analisis)) ?? "").trim();
+    const plan = ((await decryptField(n.soap_plan)) ?? "").trim();
+    const haystack = `${analisis}\n${plan}`.toLowerCase();
+    if (!cleanKeywords.some((k) => haystack.includes(k))) continue;
+
     const fecha = new Date(n.created_at).toLocaleDateString("es-MX", {
       day: "2-digit",
       month: "short",
@@ -462,15 +580,17 @@ async function searchDoctorMemory(
     ]
       .filter(Boolean)
       .join("/");
-    const a = (n.soap_analisis ?? "").trim().slice(0, 400);
-    const p = (n.soap_plan ?? "").trim().slice(0, 400);
-    return {
+    matches.push({
       fecha: `${fecha}${demog ? ` · ${demog}` : ""}`,
-      resumen: [a && `Análisis: ${a}`, p && `Plan: ${p}`]
+      resumen: [
+        analisis && `Análisis: ${analisis.slice(0, 400)}`,
+        plan && `Plan: ${plan.slice(0, 400)}`,
+      ]
         .filter(Boolean)
         .join("\n"),
-    };
-  });
+    });
+  }
+  return matches;
 }
 
 export async function eliminarNota(notaId: string): Promise<void> {

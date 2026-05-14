@@ -6,6 +6,7 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { DiferencialEngine } from "./diferencial-engine";
 import { HistorialList } from "./historial-list";
+import { decryptField } from "@/lib/encryption";
 
 export const metadata: Metadata = {
   title: "Diferencial diagnóstico — LitienGuard",
@@ -50,18 +51,26 @@ export default async function DiferencialPage({
       .eq("medico_id", user.id)
       .single();
     if (nota) {
+      // Descifrar contenido clínico (Fase B)
+      const [subjetivo, objetivo, analisis, transcripcion] =
+        await Promise.all([
+          decryptField(nota.soap_subjetivo),
+          decryptField(nota.soap_objetivo),
+          decryptField(nota.soap_analisis),
+          decryptField(nota.transcripcion),
+        ]);
       const parts: string[] = [];
-      if (nota.soap_subjetivo?.trim()) {
-        parts.push(`[Subjetivo]\n${nota.soap_subjetivo.trim()}`);
+      if (subjetivo?.trim()) {
+        parts.push(`[Subjetivo]\n${subjetivo.trim()}`);
       }
-      if (nota.soap_objetivo?.trim()) {
-        parts.push(`[Objetivo]\n${nota.soap_objetivo.trim()}`);
+      if (objetivo?.trim()) {
+        parts.push(`[Objetivo]\n${objetivo.trim()}`);
       }
-      if (nota.soap_analisis?.trim()) {
-        parts.push(`[Análisis]\n${nota.soap_analisis.trim()}`);
+      if (analisis?.trim()) {
+        parts.push(`[Análisis]\n${analisis.trim()}`);
       }
-      if (parts.length === 0 && nota.transcripcion?.trim()) {
-        parts.push(nota.transcripcion.trim());
+      if (parts.length === 0 && transcripcion?.trim()) {
+        parts.push(transcripcion.trim());
       }
       const combined = parts.join("\n\n").slice(0, 8000);
       if (combined.length >= 20) {

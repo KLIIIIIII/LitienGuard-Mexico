@@ -9,6 +9,7 @@ import {
   Lock,
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
 import { NoteStatusBadge } from "@/components/note-status-badge";
 import {
@@ -86,7 +87,16 @@ export default async function DashboardPage() {
       .gte("created_at", startOfMonth.toISOString()),
   ]);
 
-  const recentRows = (recent as RecentNota[] | null) ?? [];
+  // Descifrar el snippet de SOAP de las notas recientes (Fase B)
+  const recentRows = (
+    await Promise.all(
+      ((recent as RecentNota[] | null) ?? []).map(async (n) => ({
+        ...n,
+        soap_analisis: await decryptField(n.soap_analisis),
+        soap_subjetivo: await decryptField(n.soap_subjetivo),
+      })),
+    )
+  ) as RecentNota[];
   const total = totalNotas ?? 0;
   const signed = firmadas ?? 0;
   const usedThisMonth = notasMes ?? 0;

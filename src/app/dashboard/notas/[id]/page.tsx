@@ -6,6 +6,7 @@ import { Eyebrow } from "@/components/eyebrow";
 import { NoteStatusBadge } from "@/components/note-status-badge";
 import { SoapEditor } from "./soap-editor";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
+import { decryptField } from "@/lib/encryption";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +62,17 @@ export default async function NotaPage({
     .single();
 
   if (!nota) notFound();
-  const n = nota as Nota;
+
+  // Descifrar contenido clínico (Fase B). decryptField devuelve tal
+  // cual los valores legacy sin cifrar, así que es seguro en migración.
+  const n = {
+    ...nota,
+    transcripcion: await decryptField(nota.transcripcion),
+    soap_subjetivo: await decryptField(nota.soap_subjetivo),
+    soap_objetivo: await decryptField(nota.soap_objetivo),
+    soap_analisis: await decryptField(nota.soap_analisis),
+    soap_plan: await decryptField(nota.soap_plan),
+  } as Nota;
 
   const { data: profile } = await supa
     .from("profiles")

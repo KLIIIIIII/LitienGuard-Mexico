@@ -6,6 +6,7 @@ import {
   type NotaForAnalytics,
 } from "@/lib/analytics/notas";
 import { ReportePdf } from "@/lib/pdf/reporte-pdf";
+import { decryptField } from "@/lib/encryption";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,20 @@ export async function GET(req: NextRequest) {
       "id,paciente_iniciales,paciente_nombre,paciente_apellido_paterno,paciente_apellido_materno,paciente_edad,paciente_sexo,audio_filename,transcripcion,soap_subjetivo,soap_objetivo,soap_analisis,soap_plan,soap_metadata,status,created_at,updated_at",
     )
     .order("created_at", { ascending: false });
-  const notas = (rows as NotaFull[] | null) ?? [];
+
+  // Descifrar contenido clínico de cada nota (Fase B) antes de exportar
+  const notas = (
+    await Promise.all(
+      ((rows as NotaFull[] | null) ?? []).map(async (n) => ({
+        ...n,
+        transcripcion: await decryptField(n.transcripcion),
+        soap_subjetivo: await decryptField(n.soap_subjetivo),
+        soap_objetivo: await decryptField(n.soap_objetivo),
+        soap_analisis: await decryptField(n.soap_analisis),
+        soap_plan: await decryptField(n.soap_plan),
+      })),
+    )
+  ) as NotaFull[];
 
   const analytics = analizarNotas(notas);
   const medico = {

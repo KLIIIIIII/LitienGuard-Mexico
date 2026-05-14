@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { FileJson, FileText, Download } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
 import {
   analizarNotas,
@@ -26,7 +27,16 @@ export default async function ExportarPage() {
     .select(
       "id,paciente_edad,paciente_sexo,soap_analisis,soap_plan,status,created_at",
     );
-  const notas = (rows as NotaForAnalytics[] | null) ?? [];
+  // Descifrar contenido clínico antes de calcular analytics (Fase B)
+  const notas = (
+    await Promise.all(
+      ((rows as NotaForAnalytics[] | null) ?? []).map(async (n) => ({
+        ...n,
+        soap_analisis: await decryptField(n.soap_analisis),
+        soap_plan: await decryptField(n.soap_plan),
+      })),
+    )
+  ) as NotaForAnalytics[];
   const a = analizarNotas(notas);
 
   const sexoTotal =

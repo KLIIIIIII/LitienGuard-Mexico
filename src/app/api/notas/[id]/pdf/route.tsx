@@ -2,6 +2,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { SoapPdf, type SoapPdfData } from "@/lib/pdf/soap-pdf";
+import { decryptField } from "@/lib/encryption";
 
 export const dynamic = "force-dynamic";
 
@@ -47,10 +48,10 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
     paciente_apellido_materno: nota.paciente_apellido_materno,
     paciente_edad: nota.paciente_edad,
     paciente_sexo: nota.paciente_sexo,
-    soap_subjetivo: nota.soap_subjetivo ?? "",
-    soap_objetivo: nota.soap_objetivo ?? "",
-    soap_analisis: nota.soap_analisis ?? "",
-    soap_plan: nota.soap_plan ?? "",
+    soap_subjetivo: (await decryptField(nota.soap_subjetivo)) ?? "",
+    soap_objetivo: (await decryptField(nota.soap_objetivo)) ?? "",
+    soap_analisis: (await decryptField(nota.soap_analisis)) ?? "",
+    soap_plan: (await decryptField(nota.soap_plan)) ?? "",
     status: nota.status,
     created_at: nota.created_at,
     updated_at: nota.updated_at,
