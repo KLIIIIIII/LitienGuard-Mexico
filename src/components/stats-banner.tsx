@@ -58,7 +58,8 @@ export function StatsBanner() {
         <div className="mb-10">
           <Eyebrow>El cerebro al cierre de mayo 2026</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            Materia prima clínica curada — no traducida del inglés.
+            Materia prima clínica de la más alta calidad, construida en
+            español.
           </h2>
         </div>
 

@@ -3,8 +3,8 @@ import { Brain, Quote, Users, Workflow } from "lucide-react";
 const DIFFERENCES = [
   {
     icon: Brain,
-    title: "Cerebro clínico curado, no IA genérica",
-    desc: "No solo transcribimos: cada recomendación lleva guía clínica (GPC IMSS, ADA, KDIGO, ESC), fuerza de evidencia y cita verbatim. Cero alucinación.",
+    title: "Un cerebro clínico curado por médicos",
+    desc: "No es una IA genérica. Cada recomendación viene con su guía clínica (GPC IMSS, ADA, KDIGO, ESC), su fuerza de evidencia y su cita textual. Sin inventar nada.",
   },
   {
     icon: Users,
@@ -14,7 +14,7 @@ const DIFFERENCES = [
   {
     icon: Workflow,
     title: "Healthcare Operating System completo",
-    desc: "Más allá del expediente: cerebro clínico, ciclo de ingresos hospitalario, navegación del paciente, cumplimiento Reforma 2026 — una sola plataforma, no piezas pegadas.",
+    desc: "Va mucho más allá del expediente. Cerebro clínico, ciclo de ingresos hospitalario, navegación del paciente y cumplimiento de la Reforma 2026, todo en una sola plataforma que sí se habla entre sí.",
   },
   {
     icon: Quote,
