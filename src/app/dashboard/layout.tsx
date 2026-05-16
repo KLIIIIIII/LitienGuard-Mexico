@@ -19,6 +19,7 @@ import { DashboardMobileBar } from "./dashboard-mobile-bar";
 import { PricingSurveyGate } from "@/components/pricing-survey-gate";
 import { ProfileOnboardingGate } from "@/components/profile-onboarding-gate";
 import { WelcomeTutorialGate } from "@/components/welcome-tutorial-gate";
+import { FeedbackButton } from "@/components/feedback-button";
 
 export default async function DashboardLayout({
   children,
@@ -92,6 +93,8 @@ export default async function DashboardLayout({
       <Suspense fallback={null}>
         <WelcomeTutorialGate />
       </Suspense>
+
+      <FeedbackButton />
     </div>
   );
 }

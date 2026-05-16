@@ -16,6 +16,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
 import { NoteStatusBadge } from "@/components/note-status-badge";
+import { AnunciosBanner, type AnuncioItem } from "@/components/anuncios-banner";
 import {
   canUseScribe,
   canUseCerebro,
@@ -72,6 +73,8 @@ export default async function DashboardPage() {
     { count: totalNotas },
     { count: firmadas },
     { count: notasMes },
+    { data: anunciosRaw },
+    { data: anunciosVistosRaw },
   ] = await Promise.all([
     supa
       .from("notas_scribe")
@@ -89,7 +92,35 @@ export default async function DashboardPage() {
       .from("notas_scribe")
       .select("*", { count: "exact", head: true })
       .gte("created_at", startOfMonth.toISOString()),
+    supa
+      .from("anuncios")
+      .select(
+        "id, titulo, contenido, tipo, audiencia, link_url, link_label, publicado_at",
+      )
+      .order("publicado_at", { ascending: false })
+      .limit(10),
+    supa
+      .from("anuncios_vistos")
+      .select("anuncio_id, descartado_at")
+      .eq("user_id", user.id),
   ]);
+
+  // Filtrar anuncios: que apliquen al tier del médico y no estén descartados
+  const dismissedIds = new Set(
+    (anunciosVistosRaw ?? [])
+      .filter((v) => v.descartado_at !== null)
+      .map((v) => v.anuncio_id as string),
+  );
+  const anuncios: AnuncioItem[] = ((anunciosRaw ?? []) as Array<
+    AnuncioItem & { audiencia: string }
+  >)
+    .filter((a) => !dismissedIds.has(a.id))
+    .filter((a) => {
+      if (a.audiencia === "todos") return true;
+      if (a.audiencia === "admin") return profile?.role === "admin";
+      return a.audiencia === tier;
+    })
+    .slice(0, 3);
 
   // Descifrar el snippet de SOAP de las notas recientes (Fase B)
   const recentRows = (
@@ -111,7 +142,8 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <div>
+      <AnunciosBanner anuncios={anuncios} />
+      <div className={anuncios.length > 0 ? "mt-6" : ""}>
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
             <Eyebrow tone="validation">
