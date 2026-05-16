@@ -164,6 +164,47 @@ export const DISEASES: Disease[] = [
     prior: 0.1,
   },
 
+  // ---- Endocrino — Diabetes (extensión B2) ----
+  // 7 fenotipos diabéticos. ENSANUT 2023 reporta 18.4% de adultos MX
+  // con DM2 — uno de los catálogos clínicos más relevantes para el
+  // médico mexicano. Distingue DM2 típica, LADA, MODY, gestacional,
+  // cetoacidosis aguda, retinopatía diabética y prediabetes.
+  {
+    id: "dm2-typical",
+    label: "Diabetes mellitus tipo 2 típica",
+    prior: 0.18,
+  },
+  {
+    id: "prediabetes",
+    label: "Prediabetes (intolerancia a glucosa / HbA1c 5.7-6.4%)",
+    prior: 0.1,
+  },
+  {
+    id: "lada",
+    label: "LADA (diabetes autoinmune latente del adulto)",
+    prior: 0.012,
+  },
+  {
+    id: "mody",
+    label: "MODY (diabetes monogénica del adulto joven)",
+    prior: 0.005,
+  },
+  {
+    id: "dm-gestational",
+    label: "Diabetes gestacional",
+    prior: 0.04,
+  },
+  {
+    id: "dka",
+    label: "Cetoacidosis diabética (DKA)",
+    prior: 0.018,
+  },
+  {
+    id: "diabetic-retinopathy",
+    label: "Retinopatía diabética",
+    prior: 0.06,
+  },
+
   // ---- Endocrino (6) ----
   {
     id: "hypothyroidism",
@@ -681,6 +722,136 @@ export const FINDINGS: Finding[] = [
     label: "Soplo eyectivo sistólico aórtico",
     category: "exam",
     detail: "Soplo sistólico romboidal en foco aórtico irradiado al cuello",
+  },
+
+  // ---------------- Diabetes (extensión B2) ----------------
+  // Findings que discriminan DM2 / LADA / MODY / gestacional / DKA /
+  // retinopatía diabética / prediabetes.
+  {
+    id: "lab-hba1c-65-plus",
+    label: "HbA1c ≥ 6.5%",
+    category: "lab",
+    detail: "Criterio ADA 2024 — corte diagnóstico de diabetes",
+  },
+  {
+    id: "lab-hba1c-prediabetes",
+    label: "HbA1c 5.7-6.4%",
+    category: "lab",
+    detail: "Criterio ADA 2024 — rango de prediabetes",
+  },
+  {
+    id: "lab-glucose-fasting-126",
+    label: "Glucemia en ayuno ≥ 126 mg/dL",
+    category: "lab",
+    detail: "Glucemia plasmática ayuno ≥ 126 mg/dL en ≥ 2 ocasiones",
+  },
+  {
+    id: "lab-glucose-fasting-100-125",
+    label: "Glucemia en ayuno 100-125 mg/dL",
+    category: "lab",
+    detail: "Glucemia alterada en ayunas — rango prediabetes",
+  },
+  {
+    id: "lab-c-peptide-low",
+    label: "Péptido C bajo (< 0.6 ng/mL)",
+    category: "lab",
+    detail: "Reserva pancreática agotada — DM1 / LADA avanzada",
+  },
+  {
+    id: "lab-c-peptide-preserved",
+    label: "Péptido C conservado (> 1.0 ng/mL)",
+    category: "lab",
+    detail: "Reserva pancreática preservada — DM2, MODY o LADA temprana",
+  },
+  {
+    id: "lab-gad-antibody-positive",
+    label: "Anticuerpos anti-GAD positivos",
+    category: "lab",
+    detail: "Autoinmunidad pancreática — LADA o DM1 tardía",
+  },
+  {
+    id: "lab-urinary-ketones-pos",
+    label: "Cetonas urinarias positivas (++ o más)",
+    category: "lab",
+    detail: "Cetoaciduria — sospecha DKA o ayuno prolongado",
+  },
+  {
+    id: "lab-arterial-ph-low",
+    label: "pH arterial < 7.30",
+    category: "lab",
+    detail: "Acidosis metabólica significativa por gasometría arterial",
+  },
+  {
+    id: "lab-anion-gap-high",
+    label: "Brecha aniónica > 12",
+    category: "lab",
+    detail: "Anion gap elevado en gasometría — acidosis con brecha amplia",
+  },
+  {
+    id: "history-family-dm-3gen",
+    label: "DM en 3 generaciones consecutivas",
+    category: "history",
+    detail: "Patrón autosómico dominante familiar — sospecha MODY",
+  },
+  {
+    id: "history-dx-age-under-30",
+    label: "Diagnóstico de DM antes de los 30 años",
+    category: "history",
+    detail: "Edad temprana al diagnóstico — sugiere MODY, LADA o DM1",
+  },
+  {
+    id: "history-pregnancy-current",
+    label: "Embarazo actual",
+    category: "history",
+    detail: "Gestación en curso — base para DM gestacional",
+  },
+  {
+    id: "history-rapid-insulin-need",
+    label: "Requirió insulina < 2 años desde el diagnóstico",
+    category: "history",
+    detail: "Falla precoz a hipoglucemiantes orales — sospecha LADA",
+  },
+  {
+    id: "history-obesity-central",
+    label: "Obesidad central (cintura > 90 H / 80 M cm)",
+    category: "history",
+    detail: "Adiposidad visceral — criterio síndrome metabólico",
+  },
+  {
+    id: "history-dm-duration-10y",
+    label: "Duración de DM > 10 años",
+    category: "history",
+    detail: "Tiempo de evolución — factor de complicaciones microvasculares",
+  },
+  {
+    id: "exam-fundus-microaneurysms",
+    label: "Microaneurismas en retina",
+    category: "exam",
+    detail: "Hemorragias y microaneurismas en fondo de ojo — RD no proliferativa",
+  },
+  {
+    id: "exam-fundus-cotton-wool",
+    label: "Manchas algodonosas en retina",
+    category: "exam",
+    detail: "Exudados algodonosos en fondo de ojo — isquemia retiniana",
+  },
+  {
+    id: "exam-fundus-neovascularization",
+    label: "Neovascularización retiniana",
+    category: "exam",
+    detail: "Vasos anómalos en retina — RD proliferativa avanzada",
+  },
+  {
+    id: "exam-kussmaul-breathing",
+    label: "Respiración de Kussmaul",
+    category: "exam",
+    detail: "Hiperventilación rápida y profunda compensatoria — acidosis severa",
+  },
+  {
+    id: "exam-fruity-breath",
+    label: "Aliento cetónico (afrutado)",
+    category: "exam",
+    detail: "Halitosis a manzana / cetonas — sospecha DKA",
   },
 ];
 
@@ -2141,6 +2312,316 @@ const _RAW_LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     lrMinus: 0.78,
     source: "ESC Chronic Coronary Syndromes 2024 · troponina basal alta",
     confidence: "medium",
+  },
+
+  // =============================================================
+  // Extensión B2 — Diabetes (DM2 / LADA / MODY / gestacional / DKA /
+  // retinopatía / prediabetes).
+  // Curado contra ADA Standards of Care 2024, Hattersley Diabetologia
+  // 2023 MODY, IADPSG / WHO 2013 gestacional, ADA-EASD DKA 2023,
+  // ICO-ICDR retinopathy 2017, KDIGO 2022 DM-CKD.
+  // =============================================================
+
+  // ===== DM2 típica =====
+  {
+    finding: "lab-hba1c-65-plus",
+    disease: "dm2-typical",
+    lrPlus: 8.5,
+    lrMinus: 0.14,
+    source: "ADA Standards of Care 2024 · criterio diagnóstico DM",
+    confidence: "high",
+  },
+  {
+    finding: "lab-glucose-fasting-126",
+    disease: "dm2-typical",
+    lrPlus: 7.2,
+    lrMinus: 0.18,
+    source: "ADA Standards of Care 2024 · criterio diagnóstico",
+    confidence: "high",
+  },
+  {
+    finding: "history-obesity-central",
+    disease: "dm2-typical",
+    lrPlus: 3.4,
+    lrMinus: 0.48,
+    source: "ENSANUT 2023 · 81% de DM2 MX con obesidad central",
+    confidence: "high",
+  },
+  {
+    finding: "lab-c-peptide-preserved",
+    disease: "dm2-typical",
+    lrPlus: 2.6,
+    lrMinus: 0.5,
+    source: "ADA 2024 · DM2 conserva reserva pancreática inicialmente",
+    confidence: "high",
+  },
+  {
+    finding: "history-dx-age-under-30",
+    disease: "dm2-typical",
+    lrPlus: 0.42,
+    lrMinus: 1.18,
+    source: "ADA 2024 · DM2 típica edad media diagnóstico > 45a",
+    confidence: "medium",
+  },
+  {
+    finding: "lab-gad-antibody-positive",
+    disease: "dm2-typical",
+    lrPlus: 0.12,
+    lrMinus: 1.05,
+    source: "Hattersley 2023 · anti-GAD redirige a LADA",
+    confidence: "high",
+  },
+  {
+    finding: "lab-hba1c-prediabetes",
+    disease: "dm2-typical",
+    lrPlus: 0.18,
+    lrMinus: 1.12,
+    source: "ADA 2024 · HbA1c prediabético excluye DM",
+    confidence: "high",
+  },
+
+  // ===== Prediabetes =====
+  {
+    finding: "lab-hba1c-prediabetes",
+    disease: "prediabetes",
+    lrPlus: 32,
+    lrMinus: 0.04,
+    source: "ADA Standards of Care 2024 · definición prediabetes",
+    confidence: "high",
+  },
+  {
+    finding: "lab-glucose-fasting-100-125",
+    disease: "prediabetes",
+    lrPlus: 8.4,
+    lrMinus: 0.18,
+    source: "ADA 2024 · glucemia alterada en ayunas",
+    confidence: "high",
+  },
+  {
+    finding: "lab-hba1c-65-plus",
+    disease: "prediabetes",
+    lrPlus: 0.04,
+    lrMinus: 1.12,
+    source: "ADA 2024 · HbA1c ≥ 6.5 = DM, excluye prediabetes",
+    confidence: "high",
+  },
+  {
+    finding: "history-obesity-central",
+    disease: "prediabetes",
+    lrPlus: 2.4,
+    lrMinus: 0.62,
+    source: "ENSANUT 2023 · obesidad central como factor prediabetes",
+    confidence: "high",
+  },
+
+  // ===== LADA =====
+  {
+    finding: "lab-gad-antibody-positive",
+    disease: "lada",
+    lrPlus: 28,
+    lrMinus: 0.08,
+    source: "Hattersley Diabetologia 2023 · marcador diagnóstico LADA",
+    confidence: "high",
+  },
+  {
+    finding: "history-rapid-insulin-need",
+    disease: "lada",
+    lrPlus: 9.5,
+    lrMinus: 0.38,
+    source: "Hattersley 2023 · falla rápida hipoglucemiantes orales",
+    confidence: "high",
+  },
+  {
+    finding: "lab-c-peptide-low",
+    disease: "lada",
+    lrPlus: 5.2,
+    lrMinus: 0.65,
+    source: "Hattersley 2023 · destrucción autoinmune progresiva",
+    confidence: "high",
+  },
+  {
+    finding: "history-obesity-central",
+    disease: "lada",
+    lrPlus: 0.38,
+    lrMinus: 1.65,
+    source: "Hattersley 2023 · LADA típicamente magro o sobrepeso leve",
+    confidence: "high",
+  },
+  {
+    finding: "history-dx-age-under-30",
+    disease: "lada",
+    lrPlus: 2.8,
+    lrMinus: 0.7,
+    source: "Hattersley 2023 · LADA edad media diagnóstico 30-50",
+    confidence: "medium",
+  },
+
+  // ===== MODY =====
+  {
+    finding: "history-family-dm-3gen",
+    disease: "mody",
+    lrPlus: 18,
+    lrMinus: 0.4,
+    source: "Hattersley Diabetologia 2023 · patrón autosómico dominante",
+    confidence: "high",
+  },
+  {
+    finding: "history-dx-age-under-30",
+    disease: "mody",
+    lrPlus: 8.5,
+    lrMinus: 0.45,
+    source: "Hattersley 2023 · debut típico antes de los 25 años",
+    confidence: "high",
+  },
+  {
+    finding: "lab-c-peptide-preserved",
+    disease: "mody",
+    lrPlus: 5.4,
+    lrMinus: 0.38,
+    source: "Hattersley 2023 · reserva pancreática conservada largo plazo",
+    confidence: "high",
+  },
+  {
+    finding: "history-obesity-central",
+    disease: "mody",
+    lrPlus: 0.38,
+    lrMinus: 1.55,
+    source: "Hattersley 2023 · MODY típicamente sin obesidad",
+    confidence: "high",
+  },
+  {
+    finding: "lab-gad-antibody-positive",
+    disease: "mody",
+    lrPlus: 0.15,
+    lrMinus: 1.06,
+    source: "Hattersley 2023 · MODY es monogénico, no autoinmune",
+    confidence: "high",
+  },
+
+  // ===== Diabetes gestacional =====
+  {
+    finding: "history-pregnancy-current",
+    disease: "dm-gestational",
+    lrPlus: 48,
+    lrMinus: 0.05,
+    source: "ADA 2024 · IADPSG · prerequisito definitorio",
+    confidence: "high",
+  },
+  {
+    finding: "lab-glucose-fasting-126",
+    disease: "dm-gestational",
+    lrPlus: 6.4,
+    lrMinus: 0.32,
+    source: "IADPSG 2013 · criterio diagnóstico DM gestacional",
+    confidence: "high",
+  },
+  {
+    finding: "lab-hba1c-65-plus",
+    disease: "dm-gestational",
+    lrPlus: 4.2,
+    lrMinus: 0.5,
+    source: "WHO 2013 · HbA1c complementario en gestacional",
+    confidence: "medium",
+  },
+  {
+    finding: "history-obesity-central",
+    disease: "dm-gestational",
+    lrPlus: 2.4,
+    lrMinus: 0.7,
+    source: "ENSANUT 2023 · obesidad pre-gestacional factor riesgo",
+    confidence: "high",
+  },
+
+  // ===== Cetoacidosis diabética (DKA) =====
+  {
+    finding: "lab-arterial-ph-low",
+    disease: "dka",
+    lrPlus: 26,
+    lrMinus: 0.05,
+    source: "ADA-EASD 2023 · criterio acidosis pH < 7.30",
+    confidence: "high",
+  },
+  {
+    finding: "lab-anion-gap-high",
+    disease: "dka",
+    lrPlus: 14,
+    lrMinus: 0.12,
+    source: "ADA-EASD 2023 · brecha aniónica criterio bioquímico",
+    confidence: "high",
+  },
+  {
+    finding: "lab-urinary-ketones-pos",
+    disease: "dka",
+    lrPlus: 9.2,
+    lrMinus: 0.18,
+    source: "ADA-EASD 2023 · cetonuria criterio",
+    confidence: "high",
+  },
+  {
+    finding: "exam-kussmaul-breathing",
+    disease: "dka",
+    lrPlus: 5.6,
+    lrMinus: 0.42,
+    source: "ADA-EASD 2023 · respiración compensatoria",
+    confidence: "high",
+  },
+  {
+    finding: "exam-fruity-breath",
+    disease: "dka",
+    lrPlus: 7.4,
+    lrMinus: 0.68,
+    source: "Umpierrez · J Clin Endocrinol Metab 2010 · DKA examen",
+    confidence: "medium",
+  },
+  {
+    finding: "lab-glucose-fasting-126",
+    disease: "dka",
+    lrPlus: 3.2,
+    lrMinus: 0.38,
+    source: "ADA-EASD 2023 · DKA cursa con hiperglucemia > 250 típico",
+    confidence: "high",
+  },
+
+  // ===== Retinopatía diabética =====
+  {
+    finding: "exam-fundus-microaneurysms",
+    disease: "diabetic-retinopathy",
+    lrPlus: 22,
+    lrMinus: 0.1,
+    source: "ICO-ICDR International Clinical Classification 2017",
+    confidence: "high",
+  },
+  {
+    finding: "exam-fundus-neovascularization",
+    disease: "diabetic-retinopathy",
+    lrPlus: 48,
+    lrMinus: 0.05,
+    source: "ICO-ICDR 2017 · marcador RD proliferativa",
+    confidence: "high",
+  },
+  {
+    finding: "exam-fundus-cotton-wool",
+    disease: "diabetic-retinopathy",
+    lrPlus: 9.4,
+    lrMinus: 0.55,
+    source: "ICO-ICDR 2017 · isquemia retiniana en RD severa",
+    confidence: "high",
+  },
+  {
+    finding: "history-dm-duration-10y",
+    disease: "diabetic-retinopathy",
+    lrPlus: 5.2,
+    lrMinus: 0.45,
+    source: "Klein · UKPDS · prevalencia RD a 10 años",
+    confidence: "high",
+  },
+  {
+    finding: "lab-hba1c-65-plus",
+    disease: "diabetic-retinopathy",
+    lrPlus: 3.4,
+    lrMinus: 0.42,
+    source: "DCCT/EDIC · HbA1c crónica alta → RD",
+    confidence: "high",
   },
 ];
 

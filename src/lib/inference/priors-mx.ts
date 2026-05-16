@@ -123,7 +123,43 @@ export const MX_NATIONAL_PRIORS: Record<DiseaseId, number> = {
   "ischemic-cm": 0.13,
 
   // ============================================================
-  // Endocrino
+  // Endocrino — Diabetes (extensión B2)
+  // ============================================================
+  // Diabetes es el dominio con mayor prevalencia y mayor brecha de
+  // control en MX. ENSANUT 2023: 18.4% adultos con DM2, 25% con
+  // prediabetes. Hospital privado y consulta endocrina ven cohortes
+  // muy enriquecidas en DM.
+
+  // DM2 típica — muy alta prevalencia MX. En cohorte endocrinología
+  // 25-35% del volumen. En consulta general medicina interna 18-22%.
+  "dm2-typical": 0.22,
+
+  // Prediabetes — ENSANUT 2023 ~25% adultos MX. Sub-diagnosticada
+  // (la mitad no sabe que la tiene). En consulta endo 12-16%.
+  "prediabetes": 0.14,
+
+  // LADA — ~5% de los "DM2" adultos son en realidad LADA tipeada
+  // tardíamente. En consulta endo 1-2%.
+  "lada": 0.012,
+
+  // MODY — rara. Menos del 2% de DM diagnosticada antes de los 25
+  // años. En consulta endo MX 0.3-0.5%.
+  "mody": 0.005,
+
+  // DM gestacional — IADPSG en MX detecta 10-15% de embarazos.
+  // En consulta endo materna 30-40%; en consulta endo general 4-6%.
+  "dm-gestational": 0.05,
+
+  // Cetoacidosis diabética — emergencia. En urgencias MX 1-3% de
+  // ingresos cardiometabólicos agudos. En urgencias endo 8-12%.
+  "dka": 0.022,
+
+  // Retinopatía diabética — 30-40% de DM con duración > 10 años en
+  // MX. En oftalmología 10-15%; en consulta endo de seguimiento 8-10%.
+  "diabetic-retinopathy": 0.08,
+
+  // ============================================================
+  // Endocrino — restante
   // ============================================================
 
   // Hipotiroidismo primario — prevalencia MX 4-9% adultos (ENSANUT 2018).
