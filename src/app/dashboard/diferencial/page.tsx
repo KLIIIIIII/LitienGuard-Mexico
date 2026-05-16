@@ -155,16 +155,21 @@ export default async function DiferencialPage({
 
       <header className="flex items-start justify-between gap-4">
         <div>
-          <Eyebrow tone="validation">Diferencial diagnóstico</Eyebrow>
+          <div className="flex flex-wrap items-center gap-2">
+            <Eyebrow tone="validation">Diferencial diagnóstico</Eyebrow>
+            <span className="inline-flex items-center gap-1 rounded-full border border-validation-soft bg-validation-soft px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-eyebrow text-validation">
+              Calibrado MX
+            </span>
+          </div>
           <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
             Empieza con tu hipótesis, deja que el motor te confronte
           </h1>
           <p className="mt-2 max-w-prose text-body-sm text-ink-muted">
             Escribe el diagnóstico que sospechas y pega el contexto clínico
             del paciente. El motor extrae los hallazgos automáticamente,
-            calcula la probabilidad bayesiana de tu hipótesis, y te muestra
-            qué otras enfermedades podrían explicar lo mismo (anti-anchoring)
-            + qué hallazgos te faltan confirmar.
+            calcula la probabilidad de tu hipótesis con prevalencias
+            mexicanas, y te muestra qué otras enfermedades podrían explicar
+            lo mismo (anti-anclaje) + qué hallazgos te faltan confirmar.
           </p>
         </div>
         <div className="shrink-0 flex items-center gap-2">

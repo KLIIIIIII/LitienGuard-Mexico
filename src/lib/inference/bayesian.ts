@@ -50,16 +50,22 @@ function logOddsToProb(logOdds: number): number {
 /**
  * Calcula el log-odds posterior y desglose de contribución por finding
  * para una sola enfermedad.
+ *
+ * Si `priorOverride` se proporciona, se usa en lugar de `disease.prior`.
+ * Útil para inyectar calibración LATAM/MX sin tocar el catálogo base.
  */
 function inferSingleDisease(
   disease: Disease,
   observations: FindingObservation[],
   lrs: LikelihoodRatio[],
+  priorOverride?: number,
 ): InferenceResult {
   const diseaseLrs = lrs.filter((lr) => lr.disease === disease.id);
   const evidence: InferenceResult["evidence"] = [];
 
-  let logOdds = priorLogOdds(disease.prior);
+  const effectivePrior =
+    priorOverride !== undefined ? priorOverride : disease.prior;
+  let logOdds = priorLogOdds(effectivePrior);
 
   for (const obs of observations) {
     if (obs.present === null) continue;
@@ -94,16 +100,33 @@ function inferSingleDisease(
   };
 }
 
+export interface InferenceOptions {
+  /**
+   * Override de priors por enfermedad — vector parcial o completo.
+   * Si una enfermedad no aparece en el record, usa su prior del catálogo.
+   * Útil para inyectar la capa LATAM/MX desde priors-mx.ts.
+   */
+  priorsOverride?: Record<string, number>;
+}
+
 /**
  * Inferencia sobre todas las enfermedades candidatas con normalización
  * multinomial. Devuelve el ranking ordenado por probabilidad posterior.
+ *
+ * Pasar `options.priorsOverride` ajusta el motor a una población distinta
+ * a la cohorte de calibración del catálogo (típicamente, prevalencias MX
+ * vs cohortes internacionales).
  */
 export function inferDifferential(
   observations: FindingObservation[],
   diseases: Disease[] = DISEASES,
   lrs: LikelihoodRatio[] = LIKELIHOOD_RATIOS,
+  options: InferenceOptions = {},
 ): InferenceResult[] {
-  const raw = diseases.map((d) => inferSingleDisease(d, observations, lrs));
+  const priors = options.priorsOverride;
+  const raw = diseases.map((d) =>
+    inferSingleDisease(d, observations, lrs, priors?.[d.id]),
+  );
 
   // Normalize so posteriors sum to 1 — convert each from independent-prob
   // to relative-share across the candidate set.

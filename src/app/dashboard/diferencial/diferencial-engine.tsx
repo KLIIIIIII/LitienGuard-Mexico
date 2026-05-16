@@ -25,6 +25,7 @@ import {
   type SaveDiferencialInput,
   type DiferencialHibrido,
 } from "./actions";
+import { MX_NATIONAL_PRIORS } from "@/lib/inference/priors-mx";
 import {
   inferDifferential,
   suggestFindingsToConfirm,
@@ -144,7 +145,9 @@ export function DiferencialEngine({
 
   const liveInference = useMemo(() => {
     if (!result || result.status !== "ok") return null;
-    return inferDifferential(liveObservations, DISEASES, LIKELIHOOD_RATIOS);
+    return inferDifferential(liveObservations, DISEASES, LIKELIHOOD_RATIOS, {
+      priorsOverride: MX_NATIONAL_PRIORS,
+    });
   }, [result, liveObservations]);
 
   const livePosteriorPropuesto = useMemo(() => {

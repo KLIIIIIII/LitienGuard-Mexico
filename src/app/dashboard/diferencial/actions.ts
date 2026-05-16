@@ -22,6 +22,7 @@ import {
   type LlmHypothesisEval,
 } from "@/lib/inference/llm-differential";
 import { DISEASES, LIKELIHOOD_RATIOS } from "@/lib/inference/knowledge-base";
+import { MX_NATIONAL_PRIORS } from "@/lib/inference/priors-mx";
 import {
   generateResponseWatermark,
   recordQueryAudit,
@@ -348,11 +349,13 @@ export async function procesarCasoCompleto(input: {
       present: e.present,
     }));
 
-    // Inferencia bayesiana sobre todas las enfermedades del catálogo
+    // Inferencia bayesiana sobre todas las enfermedades del catálogo,
+    // con calibración a prevalencias mexicanas (D5).
     const inferenceResults = inferDifferential(
       observations,
       DISEASES,
       LIKELIHOOD_RATIOS,
+      { priorsOverride: MX_NATIONAL_PRIORS },
     );
 
     // Posterior del Dx propuesto (si está en el catálogo con confianza decente)
