@@ -10,6 +10,7 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
+  TrendingUp,
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { decryptField } from "@/lib/encryption";
@@ -368,6 +369,30 @@ export default async function DashboardPage() {
               </Link>
             </div>
           )}
+
+          <Link
+            href="/dashboard/mi-impacto"
+            className="lg-card group transition-all hover:border-validation hover:shadow-lift"
+          >
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg bg-validation-soft p-2 text-validation">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+              <div>
+                <Eyebrow tone="validation">Mi impacto</Eyebrow>
+                <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+                  Tu contribución al cerebro
+                </h2>
+              </div>
+            </div>
+            <p className="mt-3 text-body-sm text-ink-muted">
+              Mira cuántos casos tuyos calibran el motor LATAM. Activa el
+              consentimiento agregado para Fase 3 (modelo Tempus-LATAM).
+            </p>
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
+              Nuevo →
+            </span>
+          </Link>
 
           {profile?.role === "admin" && (
             <Link
