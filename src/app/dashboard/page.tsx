@@ -371,6 +371,31 @@ export default async function DashboardPage() {
           )}
 
           <Link
+            href="/dashboard/importar-papel"
+            className="lg-card group transition-all hover:border-validation hover:shadow-lift"
+          >
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg bg-validation-soft p-2 text-validation">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <Eyebrow tone="validation">Importar desde papel</Eyebrow>
+                <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+                  Foto a tu agenda o receta
+                </h2>
+              </div>
+            </div>
+            <p className="mt-3 text-body-sm text-ink-muted">
+              Sube fotos de agendas físicas, recetas, fichas de paciente o
+              notas SOAP. El cerebro extrae la información estructurada en
+              segundos — sin teclear caso por caso.
+            </p>
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
+              Nuevo →
+            </span>
+          </Link>
+
+          <Link
             href="/dashboard/mi-impacto"
             className="lg-card group transition-all hover:border-validation hover:shadow-lift"
           >

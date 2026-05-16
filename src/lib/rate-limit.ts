@@ -18,6 +18,10 @@ const DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
   // ~5-15 queries/hr en jornada activa. Scraper: arriba de 50.
   diferencial: { action: "diferencial", windowSec: 3600, max: 50 },
   cerebro_search: { action: "cerebro_search", windowSec: 3600, max: 150 },
+  // Importación de imágenes (papel → digital). Médico real con consultorio
+  // analógico: ~10-30 fotos al onboarding inicial + ráfagas pequeñas.
+  // Scraper o abuse: cientos.
+  import_image: { action: "import_image", windowSec: 3600, max: 60 },
 };
 
 const LOCKOUT_THRESHOLD = 3; // burning through limit N times → IP lockout
