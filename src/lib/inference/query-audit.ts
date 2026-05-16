@@ -16,7 +16,10 @@
 import { createHash, randomBytes } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
-export type AuditAction = "diferencial.procesar" | "cerebro.buscar";
+export type AuditAction =
+  | "diferencial.procesar"
+  | "cerebro.buscar"
+  | "cerebro.analizar_nota";
 
 export interface AuditQueryArgs {
   userId: string;

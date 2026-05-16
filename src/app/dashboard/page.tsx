@@ -310,10 +310,7 @@ export default async function DashboardPage() {
           </Link>
 
           {cerebroUnlocked ? (
-            <Link
-              href="/dashboard/cerebro"
-              className="lg-card group transition-all hover:border-accent hover:shadow-lift"
-            >
+            <div className="lg-card group">
               <div className="flex items-start gap-3">
                 <div className="rounded-lg bg-accent-soft p-2 text-accent">
                   <BookOpen className="h-5 w-5" />
@@ -326,13 +323,26 @@ export default async function DashboardPage() {
                 </div>
               </div>
               <p className="mt-3 text-body-sm text-ink-muted">
-                Consulta el cerebro curado en español con citas verbatim de
-                guías oficiales (IMSS, NOM-004, NICE, GINA, Surviving Sepsis).
+                Consulta el cerebro curado en español con citas verbatim a guías
+                clínicas oficiales mexicanas y literatura peer-reviewed.
               </p>
-              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-caption text-accent">
-                Disponible · Plan {TIER_LABELS[tier]}
-              </span>
-            </Link>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href="/dashboard/cerebro"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-caption font-semibold text-ink-strong hover:bg-surface-alt"
+                >
+                  <BookOpen className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  Buscar en guías
+                </Link>
+                <Link
+                  href="/dashboard/cerebro/analizar"
+                  className="inline-flex items-center gap-1.5 rounded-lg border-2 border-validation bg-validation-soft px-3 py-1.5 text-caption font-semibold text-validation hover:bg-validation hover:text-canvas transition-colors"
+                >
+                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2.4} />
+                  Pegar nota de otro EHR
+                </Link>
+              </div>
+            </div>
           ) : (
             <div className="lg-card opacity-80">
               <div className="flex items-start gap-3">

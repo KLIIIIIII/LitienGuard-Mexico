@@ -180,7 +180,13 @@ export function ComplianceStrip() {
                   Particulares y los lineamientos de la Reforma General de
                   Salud Digital 2026. Certificación formal por la Secretaría
                   de Salud y aval COFEPRIS en proceso conforme avanzamos en el
-                  piloto clínico.
+                  piloto clínico.{" "}
+                  <a
+                    href="/reforma-2026"
+                    className="font-semibold text-validation underline underline-offset-2 hover:text-validation/80"
+                  >
+                    Ver detalle Reforma LGS 2026 →
+                  </a>
                 </p>
               </div>
             </motion.div>

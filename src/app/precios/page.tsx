@@ -10,7 +10,7 @@ import { CheckoutButton } from "./checkout-button";
 export const metadata: Metadata = {
   title: "Planes y precios — LitienGuard",
   description:
-    "Cuatro planes diseñados para distintos perfiles: explorador, médico individual, especialista activo, clínica multi-médico. Cancela cuando quieras.",
+    "Capa de inteligencia clínica que complementa tu EHR — desde el plan gratuito Explorador hasta multi-médico. Sin contratos largos.",
 };
 
 export const dynamic = "force-dynamic";
@@ -128,14 +128,14 @@ export default async function PreciosPage({
         eyebrow="Planes y precios"
         title={
           <>
-            Elige el plan que{" "}
+            La inteligencia clínica que{" "}
             <span className="lg-serif-italic text-validation">
-              acompañe tu práctica
-            </span>
-            .
+              complementa
+            </span>{" "}
+            tu sistema actual.
           </>
         }
-        description="Cuatro niveles diseñados para distintos perfiles. Empieza gratis, escala cuando lo necesites. Sin contratos largos: cancela cuando quieras."
+        description="LitienGuard convive con tu EHR — no lo reemplaza. Por eso nuestro pricing está pensado como complemento: agrega diferencial diagnóstico, red flags y loop de calidad sin pedirte migrar. Empieza gratis, escala cuando lo necesites."
         variant="alt"
       />
 
@@ -202,11 +202,11 @@ export default async function PreciosPage({
             {/* Esencial */}
             <TierCard
               name="Esencial"
-              eyebrow="Médico individual"
+              eyebrow="Complemento del EHR"
               price={priceLabel("esencial", cycle)}
               cycle={cycle === "anual" ? "MXN / mes · pagado anual" : "MXN / mes"}
               annualNote={cycle === "anual" ? annualSavings("esencial") : null}
-              description="Para médico general o dentista con consulta activa que quiere notas + cerebro curado."
+              description="Para el médico que ya usa Nimbo, SaludTotal o cualquier EHR — agrega cerebro clínico curado, recetas NOM-024 y agenda integrada sin migrar nada."
               features={FEATURES_BY_TIER.esencial}
               cta={
                 <CheckoutButton
@@ -225,7 +225,7 @@ export default async function PreciosPage({
               price={priceLabel("profesional", cycle)}
               cycle={cycle === "anual" ? "MXN / mes · pagado anual" : "MXN / mes"}
               annualNote={cycle === "anual" ? annualSavings("profesional") : null}
-              description="Especialista activo que necesita recetas, agenda con reservación pública y portal del paciente."
+              description="Especialista que quiere todo el motor — diferencial diagnóstico, scribe local con procesamiento en consultorio, red flags por síntoma y calibración personal."
               features={FEATURES_BY_TIER.profesional}
               highlight
               cta={

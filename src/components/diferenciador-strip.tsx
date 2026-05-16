@@ -3,23 +3,23 @@ import { Brain, Quote, Users, Workflow } from "lucide-react";
 const DIFFERENCES = [
   {
     icon: Brain,
-    title: "Un cerebro clínico curado por médicos",
-    desc: "No es una IA genérica. Cada recomendación viene con su guía clínica oficial, su fuerza de evidencia y su cita textual. Sin inventar nada.",
-  },
-  {
-    icon: Users,
-    title: "Aprende de tu práctica y de la colectiva",
-    desc: "El sistema observa los patrones de tus propias decisiones y los contrasta con la evidencia académica + lo que otros médicos hacen en la red. Te ajustas más rápido.",
-  },
-  {
-    icon: Workflow,
-    title: "Healthcare Operating System completo",
-    desc: "Va mucho más allá del expediente. Cerebro clínico, ciclo de ingresos hospitalario, navegación del paciente y cumplimiento de la Reforma 2026, todo en una sola plataforma que sí se habla entre sí.",
+    title: "Capa de inteligencia, no reemplazo",
+    desc: "LitienGuard convive con tu Nimbo, SaludTotal o el sistema que ya uses. Agregamos diferencial diagnóstico y red flags — no te pedimos migrar todo.",
   },
   {
     icon: Quote,
-    title: "Sin enviar PII a un LLM externo",
-    desc: "Lo que se procesa con modelos de lenguaje está anonimizado por arquitectura. Tu información clínica no entrena modelos de terceros, ni vive en su nube indefinidamente.",
+    title: "Cita verbatim a guía mexicana",
+    desc: "Cada recomendación viene con su guía clínica oficial, fuerza de evidencia y cita textual con número de página del documento fuente. Sin inventar nada.",
+  },
+  {
+    icon: Users,
+    title: "Aprende de tu propia práctica",
+    desc: "Outcomes, override patterns y patrones detectados desde TUS pacientes — no de cohortes US. Tu calibración personal por enfermedad.",
+  },
+  {
+    icon: Workflow,
+    title: "Compatible Reforma LGS 2026",
+    desc: "SINBA, credencial paciente, interop, NOM-024 y LFPDPPP integrados desde el día uno. Cuando llegue la obligación regulatoria, ya estás listo.",
   },
 ];
 

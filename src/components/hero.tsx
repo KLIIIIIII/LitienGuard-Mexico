@@ -25,16 +25,16 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 const STATS = [
   {
-    number: "4-6 hrs/día",
+    number: "Sobre tu EHR",
     label:
-      "Lo que un médico mexicano dedica a documentar. LitienGuard Scribe estructura la nota SOAP firmable en segundos.",
-    sub: "Investigación pública del sector salud MX",
+      "Convive con tu sistema actual de expediente. No reemplazamos — agregamos diferencial diagnóstico y red flags clínicos.",
+    sub: "Capa de inteligencia",
   },
   {
-    number: "Años",
+    number: "Cita verbatim",
     label:
-      "De latencia en diagnósticos clínicos complejos hoy. El diferencial los sugiere en la primera consulta — con cita verbatim.",
-    sub: "Literatura clínica peer-reviewed",
+      "Cada recomendación viene anclada a su guía clínica oficial con el número de página del documento fuente.",
+    sub: "Cero alucinación",
   },
   {
     number: "Mandato 2026",
@@ -72,10 +72,10 @@ export function Hero() {
               fontSize: "clamp(2.625rem, 6.2vw, 4.5rem)",
             }}
           >
-            Te regresamos cuatro horas
+            No reemplazamos tu expediente.
             <br />
             <span className="lg-serif-italic font-normal text-validation">
-              al día.
+              Le damos un cerebro.
             </span>
           </motion.h1>
 
@@ -85,9 +85,10 @@ export function Hero() {
             transition={{ duration: 0.5, ease: EASE, delay: 0.16 }}
             className="mx-auto mt-[34px] max-w-[52ch] text-[1.0625rem] leading-[1.6] text-ink-muted sm:text-[1.3125rem] sm:leading-[1.55]"
           >
-            El scribe que escucha tu consulta, escribe la nota SOAP firmable y
-            deja el expediente listo. Con cerebro clínico citado y diferencial
-            diagnóstico — compatible con la Reforma LGS 2026.
+            LitienGuard es la capa de inteligencia clínica que vive encima de
+            tu sistema actual. Diferencial diagnóstico, red flags por síntoma
+            y loop de calidad personal — con cita verbatim a guía mexicana.
+            Compatible con la Reforma LGS 2026 desde el día uno.
           </motion.p>
         </div>
 

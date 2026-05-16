@@ -12,25 +12,25 @@ import { DiferenciadorStrip } from "@/components/diferenciador-strip";
 export const metadata: Metadata = {
   title: "Para médicos",
   description:
-    "Cerebro clínico curado, scribe ambient SOAP y loop de calidad sobre tus decisiones. Evidencia citada verbatim.",
+    "Capa de inteligencia clínica encima del EHR que ya usas. Diferencial diagnóstico, red flags y loop de calidad personal — con cita verbatim a guía mexicana.",
 };
 
 const FEATURES = [
   {
-    title: "Cerebro clínico curado en español",
-    desc: "Miles de fragmentos clínicos indexados desde guías oficiales mexicanas, literatura internacional peer-reviewed y tesis universitarias. Búsqueda en segundos.",
+    title: "Convive con tu sistema actual",
+    desc: "No necesitas migrar de Nimbo, SaludTotal o el EHR que ya uses. LitienGuard vive encima — pegas tu nota SOAP y el cerebro responde con diferencial, red flags y referencias.",
   },
   {
-    title: "AI Scribe ambient con procesamiento local",
-    desc: "Graba la consulta y obtén la nota SOAP estructurada en español MX en 13 segundos. El audio se procesa localmente — nunca sale del consultorio.",
+    title: "Diferencial diagnóstico con cita verbatim",
+    desc: "Motor que confronta tu hipótesis y te muestra qué otras enfermedades podrían explicar lo mismo. Cada sugerencia con guía oficial, página y referencia bibliográfica.",
   },
   {
-    title: "Loop de calidad sobre tus consultas",
-    desc: "Registra outcome (siguió / no siguió / modificado). Métricas de tu propia práctica, no benchmarks de Estados Unidos.",
+    title: "Red flags por síntoma",
+    desc: "Mientras documentas, el sistema escanea por banderas rojas conocidas (cefalea trueno, sangrado postmenopáusico, SCAD en mujer joven) y te las muestra al margen.",
   },
   {
-    title: "Cita verbatim, siempre",
-    desc: "Cada recomendación lleva GPC, página, fuerza de evidencia y referencia bibliográfica original. Cero alucinación.",
+    title: "Loop de calidad personal",
+    desc: "Outcomes, PPV personal por enfermedad y patrones detectados desde TU práctica. Tu calibración real, no benchmarks importados de Estados Unidos.",
   },
 ];
 
@@ -38,15 +38,17 @@ export default function MedicosPage() {
   return (
     <>
       <PageHero
-        eyebrow="Capa A · Médicos"
+        eyebrow="Para médicos"
         title={
           <>
-            Tu segundo cerebro,{" "}
-            <span className="lg-serif-italic text-validation">curado</span> en
-            español.
+            La capa de{" "}
+            <span className="lg-serif-italic text-validation">
+              inteligencia clínica
+            </span>{" "}
+            encima del expediente que ya usas.
           </>
         }
-        description="Decisiones clínicas con evidencia citada, scribe ambient que libera 4-6 horas al día y loop de calidad sobre tus propias consultas. Sin enviar PII a un LLM externo."
+        description="LitienGuard no reemplaza tu EHR — lo complementa. Diferencial diagnóstico, red flags por síntoma y loop de calidad personal sobre tus consultas. Con cita verbatim a guía mexicana y sin enviar PII a un LLM externo."
         variant="alt"
       />
 

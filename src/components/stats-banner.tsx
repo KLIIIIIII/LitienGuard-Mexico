@@ -77,13 +77,13 @@ export function StatsBanner() {
     <section className="border-b border-line bg-surface-alt">
       <div className="lg-shell py-16">
         <div className="mb-10">
-          <Eyebrow>Lo que mueve la aguja</Eyebrow>
+          <Eyebrow>Lo que aporta LitienGuard</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            La documentación es el pain #1 del médico mexicano. Lo medimos.
+            Tu EHR guarda notas. Nuestro cerebro te dice qué no se te está pasando.
           </h2>
           <p className="mt-3 max-w-prose text-body text-ink-muted">
-            Datos: investigación pública del sector salud MX, tarifa promedio
-            consulta privada en CDMX/MTY/GDL.
+            LitienGuard vive encima del expediente que ya usas y agrega la
+            capa de razonamiento clínico que ningún EHR mexicano construyó.
           </p>
         </div>
 
