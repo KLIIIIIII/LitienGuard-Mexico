@@ -264,6 +264,67 @@ export const DISEASES: Disease[] = [
     prior: 0.025,
   },
 
+  // ---- Gineco-Oncología B4 — mama, cervix, ovario, endometrio ----
+  // 4 neoplasias ginecológicas más frecuentes en mujer mexicana. Cáncer
+  // de mama es 1ª causa de muerte oncológica femenina en MX; cervix 2ª.
+  // Ovario tiene peor pronóstico por diagnóstico tardío; endometrio
+  // típicamente debuta con sangrado postmenopáusico.
+  {
+    id: "breast-cancer",
+    label: "Cáncer de mama",
+    prior: 0.025,
+  },
+  {
+    id: "cervical-cancer",
+    label: "Cáncer cervicouterino",
+    prior: 0.018,
+  },
+  {
+    id: "ovarian-cancer",
+    label: "Cáncer de ovario",
+    prior: 0.012,
+  },
+  {
+    id: "endometrial-cancer",
+    label: "Cáncer de endometrio",
+    prior: 0.015,
+  },
+
+  // ---- Neuro extendido B3 — EVC hemorrágico, epilepsia, cefalea, demencia ----
+  // 6 dx neurológicos de alta prevalencia/impacto en MX: HIP por HAS sin
+  // control, epilepsia (1.5% adultos), cefaleas primarias (>50% adultos),
+  // demencias (Alzheimer + vascular cobertando epidemiología MX).
+  {
+    id: "hemorrhagic-stroke",
+    label: "Hemorragia intraparenquimatosa cerebral (HIP)",
+    prior: 0.02,
+  },
+  {
+    id: "epilepsy",
+    label: "Epilepsia (crisis recurrentes no provocadas)",
+    prior: 0.025,
+  },
+  {
+    id: "tension-headache",
+    label: "Cefalea tensional",
+    prior: 0.08,
+  },
+  {
+    id: "migraine-without-aura",
+    label: "Migraña sin aura",
+    prior: 0.06,
+  },
+  {
+    id: "alzheimer-dementia",
+    label: "Demencia tipo Alzheimer",
+    prior: 0.03,
+  },
+  {
+    id: "vascular-dementia",
+    label: "Demencia vascular",
+    prior: 0.018,
+  },
+
   // ---- Infecto (5) ----
   {
     id: "sepsis",
@@ -852,6 +913,218 @@ export const FINDINGS: Finding[] = [
     label: "Aliento cetónico (afrutado)",
     category: "exam",
     detail: "Halitosis a manzana / cetonas — sospecha DKA",
+  },
+
+  // ---------------- Neuro (extensión B3) ----------------
+  // Findings para discriminar HIP / epilepsia / cefalea tensional /
+  // migraña sin aura / Alzheimer / demencia vascular.
+  {
+    id: "lab-tc-intraparenchymal-blood",
+    label: "TC con sangre intraparenquimatosa",
+    category: "lab",
+    detail: "Hemorragia parenquimal aguda en TC sin contraste",
+  },
+  {
+    id: "history-htn-acute-severe",
+    label: "TAS > 180 mmHg al ingreso",
+    category: "history",
+    detail: "Hipertensión severa aguda — factor en HIP",
+  },
+  {
+    id: "history-anticoagulation",
+    label: "Paciente anticoagulado",
+    category: "history",
+    detail: "Warfarina, DOAC o heparina activos al evento",
+  },
+  {
+    id: "history-progressive-deficit-minutes",
+    label: "Deterioro neurológico progresivo en minutos-horas",
+    category: "history",
+    detail: "Evolución no abrupta — patrón HIP vs isquémico súbito",
+  },
+  {
+    id: "history-seizure-tonic-clonic",
+    label: "Crisis tónico-clónica generalizada",
+    category: "history",
+    detail: "Pérdida de conciencia con movimientos tónico-clónicos bilaterales",
+  },
+  {
+    id: "history-seizure-focal",
+    label: "Crisis focal (con o sin alteración de conciencia)",
+    category: "history",
+    detail: "Aura, automatismos o déficit focal episódico recurrente",
+  },
+  {
+    id: "lab-eeg-epileptiform",
+    label: "EEG con actividad epileptiforme",
+    category: "lab",
+    detail: "Puntas, ondas agudas o complejos punta-onda en EEG interictal",
+  },
+  {
+    id: "history-headache-bilateral-band",
+    label: "Cefalea bilateral en banda u opresiva",
+    category: "history",
+    detail: "Cefalea opresiva no pulsátil — patrón tensional ICHD-3",
+  },
+  {
+    id: "history-headache-otc-relief",
+    label: "Cefalea aliviada con analgésicos OTC",
+    category: "history",
+    detail: "Paracetamol o AINE típicamente eficaces",
+  },
+  {
+    id: "history-headache-unilateral-pulsatile",
+    label: "Cefalea unilateral pulsátil",
+    category: "history",
+    detail: "Hemicránea pulsátil — patrón migrañoso ICHD-3",
+  },
+  {
+    id: "history-headache-nausea-photo",
+    label: "Cefalea con náusea + foto/fonofobia",
+    category: "history",
+    detail: "Síntomas asociados acompañando cefalea",
+  },
+  {
+    id: "history-headache-recurrent-5plus",
+    label: "≥ 5 episodios previos de cefalea similar",
+    category: "history",
+    detail: "Recurrencia documentada — criterio ICHD-3 cefalea primaria",
+  },
+  {
+    id: "exam-mmse-low",
+    label: "MMSE o MoCA bajo para edad/escolaridad",
+    category: "exam",
+    detail: "Deterioro cognitivo objetivado por test breve",
+  },
+  {
+    id: "lab-mri-hippocampal-atrophy",
+    label: "Atrofia hipocampal bilateral en RM",
+    category: "lab",
+    detail: "Reducción de volumen hipocampal en RM (visual o volumétrica)",
+  },
+  {
+    id: "lab-mri-white-matter-lesions",
+    label: "Lesiones isquémicas multifocales (Fazekas ≥ 2)",
+    category: "lab",
+    detail: "Hiperintensidades de sustancia blanca difusas en T2/FLAIR",
+  },
+  {
+    id: "history-cognitive-decline-gradual",
+    label: "Deterioro cognitivo gradual > 6 meses",
+    category: "history",
+    detail: "Curso progresivo insidioso reportado por familiar",
+  },
+  {
+    id: "history-cognitive-decline-stepwise",
+    label: "Deterioro cognitivo escalonado",
+    category: "history",
+    detail: "Empeoramiento abrupto en escalones con mesetas",
+  },
+  {
+    id: "exam-apraxia-agnosia",
+    label: "Apraxia y/o agnosia",
+    category: "exam",
+    detail: "Pérdida de praxias aprendidas o reconocimiento",
+  },
+  {
+    id: "history-age-over-65",
+    label: "Edad > 65 años",
+    category: "history",
+    detail: "Factor demográfico relevante para enfermedades neurodegenerativas",
+  },
+
+  // ---------------- Gineco-Oncología (extensión B4) ----------------
+  // Findings para discriminar cáncer mama / cervix / ovario / endometrio
+  // — diagnóstico, factores de riesgo y biomarcadores.
+  {
+    id: "exam-breast-mass-palpable",
+    label: "Masa mamaria palpable sospechosa",
+    category: "exam",
+    detail: "Nódulo duro, irregular, fijo o mayor a 1 cm en autoexploración o exploración clínica",
+  },
+  {
+    id: "lab-mammo-birads-4-5",
+    label: "Mastografía BIRADS 4 o 5",
+    category: "lab",
+    detail: "Microcalcificaciones agrupadas o masa con bordes espiculados — riesgo intermedio-alto",
+  },
+  {
+    id: "history-brca-mutation",
+    label: "Mutación BRCA1/2 conocida",
+    category: "history",
+    detail: "Variante patogénica documentada en BRCA1 o BRCA2",
+  },
+  {
+    id: "history-family-breast-ovarian",
+    label: "Historia familiar 1º grado mama u ovario",
+    category: "history",
+    detail: "Madre, hermana o hija con cáncer de mama u ovario",
+  },
+  {
+    id: "lab-biopsy-malignant",
+    label: "Biopsia / histología con malignidad confirmada",
+    category: "lab",
+    detail: "Tejido con invasión maligna confirmada por patología",
+  },
+  {
+    id: "history-postmenopausal-bleeding",
+    label: "Sangrado vaginal postmenopáusico",
+    category: "history",
+    detail: "Cualquier sangrado vaginal > 12 meses tras menopausia",
+  },
+  {
+    id: "lab-endometrial-thickening",
+    label: "Engrosamiento endometrial > 5 mm en US",
+    category: "lab",
+    detail: "Grosor endometrial > 4-5 mm en mujer postmenopáusica por ultrasonido",
+  },
+  {
+    id: "lab-hpv-16-18-positive",
+    label: "VPH 16 o 18 positivo",
+    category: "lab",
+    detail: "Genotipificación con VPH de alto riesgo 16 o 18 detectado",
+  },
+  {
+    id: "lab-cytology-hsil-asch",
+    label: "Citología cervical HSIL / ASC-H / AGC",
+    category: "lab",
+    detail: "Lesión escamosa de alto grado, atipia ASC-H o células glandulares atípicas",
+  },
+  {
+    id: "lab-ca125-elevated",
+    label: "CA-125 elevado > 35 U/mL",
+    category: "lab",
+    detail: "Marcador tumoral sérico elevado",
+  },
+  {
+    id: "exam-abdominal-mass-pelvic",
+    label: "Masa pélvica palpable o ascitis",
+    category: "exam",
+    detail: "Masa anexial o aumento de volumen abdominal con matidez cambiante",
+  },
+  {
+    id: "history-tamoxifen-use",
+    label: "Tratamiento con tamoxifeno > 2 años",
+    category: "history",
+    detail: "Uso prolongado de tamoxifeno — factor riesgo endometrial",
+  },
+  {
+    id: "history-obesity-postmenop",
+    label: "Obesidad postmenopáusica",
+    category: "history",
+    detail: "IMC > 30 en mujer postmenopáusica — factor riesgo endometrial",
+  },
+  {
+    id: "history-nulliparity",
+    label: "Nuliparidad",
+    category: "history",
+    detail: "Sin embarazos previos — factor riesgo de cáncer ovario y endometrio",
+  },
+  {
+    id: "history-late-menopause",
+    label: "Menopausia tardía (> 55 años)",
+    category: "history",
+    detail: "Exposición prolongada a estrógeno endógeno",
   },
 ];
 
@@ -2622,6 +2895,457 @@ const _RAW_LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
     lrMinus: 0.42,
     source: "DCCT/EDIC · HbA1c crónica alta → RD",
     confidence: "high",
+  },
+
+  // =============================================================
+  // Extensión B3 — Neuro (HIP / epilepsia / cefaleas / demencias).
+  // Curado contra AHA HIP 2022, AHA Acute Ischemic Stroke 2024,
+  // AHA aSAH 2023, ILAE 2017, ICHD-3 (2018), NIA-AA 2018 Research
+  // Framework, AAN Dementia 2022, VICCCS 2018.
+  // =============================================================
+
+  // ===== Hemorragia intraparenquimatosa (HIP) =====
+  {
+    finding: "lab-tc-intraparenchymal-blood",
+    disease: "hemorrhagic-stroke",
+    lrPlus: 48,
+    lrMinus: 0.05,
+    source: "AHA HIP Guidelines 2022 · Greenberg · TC criterio confirmatorio",
+    confidence: "high",
+  },
+  {
+    finding: "history-htn-acute-severe",
+    disease: "hemorrhagic-stroke",
+    lrPlus: 5.4,
+    lrMinus: 0.5,
+    source: "AHA HIP 2022 · HAS aguda en 60-70% de HIP",
+    confidence: "high",
+  },
+  {
+    finding: "history-anticoagulation",
+    disease: "hemorrhagic-stroke",
+    lrPlus: 3.2,
+    lrMinus: 0.85,
+    source: "AHA HIP 2022 · anticoagulación factor causal frecuente",
+    confidence: "high",
+  },
+  {
+    finding: "history-progressive-deficit-minutes",
+    disease: "hemorrhagic-stroke",
+    lrPlus: 4.6,
+    lrMinus: 0.5,
+    source: "AHA HIP 2022 · curso progresivo vs isquémico abrupto",
+    confidence: "medium",
+  },
+  {
+    finding: "exam-focal-deficit-acute",
+    disease: "hemorrhagic-stroke",
+    lrPlus: 3.5,
+    lrMinus: 0.42,
+    source: "AHA HIP 2022 · déficit focal en 95% de HIP",
+    confidence: "high",
+  },
+  {
+    finding: "lab-tc-intraparenchymal-blood",
+    disease: "ischemic-stroke-acute",
+    lrPlus: 0.05,
+    lrMinus: 1.18,
+    source: "AHA AIS 2024 · TC con sangre excluye isquémico agudo",
+    confidence: "high",
+  },
+
+  // ===== Epilepsia =====
+  {
+    finding: "history-seizure-tonic-clonic",
+    disease: "epilepsy",
+    lrPlus: 8.5,
+    lrMinus: 0.32,
+    source: "ILAE 2017 Operational Classification · Fisher",
+    confidence: "high",
+  },
+  {
+    finding: "history-seizure-focal",
+    disease: "epilepsy",
+    lrPlus: 6.4,
+    lrMinus: 0.38,
+    source: "ILAE 2017 · crisis focales con o sin pérdida conciencia",
+    confidence: "high",
+  },
+  {
+    finding: "lab-eeg-epileptiform",
+    disease: "epilepsy",
+    lrPlus: 18,
+    lrMinus: 0.42,
+    source: "ILAE 2017 · EEG con actividad epileptiforme criterio apoyo",
+    confidence: "high",
+  },
+
+  // ===== Cefalea tensional =====
+  {
+    finding: "history-headache-bilateral-band",
+    disease: "tension-headache",
+    lrPlus: 6.4,
+    lrMinus: 0.28,
+    source: "ICHD-3 (2018) · criterio diagnóstico cefalea tensional",
+    confidence: "high",
+  },
+  {
+    finding: "history-headache-otc-relief",
+    disease: "tension-headache",
+    lrPlus: 3.6,
+    lrMinus: 0.52,
+    source: "ICHD-3 (2018) · respuesta a paracetamol/AINE típica",
+    confidence: "medium",
+  },
+  {
+    finding: "history-headache-nausea-photo",
+    disease: "tension-headache",
+    lrPlus: 0.3,
+    lrMinus: 1.4,
+    source: "ICHD-3 (2018) · ausencia de náusea apoya tensional vs migraña",
+    confidence: "high",
+  },
+  {
+    finding: "history-headache-unilateral-pulsatile",
+    disease: "tension-headache",
+    lrPlus: 0.25,
+    lrMinus: 1.4,
+    source: "ICHD-3 (2018) · características migrañosas excluyen tensional",
+    confidence: "high",
+  },
+
+  // ===== Migraña sin aura =====
+  {
+    finding: "history-headache-unilateral-pulsatile",
+    disease: "migraine-without-aura",
+    lrPlus: 8.2,
+    lrMinus: 0.22,
+    source: "ICHD-3 (2018) · criterio C migraña sin aura",
+    confidence: "high",
+  },
+  {
+    finding: "history-headache-nausea-photo",
+    disease: "migraine-without-aura",
+    lrPlus: 8.6,
+    lrMinus: 0.2,
+    source: "ICHD-3 (2018) · criterio D migraña sin aura",
+    confidence: "high",
+  },
+  {
+    finding: "history-headache-recurrent-5plus",
+    disease: "migraine-without-aura",
+    lrPlus: 6.4,
+    lrMinus: 0.18,
+    source: "ICHD-3 (2018) · criterio A recurrencia ≥ 5 episodios",
+    confidence: "high",
+  },
+  {
+    finding: "history-headache-bilateral-band",
+    disease: "migraine-without-aura",
+    lrPlus: 0.35,
+    lrMinus: 1.32,
+    source: "ICHD-3 (2018) · bilateralidad típica de tensional, no migraña",
+    confidence: "high",
+  },
+
+  // ===== Demencia tipo Alzheimer =====
+  {
+    finding: "exam-mmse-low",
+    disease: "alzheimer-dementia",
+    lrPlus: 6.2,
+    lrMinus: 0.28,
+    source: "NIA-AA 2018 Research Framework · Jack · MMSE/MoCA",
+    confidence: "high",
+  },
+  {
+    finding: "lab-mri-hippocampal-atrophy",
+    disease: "alzheimer-dementia",
+    lrPlus: 12,
+    lrMinus: 0.35,
+    source: "NIA-AA 2018 · biomarcador neurodegeneración (N+)",
+    confidence: "high",
+  },
+  {
+    finding: "history-cognitive-decline-gradual",
+    disease: "alzheimer-dementia",
+    lrPlus: 4.8,
+    lrMinus: 0.32,
+    source: "AAN Dementia 2022 · curso insidioso característico",
+    confidence: "high",
+  },
+  {
+    finding: "exam-apraxia-agnosia",
+    disease: "alzheimer-dementia",
+    lrPlus: 5.4,
+    lrMinus: 0.55,
+    source: "DSM-5-TR 2022 · síntomas corticales en Alzheimer",
+    confidence: "high",
+  },
+  {
+    finding: "history-age-over-65",
+    disease: "alzheimer-dementia",
+    lrPlus: 3.2,
+    lrMinus: 0.45,
+    source: "NIA-AA 2018 · edad principal factor de riesgo",
+    confidence: "high",
+  },
+  {
+    finding: "history-cognitive-decline-stepwise",
+    disease: "alzheimer-dementia",
+    lrPlus: 0.38,
+    lrMinus: 1.35,
+    source: "AAN Dementia 2022 · curso escalonado sugiere vascular",
+    confidence: "high",
+  },
+
+  // ===== Demencia vascular =====
+  {
+    finding: "history-cognitive-decline-stepwise",
+    disease: "vascular-dementia",
+    lrPlus: 6.5,
+    lrMinus: 0.35,
+    source: "VICCCS 2018 · curso escalonado en demencia vascular",
+    confidence: "high",
+  },
+  {
+    finding: "lab-mri-white-matter-lesions",
+    disease: "vascular-dementia",
+    lrPlus: 14,
+    lrMinus: 0.3,
+    source: "VICCCS 2018 · carga lesional sustancia blanca",
+    confidence: "high",
+  },
+  {
+    finding: "history-multiple-cv-risk",
+    disease: "vascular-dementia",
+    lrPlus: 4.2,
+    lrMinus: 0.42,
+    source: "VICCCS 2018 · perfil cardiometabólico subyacente",
+    confidence: "high",
+  },
+  {
+    finding: "history-prior-mi-cad",
+    disease: "vascular-dementia",
+    lrPlus: 3.4,
+    lrMinus: 0.62,
+    source: "VICCCS 2018 · enfermedad CV documentada como factor",
+    confidence: "high",
+  },
+  {
+    finding: "lab-mri-hippocampal-atrophy",
+    disease: "vascular-dementia",
+    lrPlus: 0.55,
+    lrMinus: 1.25,
+    source: "VICCCS 2018 · hipocampo relativamente preservado vs Alzheimer",
+    confidence: "medium",
+  },
+  {
+    finding: "exam-mmse-low",
+    disease: "vascular-dementia",
+    lrPlus: 5.6,
+    lrMinus: 0.3,
+    source: "VICCCS 2018 · deterioro cognitivo objetivable",
+    confidence: "high",
+  },
+
+  // =============================================================
+  // Extensión B4 — Gineco-Oncología (mama / cervix / ovario / endometrio).
+  // Curado contra NCCN 2024 (Breast, Cervical, Ovarian, Endometrial),
+  // ACR BI-RADS Atlas 2024, Bethesda System 2023, ASCCP 2024,
+  // WHO Classification Female Reproductive Organs 2020,
+  // ESGO/ESMO/ESP Guidelines 2024, GPC IMSS-232/146/333/468.
+  // =============================================================
+
+  // ===== Cáncer de mama =====
+  {
+    finding: "lab-biopsy-malignant",
+    disease: "breast-cancer",
+    lrPlus: 120,
+    lrMinus: 0.04,
+    source: "NCCN Breast Cancer 2024 · histología criterio confirmatorio",
+    confidence: "high",
+  },
+  {
+    finding: "lab-mammo-birads-4-5",
+    disease: "breast-cancer",
+    lrPlus: 22,
+    lrMinus: 0.18,
+    source: "ACR BI-RADS Atlas 2024 · VPP categoría 4 ~25-50%, categoría 5 > 95%",
+    confidence: "high",
+  },
+  {
+    finding: "exam-breast-mass-palpable",
+    disease: "breast-cancer",
+    lrPlus: 6.4,
+    lrMinus: 0.35,
+    source: "NCCN Breast Cancer 2024 · masa sospechosa exploración",
+    confidence: "high",
+  },
+  {
+    finding: "history-brca-mutation",
+    disease: "breast-cancer",
+    lrPlus: 8.2,
+    lrMinus: 0.92,
+    source: "NCCN Genetic/Familial 2024 · BRCA1/2 lifetime risk 55-72%",
+    confidence: "high",
+  },
+  {
+    finding: "history-family-breast-ovarian",
+    disease: "breast-cancer",
+    lrPlus: 2.6,
+    lrMinus: 0.78,
+    source: "NCCN Breast Cancer 2024 · 1º grado afectado factor riesgo",
+    confidence: "high",
+  },
+  {
+    finding: "history-nulliparity",
+    disease: "breast-cancer",
+    lrPlus: 1.5,
+    lrMinus: 0.88,
+    source: "WHO 2020 · nuliparidad factor riesgo modesto mama",
+    confidence: "medium",
+  },
+
+  // ===== Cáncer cervicouterino =====
+  {
+    finding: "lab-biopsy-malignant",
+    disease: "cervical-cancer",
+    lrPlus: 120,
+    lrMinus: 0.04,
+    source: "NCCN Cervical Cancer 2024 · histología cervical confirmatoria",
+    confidence: "high",
+  },
+  {
+    finding: "lab-hpv-16-18-positive",
+    disease: "cervical-cancer",
+    lrPlus: 22,
+    lrMinus: 0.22,
+    source: "ASCCP 2024 · VPH 16/18 responsable de 70% cánceres cervicales",
+    confidence: "high",
+  },
+  {
+    finding: "lab-cytology-hsil-asch",
+    disease: "cervical-cancer",
+    lrPlus: 18,
+    lrMinus: 0.28,
+    source: "Bethesda System 2023 · HSIL/ASC-H riesgo CIN3+ 30-70%",
+    confidence: "high",
+  },
+  {
+    finding: "history-postmenopausal-bleeding",
+    disease: "cervical-cancer",
+    lrPlus: 2.2,
+    lrMinus: 0.85,
+    source: "NCCN Cervical 2024 · sangrado postcoital o postmenop signo",
+    confidence: "medium",
+  },
+
+  // ===== Cáncer de ovario =====
+  {
+    finding: "lab-biopsy-malignant",
+    disease: "ovarian-cancer",
+    lrPlus: 120,
+    lrMinus: 0.04,
+    source: "NCCN Ovarian Cancer 2024 · histología ovario confirmatoria",
+    confidence: "high",
+  },
+  {
+    finding: "lab-ca125-elevated",
+    disease: "ovarian-cancer",
+    lrPlus: 8.4,
+    lrMinus: 0.42,
+    source: "NCCN Ovarian 2024 · CA-125 > 35 con masa pélvica VPP alto",
+    confidence: "high",
+  },
+  {
+    finding: "exam-abdominal-mass-pelvic",
+    disease: "ovarian-cancer",
+    lrPlus: 12.5,
+    lrMinus: 0.32,
+    source: "NCCN Ovarian 2024 · masa pélvica/ascitis hallazgo cardinal",
+    confidence: "high",
+  },
+  {
+    finding: "history-brca-mutation",
+    disease: "ovarian-cancer",
+    lrPlus: 9.6,
+    lrMinus: 0.88,
+    source: "NCCN Genetic/Familial 2024 · BRCA1 lifetime ovario 39-46%",
+    confidence: "high",
+  },
+  {
+    finding: "history-family-breast-ovarian",
+    disease: "ovarian-cancer",
+    lrPlus: 2.8,
+    lrMinus: 0.78,
+    source: "NCCN Ovarian 2024 · 1º grado factor riesgo",
+    confidence: "high",
+  },
+  {
+    finding: "history-nulliparity",
+    disease: "ovarian-cancer",
+    lrPlus: 2.4,
+    lrMinus: 0.72,
+    source: "WHO 2020 · nuliparidad factor riesgo significativo ovario",
+    confidence: "high",
+  },
+
+  // ===== Cáncer de endometrio =====
+  {
+    finding: "lab-biopsy-malignant",
+    disease: "endometrial-cancer",
+    lrPlus: 120,
+    lrMinus: 0.04,
+    source: "NCCN Uterine Neoplasms 2024 · biopsia endometrial confirmatoria",
+    confidence: "high",
+  },
+  {
+    finding: "history-postmenopausal-bleeding",
+    disease: "endometrial-cancer",
+    lrPlus: 12,
+    lrMinus: 0.2,
+    source: "NCCN Uterine 2024 · sangrado postmenopáusico VPP 5-15%",
+    confidence: "high",
+  },
+  {
+    finding: "lab-endometrial-thickening",
+    disease: "endometrial-cancer",
+    lrPlus: 18,
+    lrMinus: 0.18,
+    source: "ESGO/ESMO/ESP 2024 · grosor endometrial > 5mm postmenop",
+    confidence: "high",
+  },
+  {
+    finding: "history-tamoxifen-use",
+    disease: "endometrial-cancer",
+    lrPlus: 4.2,
+    lrMinus: 0.85,
+    source: "NCCN Uterine 2024 · tamoxifeno > 2a riesgo 2-3×",
+    confidence: "high",
+  },
+  {
+    finding: "history-obesity-postmenop",
+    disease: "endometrial-cancer",
+    lrPlus: 3.6,
+    lrMinus: 0.45,
+    source: "WHO 2020 · obesidad postmenop estrogeno endógeno",
+    confidence: "high",
+  },
+  {
+    finding: "history-nulliparity",
+    disease: "endometrial-cancer",
+    lrPlus: 2.4,
+    lrMinus: 0.72,
+    source: "ESGO 2024 · nuliparidad factor riesgo endometrial",
+    confidence: "high",
+  },
+  {
+    finding: "history-late-menopause",
+    disease: "endometrial-cancer",
+    lrPlus: 2.2,
+    lrMinus: 0.82,
+    source: "WHO 2020 · menopausia tardía exposición estrogénica",
+    confidence: "medium",
   },
 ];
 

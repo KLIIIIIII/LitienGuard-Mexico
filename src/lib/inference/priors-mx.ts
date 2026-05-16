@@ -211,6 +211,57 @@ export const MX_NATIONAL_PRIORS: Record<DiseaseId, number> = {
   // neurología trastornos del movimiento 12-18%.
   "parkinsons": 0.035,
 
+  // --- Neuro extendido B3 ---
+
+  // Hemorragia intraparenquimatosa — incidencia MX más alta que US
+  // por HAS no controlada (30% adultos con HAS, mitad sin control
+  // adecuado). En urgencias neurológicas 12-18%.
+  "hemorrhagic-stroke": 0.028,
+
+  // Epilepsia — prevalencia MX 1.5-2% adultos (CENETEC). En cohorte
+  // neurología general 8-12% del volumen.
+  "epilepsy": 0.035,
+
+  // Cefalea tensional — primer motivo de consulta por cefalea en MX
+  // (~60% de cefaleas primarias). En consulta neurología 35-45%.
+  "tension-headache": 0.12,
+
+  // Migraña sin aura — prevalencia MX 12-15% adultos, 70% mujeres.
+  // En consulta neurología cefaleas primarias 25-35%.
+  "migraine-without-aura": 0.09,
+
+  // Alzheimer — prevalencia MX >65 años 7-9% (estudio ENADEM 2018,
+  // INNN). En cohorte geriatría/neuro cognitiva 18-25%.
+  "alzheimer-dementia": 0.045,
+
+  // Demencia vascular — segunda causa demencia MX por epidemia
+  // cardiometabólica. En cohorte geriatría 10-14%.
+  "vascular-dementia": 0.028,
+
+  // ============================================================
+  // Gineco-Oncología (extensión B4)
+  // ============================================================
+  // Cáncer mama: 1ª causa muerte oncológica femenina MX (RNHC 2023).
+  // Cervix: 2ª causa, alta carga por cobertura tamizaje desigual.
+  // Ovario: peor pronóstico por diagnóstico tardío.
+  // Endometrio: típicamente postmenopáusico con sangrado.
+
+  // Cáncer de mama — incidencia MX ~30/100k mujeres anual. En consulta
+  // ginecología/oncología 18-22%. En consulta primer nivel 1-2%.
+  "breast-cancer": 0.025,
+
+  // Cáncer cervicouterino — incidencia MX ~14/100k mujeres anual.
+  // En consulta ginecología 10-14%.
+  "cervical-cancer": 0.018,
+
+  // Cáncer de ovario — incidencia MX ~6/100k anual, mortalidad alta.
+  // En consulta ginecología/oncología 6-10%.
+  "ovarian-cancer": 0.012,
+
+  // Cáncer de endometrio — incidencia MX en aumento por epidemia
+  // obesidad postmenopáusica. En consulta ginecología 6-10%.
+  "endometrial-cancer": 0.016,
+
   // ============================================================
   // Infecto
   // ============================================================
