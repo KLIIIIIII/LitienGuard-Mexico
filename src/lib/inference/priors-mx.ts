@@ -97,6 +97,31 @@ export const MX_NATIONAL_PRIORS: Record<DiseaseId, number> = {
   // Otras cardiomiopatías / restrictivo
   "other-cardio": 0.03,
 
+  // --- Cardio extendido B1 ---
+  // HFrEF — alta prevalencia MX por epidemia DM2/HAS no controlada
+  // (drivers principales de cardiomiopatía isquémica). En cohorte cardio
+  // especializada MX, HFrEF representa 35-45% de las IC.
+  "hfref": 0.14,
+
+  // HFmrEF — categoría ESC 2021, ~8-12% del total de IC.
+  "hfmref": 0.07,
+
+  // IC aguda descompensada — en urgencias hospital privado MX 4-7%
+  // de ingresos cardiológicos.
+  "adhf-acute": 0.06,
+
+  // SCAD — rara, similar a US (~0.5% IAMs). Subdiagnosticada en MX
+  // por falta de coronariografía con OCT/IVUS rutinaria.
+  "scad": 0.008,
+
+  // Estenosis aórtica severa — alta prevalencia >70 años; en cohorte
+  // cardio adulto mayor MX 8-12%, ambulatorio general 2-3%.
+  "severe-as": 0.025,
+
+  // Cardiopatía isquémica crónica — primera causa de mortalidad
+  // cardiovascular en MX. En cohorte cardio especializada 18-25%.
+  "ischemic-cm": 0.13,
+
   // ============================================================
   // Endocrino
   // ============================================================
