@@ -61,6 +61,7 @@
  */
 
 import type { Disease, Finding, LikelihoodRatio } from "./types";
+import { applyWatermark } from "./watermark";
 
 // ============================================================
 // Enfermedades candidatas — 28 dx en 4 dominios
@@ -539,8 +540,14 @@ export const FINDINGS: Finding[] = [
 // ============================================================
 // Likelihood ratios — ~180 pares (finding, disease) con LR+ y LR-
 // LRs ≈ 1 (no informativos) se omiten para mantener la matriz manejable.
+//
+// _RAW_LIKELIHOOD_RATIOS son los valores curados de literatura. El export
+// público LIKELIHOOD_RATIOS (al final del archivo) aplica un watermark
+// forense determinístico en builds de producción — perturbación micro
+// (sub-1e-4) en dos LRs derivada del commit SHA. Clínicamente irrelevante,
+// distintivo en un dump filtrado. Detalle en ./watermark.ts.
 // ============================================================
-export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
+const _RAW_LIKELIHOOD_RATIOS: LikelihoodRatio[] = [
   // ===== ATTR-CM =====
   {
     finding: "ecg-low-voltage-paradox",
@@ -1682,3 +1689,12 @@ export function findDisease(id: string): Disease | undefined {
 export function lrsForDisease(disease: string): LikelihoodRatio[] {
   return LIKELIHOOD_RATIOS.filter((lr) => lr.disease === disease);
 }
+
+// ============================================================
+// Export público — aplica watermark forense determinístico en producción.
+// En dev/preview (sin VERCEL_GIT_COMMIT_SHA) los LRs originales pasan 1:1.
+// ============================================================
+export const LIKELIHOOD_RATIOS: LikelihoodRatio[] = applyWatermark(
+  _RAW_LIKELIHOOD_RATIOS,
+  process.env.VERCEL_GIT_COMMIT_SHA,
+);

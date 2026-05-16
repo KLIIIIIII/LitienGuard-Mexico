@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Sparkles, BarChart3 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { DiferencialEngine } from "./diferencial-engine";
 import { HistorialList } from "./historial-list";
+import { PendingOutcomesBanner } from "./pending-outcomes-banner";
 import { decryptField } from "@/lib/encryption";
 
 export const metadata: Metadata = {
@@ -103,14 +105,36 @@ export default async function DiferencialPage({
     );
   }
 
-  const { data: recentSessions, count: totalCount } = await supa
-    .from("diferencial_sessions")
-    .select(
-      "id, paciente_iniciales, paciente_edad, contexto_clinico, top_diagnoses, medico_diagnostico_principal, outcome_confirmado, created_at",
-      { count: "exact" },
-    )
-    .order("created_at", { ascending: false })
-    .limit(5);
+  const [{ data: recentSessions, count: totalCount }, { data: pendientesRaw }] =
+    await Promise.all([
+      supa
+        .from("diferencial_sessions")
+        .select(
+          "id, paciente_iniciales, paciente_edad, contexto_clinico, top_diagnoses, medico_diagnostico_principal, outcome_confirmado, created_at",
+          { count: "exact" },
+        )
+        .order("created_at", { ascending: false })
+        .limit(5),
+      supa
+        .from("diferencial_pendientes_outcome")
+        .select(
+          "id, paciente_iniciales, medico_diagnostico_principal, created_at",
+        )
+        .eq("medico_id", user.id)
+        .order("created_at", { ascending: true }),
+    ]);
+
+  const ahora = Date.now();
+  const pendientes = (pendientesRaw ?? []).map((p) => ({
+    id: p.id as string,
+    paciente_iniciales: p.paciente_iniciales as string | null,
+    medico_diagnostico_principal:
+      p.medico_diagnostico_principal as string | null,
+    antiguedad_dias: Math.floor(
+      (ahora - new Date(p.created_at as string).getTime()) /
+        (1000 * 60 * 60 * 24),
+    ),
+  }));
 
   return (
     <div className="space-y-6">
@@ -143,13 +167,31 @@ export default async function DiferencialPage({
             + qué hallazgos te faltan confirmar.
           </p>
         </div>
-        <Link
-          href="/dashboard/diferencial/calidad"
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-caption font-semibold text-ink-strong hover:bg-surface-alt transition-colors"
-        >
-          Mi calidad →
-        </Link>
+        <div className="shrink-0 flex items-center gap-2">
+          <Link
+            href="/dashboard/diferencial/patrones"
+            className="group relative inline-flex items-center gap-1.5 rounded-lg border-2 border-validation bg-validation-soft px-3 py-1.5 text-caption font-semibold text-validation transition-all hover:bg-validation hover:text-canvas hover:shadow-md"
+          >
+            <Sparkles
+              className="h-3.5 w-3.5 transition-transform group-hover:scale-110"
+              strokeWidth={2.4}
+            />
+            Patrones
+            <span className="ml-1 rounded-full bg-validation px-1.5 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider text-canvas group-hover:bg-canvas group-hover:text-validation">
+              Nuevo
+            </span>
+          </Link>
+          <Link
+            href="/dashboard/diferencial/calidad"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-caption font-semibold text-ink-strong hover:bg-surface-alt transition-colors"
+          >
+            <BarChart3 className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Mi calidad
+          </Link>
+        </div>
       </header>
+
+      <PendingOutcomesBanner pendientes={pendientes} />
 
       {recentSessions && recentSessions.length > 0 && (
         <section>

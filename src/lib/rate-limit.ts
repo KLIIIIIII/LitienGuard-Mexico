@@ -14,6 +14,10 @@ const DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
   scribe: { action: "scribe", windowSec: 3600, max: 40 }, // 40 SOAP / hour
   feedback: { action: "feedback", windowSec: 600, max: 8 }, // 8 / 10 min
   exportar: { action: "exportar", windowSec: 3600, max: 10 }, // 10 dumps / hour
+  // Anti-scraping del cerebro y motor de inferencia. Médico real:
+  // ~5-15 queries/hr en jornada activa. Scraper: arriba de 50.
+  diferencial: { action: "diferencial", windowSec: 3600, max: 50 },
+  cerebro_search: { action: "cerebro_search", windowSec: 3600, max: 150 },
 };
 
 const LOCKOUT_THRESHOLD = 3; // burning through limit N times → IP lockout

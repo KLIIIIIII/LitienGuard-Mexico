@@ -1,9 +1,11 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { recordAudit } from "@/lib/audit";
+import { checkRateLimit, extractIp } from "@/lib/rate-limit";
 import {
   extractFindings,
   type ExtractedFinding,
@@ -20,6 +22,10 @@ import {
   type LlmHypothesisEval,
 } from "@/lib/inference/llm-differential";
 import { DISEASES, LIKELIHOOD_RATIOS } from "@/lib/inference/knowledge-base";
+import {
+  generateResponseWatermark,
+  recordQueryAudit,
+} from "@/lib/inference/query-audit";
 import type { InferenceResult } from "@/lib/inference/types";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 
@@ -265,6 +271,8 @@ export type ProcesarResult =
       /** Findings del catálogo bayesiano sugeridos para confirmar el Dx propuesto */
       findingsSugeridosBayesianos: SuggestedFinding[];
       latencyMs: number;
+      /** Watermark forense de la respuesta — usado por query_audit. */
+      _wm: string;
     }
   | { status: "error"; message: string };
 
@@ -288,6 +296,26 @@ export async function procesarCasoCompleto(input: {
   } = await supa.auth.getUser();
   if (!user) return { status: "error", message: "No autenticado." };
 
+  const hdrs = await headers();
+  const ip = extractIp(hdrs);
+  const userAgent = hdrs.get("user-agent");
+
+  // Rate-limit anti-scraping. Médico real: 5-15 queries/hr. Scraper: >50.
+  const rl = await checkRateLimit(ip, "diferencial", user.id);
+  if (!rl.allowed) {
+    void recordAudit({
+      userId: user.id,
+      action: "diferencial.rate_limited",
+      metadata: { ip, ua: userAgent },
+      ip,
+    });
+    return {
+      status: "error",
+      message:
+        "Has alcanzado el límite de diferenciales por hora. Espera unos minutos antes de intentar de nuevo.",
+    };
+  }
+
   const { data: profile } = await supa
     .from("profiles")
     .select("subscription_tier")
@@ -302,6 +330,7 @@ export async function procesarCasoCompleto(input: {
   }
 
   const t0 = Date.now();
+  const responseWatermark = generateResponseWatermark();
 
   try {
     // Paralelizar las 3 llamadas LLM: extracción + match + generación
@@ -384,6 +413,21 @@ export async function procesarCasoCompleto(input: {
       },
     });
 
+    const latencyMs = Date.now() - t0;
+
+    // Audit forense — best-effort, no bloquea respuesta.
+    void recordQueryAudit({
+      userId: user.id,
+      action: "diferencial.procesar",
+      query: parsed.data.contextoClinico,
+      responseCount: diferenciales.length,
+      responseWatermark,
+      ip,
+      userAgent,
+      tier,
+      latencyMs,
+    });
+
     return {
       status: "ok",
       dxMatch,
@@ -392,7 +436,8 @@ export async function procesarCasoCompleto(input: {
       diferenciales,
       evaluacionHipotesis: llmDiff.evaluacionHipotesis,
       findingsSugeridosBayesianos,
-      latencyMs: Date.now() - t0,
+      latencyMs,
+      _wm: responseWatermark,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error desconocido.";

@@ -1,5 +1,6 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { decryptField } from "@/lib/encryption";
 import { buildIndex, search, type BM25Index, type CerebroDoc, type CerebroHit } from "./bm25";
 
 const CACHE_TTL_MS = 60_000; // 1 minute — admin edits propagate quickly.
@@ -30,15 +31,20 @@ async function loadDocs(): Promise<CerebroDoc[]> {
     meta: Record<string, string> | null;
     tipo: "evidencia_academica" | "practica_observada" | null;
   };
-  return (data as Row[]).map((d) => ({
-    id: d.id,
-    source: d.source,
-    page: d.page,
-    title: d.title,
-    content: d.content,
-    meta: d.meta ?? undefined,
-    tipo: d.tipo ?? "evidencia_academica",
-  }));
+  // content está cifrado (migración 0033) — descifrar al cargar.
+  // decryptField pasa-through los rows legacy con texto plano.
+  const decrypted = await Promise.all(
+    (data as Row[]).map(async (d) => ({
+      id: d.id,
+      source: d.source,
+      page: d.page,
+      title: d.title,
+      content: (await decryptField(d.content)) ?? "",
+      meta: d.meta ?? undefined,
+      tipo: d.tipo ?? "evidencia_academica",
+    })),
+  );
+  return decrypted;
 }
 
 export async function getCerebroIndex(): Promise<BM25Index> {

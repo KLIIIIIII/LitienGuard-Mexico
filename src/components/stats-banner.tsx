@@ -13,10 +13,30 @@ interface Stat {
 }
 
 const STATS: Stat[] = [
-  { value: 2758, label: "Chunks indexados con cita verbatim" },
-  { value: 49, label: "Documentos parseados desde fuente oficial" },
-  { value: 4, label: "Sectores activos: DM · cardio · neuro · onco" },
-  { value: 100, label: "Recomendaciones con evidencia citada", suffix: "%" },
+  {
+    value: 32000,
+    prefix: "$",
+    suffix: " MXN/mes",
+    label:
+      "Lo que vale el tiempo que un médico privado pierde en documentación. LitienGuard Scribe te lo regresa.",
+  },
+  {
+    value: 90,
+    suffix: "%",
+    label:
+      "Médicos en México sin usar IA clínica. Mercado abierto — no hay que desplazar a nadie.",
+  },
+  {
+    value: 2758,
+    label:
+      "Chunks indexados con cita verbatim. Diabetes, cardio, neuro y gineco-onco.",
+  },
+  {
+    value: 100,
+    suffix: "%",
+    label:
+      "Recomendaciones con cita verbatim. Cero alucinación — GPC, página y referencia bibliográfica original.",
+  },
 ];
 
 function CountUp({ value, suffix = "", prefix = "" }: Stat) {
@@ -56,11 +76,14 @@ export function StatsBanner() {
     <section className="border-b border-line bg-surface-alt">
       <div className="lg-shell py-16">
         <div className="mb-10">
-          <Eyebrow>El cerebro al cierre de mayo 2026</Eyebrow>
+          <Eyebrow>Lo que mueve la aguja</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
-            Materia prima clínica de la más alta calidad, construida en
-            español.
+            La documentación es el pain #1 del médico mexicano. Lo medimos.
           </h2>
+          <p className="mt-3 max-w-prose text-body text-ink-muted">
+            Datos: FUNSALUD 2024 (90% sin IA), Ross/FunSalud 2026 (4-6 hrs/día
+            documentando), tarifa promedio consulta privada MX.
+          </p>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">

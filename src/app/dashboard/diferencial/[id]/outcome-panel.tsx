@@ -155,17 +155,21 @@ export function OutcomePanel({
 
       <div className="space-y-1">
         <label className="block text-caption font-medium text-ink-strong">
-          Notas adicionales (opcional)
+          ¿Qué pasó? (opcional)
         </label>
         <textarea
           value={notas}
           onChange={(e) => setNotas(e.target.value)}
           rows={3}
           maxLength={2000}
-          placeholder="Resultado de PYP scan, biopsia, evolución a las 4 semanas..."
+          placeholder="Resultado del PYP scan, biopsia, control a las 4 semanas. Este campo guarda lo que ocurrió realmente — no se mezcla con tus notas de la consulta."
           disabled={pending}
           className="lg-input resize-y"
         />
+        <p className="text-caption text-ink-soft">
+          Campo separado del de la consulta — guarda el outcome real para el
+          loop de calidad.
+        </p>
       </div>
 
       {error && (

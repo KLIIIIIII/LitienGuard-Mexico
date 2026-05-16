@@ -25,22 +25,22 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 const STATS = [
   {
+    number: "4-6 hrs/día",
+    label:
+      "Lo que un médico mexicano dedica a documentar. LitienGuard Scribe estructura la nota SOAP firmable en segundos.",
+    sub: "Ross · FunSalud 2026",
+  },
+  {
     number: "6.1 años",
     label:
-      "Tarda diagnosticarse ATTR-CM hoy. El diferencial bayesiano de LitienGuard la sugiere en la primera consulta.",
+      "Tarda diagnosticarse ATTR-CM hoy. El diferencial bayesiano la sugiere en la primera consulta — con cita verbatim.",
     sub: "Mayo Clin Proc 2021",
   },
   {
-    number: "49 min/día",
+    number: "Mandato 2026",
     label:
-      "Lo que recuperan médicos usando ambient scribes. Exactamente lo que LitienGuard Scribe te da.",
-    sub: "JAMA Network Open 2024",
-  },
-  {
-    number: "17 años",
-    label:
-      "Tarda la evidencia clínica nueva en llegar al consultorio. El cerebro de LitienGuard cita guías 2024-2025 al momento.",
-    sub: "Balas & Boren · IOM",
+      "La Reforma LGS Salud Digital oficializa EHR interoperable y telesalud. LitienGuard sale compatible desde día 1.",
+    sub: "DOF 2026 · Art. 134 bis",
   },
 ];
 
@@ -60,7 +60,7 @@ export function Hero() {
             transition={{ duration: 0.4, ease: EASE }}
             className="text-[0.72rem] uppercase tracking-[0.18em] font-semibold text-ink-muted"
           >
-            LitienGuard · Inteligencia clínica y operativa
+            LitienGuard · Inteligencia clínica para el médico mexicano
           </motion.p>
 
           {/* Headline monumental — sans + serif italic */}
@@ -72,10 +72,10 @@ export function Hero() {
               fontSize: "clamp(2.625rem, 6.2vw, 4.5rem)",
             }}
           >
-            Somos la inteligencia médica
+            Te regresamos cuatro horas
             <br />
             <span className="lg-serif-italic font-normal text-validation">
-              de México.
+              al día.
             </span>
           </motion.h1>
 
@@ -85,8 +85,9 @@ export function Hero() {
             transition={{ duration: 0.5, ease: EASE, delay: 0.16 }}
             className="mx-auto mt-[34px] max-w-[52ch] text-[1.0625rem] leading-[1.6] text-ink-muted sm:text-[1.3125rem] sm:leading-[1.55]"
           >
-            La plataforma de inteligencia para hospitales y laboratorios —
-            procesos operativos, fiscales y diagnóstico de alta complejidad.
+            El scribe que escucha tu consulta, escribe la nota SOAP firmable y
+            deja el expediente listo. Con cerebro clínico citado y diferencial
+            bayesiano — compatible con la Reforma LGS 2026.
           </motion.p>
         </div>
 

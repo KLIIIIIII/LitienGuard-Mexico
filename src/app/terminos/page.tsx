@@ -87,7 +87,7 @@ export default function TerminosPage() {
           </p>
         </LegalSection>
 
-        <LegalSection number="05" title="Uso aceptable">
+        <LegalSection number="05" title="Uso aceptable y restricciones">
           <p>El usuario se compromete a no:</p>
           <ul className="list-disc space-y-1 pl-5">
             <li>
@@ -99,10 +99,40 @@ export default function TerminosPage() {
             </li>
             <li>
               Reproducir, distribuir o crear obras derivadas sin autorización
-              expresa.
+              expresa por escrito.
             </li>
-            <li>Realizar ingeniería inversa del software o cerebro curado.</li>
+            <li>
+              Realizar ingeniería inversa, descompilar, desensamblar o intentar
+              derivar el código fuente, los algoritmos o el modelo de
+              inferencia clínica.
+            </li>
+            <li>
+              Extraer, copiar, indexar o agregar de forma sistemática el
+              contenido del cerebro curado, sus chunks, los likelihood ratios
+              del motor de inferencia, las recomendaciones generadas o
+              cualquier output del servicio para entrenar modelos propios o
+              construir productos competidores.
+            </li>
+            <li>
+              Acceder al servicio mediante medios automatizados (scrapers,
+              bots, crawlers, scripts de extracción) sin autorización expresa
+              por escrito.
+            </li>
+            <li>
+              Compartir credenciales con terceros, revender el acceso ni usar
+              el servicio en nombre de personas u organizaciones sin licencia
+              vigente.
+            </li>
           </ul>
+          <p className="mt-3">
+            LitienGuard aplica medidas técnicas y forenses para detectar
+            patrones de uso automatizado, extracción masiva o uso indebido del
+            modelo. La detección de cualquiera de las conductas anteriores
+            puede resultar en suspensión inmediata de la cuenta, bloqueo de
+            acceso y las acciones legales que correspondan, incluidas las
+            previstas por la Ley Federal del Derecho de Autor y la Ley de la
+            Propiedad Industrial.
+          </p>
         </LegalSection>
 
         <LegalSection number="06" title="Modificaciones">

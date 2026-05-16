@@ -275,7 +275,7 @@ export default async function DiferencialDetailPage({
         id={id}
         initialOutcome={session.outcome_confirmado}
         outcomeAt={session.outcome_confirmado_at}
-        initialNotes={session.medico_notas ?? ""}
+        initialNotes={session.outcome_notes ?? ""}
       />
 
       <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">

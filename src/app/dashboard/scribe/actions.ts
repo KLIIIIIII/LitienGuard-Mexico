@@ -503,13 +503,18 @@ async function extractNotaToCerebro(
         ? analisis.slice(0, 80)
         : "Práctica clínica observada";
 
+    // Cifrar content antes de persistir (migración 0033). El BM25
+    // loader descifra al indexar; los chunks cifrados no afectan a
+    // los queries del médico.
+    const encryptedCombined = await encryptField(combined);
+
     await supa.from("cerebro_chunks").upsert(
       {
         id: chunkId,
         source: "LitienGuard · práctica observada",
         page: null,
         title: shortTitle,
-        content: combined,
+        content: encryptedCombined,
         meta: {},
         tipo: "practica_observada",
         source_nota_id: notaId,

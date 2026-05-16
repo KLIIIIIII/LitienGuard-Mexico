@@ -37,15 +37,15 @@ export async function setOutcome(
   const updates: {
     outcome_confirmado: string | null;
     outcome_confirmado_at: string | null;
-    medico_notas?: string | null;
+    outcome_notes?: string | null;
   } = {
     outcome_confirmado: outcome === "pendiente" ? null : outcome,
     outcome_confirmado_at:
       outcome === "pendiente" ? null : new Date().toISOString(),
   };
-  if (parsed.data.notas) {
-    updates.medico_notas = parsed.data.notas;
-  }
+  // outcome_notes guarda lo que pasó realmente — separado de medico_notas
+  // que es del momento de consulta.
+  updates.outcome_notes = parsed.data.notas ? parsed.data.notas : null;
 
   const { error } = await supa
     .from("diferencial_sessions")

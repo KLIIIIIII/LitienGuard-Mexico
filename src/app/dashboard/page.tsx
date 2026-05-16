@@ -7,6 +7,9 @@ import {
   ShieldCheck,
   Plus,
   Lock,
+  Clock,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { decryptField } from "@/lib/encryption";
@@ -139,6 +142,51 @@ export default async function DashboardPage() {
             </Link>
           )}
         </div>
+
+        {/* First-time push — solo si el médico nunca ha hecho una nota y
+            tiene scribe desbloqueado. Lo lleva al "wow" en 30 segundos. */}
+        {total === 0 && scribeUnlocked && (
+          <section className="mt-10 overflow-hidden rounded-2xl border border-validation bg-gradient-to-br from-validation-soft via-surface to-canvas">
+            <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
+                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  Tu primer SOAP en 30 segundos
+                </div>
+                <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+                  Empieza por la nota.
+                </h2>
+                <p className="mt-3 max-w-prose text-body text-ink-muted">
+                  Graba 30 segundos de una consulta — real o de práctica — y
+                  obtén la nota SOAP estructurada con cita verbatim. El cerebro
+                  y el diferencial se desbloquean cuando ya entendiste el flujo.
+                </p>
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <Link
+                    href="/dashboard/scribe"
+                    className="lg-cta-primary group"
+                  >
+                    <Mic className="h-4 w-4" strokeWidth={2.2} />
+                    Grabar mi primera consulta
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                      strokeWidth={2.2}
+                    />
+                  </Link>
+                  <span className="inline-flex items-center gap-1.5 text-caption text-ink-soft">
+                    <Clock className="h-3.5 w-3.5" strokeWidth={2.2} />
+                    Transcribe + estructura en ~13 segundos
+                  </span>
+                </div>
+              </div>
+              <div className="hidden lg:block">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-validation text-canvas shadow-lift">
+                  <Mic className="h-10 w-10" strokeWidth={2} />
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Stats */}
         <section className="mt-10 grid gap-4 sm:grid-cols-3">

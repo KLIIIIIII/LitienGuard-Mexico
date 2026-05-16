@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { encryptField } from "@/lib/encryption";
 import { invalidateCerebroCache } from "@/lib/bm25";
 
 const idSchema = z
@@ -82,12 +83,15 @@ export async function crearChunk(
     };
   }
 
+  // Cifrar content antes de persistir (migración 0033).
+  const encryptedContent = await encryptField(parsed.data.content);
+
   const { error } = await auth.supa.from("cerebro_chunks").insert({
     id: parsed.data.id,
     source: parsed.data.source,
     page: parsed.data.page,
     title: parsed.data.title,
-    content: parsed.data.content,
+    content: encryptedContent,
     meta,
     is_active: parsed.data.is_active,
     created_by: auth.user.id,
@@ -145,13 +149,16 @@ export async function actualizarChunk(
     };
   }
 
+  // Cifrar content antes de persistir (migración 0033).
+  const encryptedContent = await encryptField(parsed.data.content);
+
   const { error } = await auth.supa
     .from("cerebro_chunks")
     .update({
       source: parsed.data.source,
       page: parsed.data.page,
       title: parsed.data.title,
-      content: parsed.data.content,
+      content: encryptedContent,
       meta,
       is_active: parsed.data.is_active,
       updated_by: auth.user.id,
@@ -246,17 +253,20 @@ export async function importarChunks(
     };
   }
 
-  const rows = parsed.data.chunks.map((c) => ({
-    id: c.id,
-    source: c.source,
-    page: c.page,
-    title: c.title,
-    content: c.content,
-    meta: c.meta ?? {},
-    is_active: true,
-    created_by: auth.user!.id,
-    updated_by: auth.user!.id,
-  }));
+  // Cifrar content de cada chunk antes de persistir (migración 0033).
+  const rows = await Promise.all(
+    parsed.data.chunks.map(async (c) => ({
+      id: c.id,
+      source: c.source,
+      page: c.page,
+      title: c.title,
+      content: await encryptField(c.content),
+      meta: c.meta ?? {},
+      is_active: true,
+      created_by: auth.user!.id,
+      updated_by: auth.user!.id,
+    })),
+  );
 
   const { error, count } = await auth.supa
     .from("cerebro_chunks")

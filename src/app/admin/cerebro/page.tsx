@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, Upload, BookOpen } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +58,16 @@ export default async function CerebroAdminPage({
   if (sourceFilter) query = query.ilike("source", `%${sourceFilter}%`);
 
   const { data: rows } = await query;
-  const all = (rows as Row[] | null) ?? [];
+  const rawRows = (rows as Row[] | null) ?? [];
+
+  // Descifrar content (migración 0033). decryptField pasa-through los
+  // rows legacy con texto plano.
+  const all: Row[] = await Promise.all(
+    rawRows.map(async (r) => ({
+      ...r,
+      content: (await decryptField(r.content)) ?? "",
+    })),
+  );
 
   // Client-side filter for free-text (search title or content)
   const filtered = q

@@ -1,0 +1,45 @@
+-- =============================================================
+-- 0033_cerebro_chunks_encrypted.sql
+-- Cifrado app-level del corpus del cerebro — Fase A2 del programa
+-- de protección. Complementa el cifrado de notas (0031).
+--
+-- Estado al desplegar: cerebro_chunks.content pasa a estar cifrado
+-- con AES-256-GCM via envelope encryption (KMS de Google Cloud).
+-- Los lectores (BM25 loader, admin views) descifran en runtime; los
+-- escritores (scribe extractNotaToCerebro, admin crear/actualizar/
+-- importar) cifran antes de persistir. Ver src/lib/encryption.ts.
+--
+-- Por qué app-level y no pgcrypto:
+--   La columna content debe ser indexable por BM25 (token-level),
+--   lo cual requiere texto plano. Lo logramos descifrando UNA vez
+--   por ciclo de cache (1 min TTL, ver src/lib/bm25/index.ts) y
+--   manteniendo el índice in-memory. Postgres nunca ve el plaintext.
+--
+-- THREAT MODEL — qué protege y qué NO:
+--   Protege contra:
+--     ✓ Dump del service_role key Supabase (los rows quedan ilegibles
+--       sin la KMS key residente en GCP project prodi-corp-caribe).
+--     ✓ Backup público accidental — chunks cifrados son inservibles.
+--   NO protege contra:
+--     ✗ Atacante con KMS access legítimo (insider, IAM mal config).
+--     ✗ Scraping del API autenticado que devuelve snippets descifrados
+--       (eso es A3 — rate-limit + audit + watermark de respuestas).
+--     ✗ Cliente con sesión válida que ejecute búsquedas masivas (A3).
+--
+-- NO HAY CAMBIO DE SCHEMA en esta migración — `content` sigue siendo
+-- text. El cifrado es transparente para Postgres. Esta migración
+-- existe para:
+--   (1) documentar el cambio operacional.
+--   (2) servir como ancla histórica (commit + migration + script).
+--   (3) recordatorio: chunks INSERTADOS por SQL crudo desde aquí en
+--       adelante deben pasar por la app, no por INSERT directo, o
+--       romperán BM25 (texto plano que el loader intenta descifrar).
+--
+-- La migración batch de chunks existentes corre fuera de SQL:
+--   node --experimental-strip-types scripts/migrate-encrypt-cerebro-chunks.mjs
+-- =============================================================
+
+-- Comentario formal en la tabla para que cualquier query SQL futura
+-- vea el aviso. No cambia comportamiento.
+comment on column public.cerebro_chunks.content is
+  'CIFRADO desde migración 0033. Formato: v1:<iv>:<tag>:<ct> base64 (ver src/lib/encryption.ts). Los rows con texto plano son legacy y se descifran como pass-through hasta que migrate-encrypt-cerebro-chunks.mjs los cifre. NO insertar texto plano nuevo vía SQL — usar la app.';

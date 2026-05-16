@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
 import { ChunkForm } from "../chunk-form";
 import {
@@ -56,6 +57,9 @@ export default async function EditarChunkPage({
     created_at: string;
     updated_at: string;
   };
+
+  // Descifrar content (migración 0033) antes de poblar el formulario.
+  c.content = (await decryptField(c.content)) ?? "";
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-canvas">
