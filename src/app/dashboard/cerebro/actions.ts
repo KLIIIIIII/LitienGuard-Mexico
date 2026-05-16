@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { headers } from "next/headers";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { searchCerebro } from "@/lib/bm25";
+import { searchCerebroHybrid } from "@/lib/bm25";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { strictTierCheck } from "@/lib/security";
 import { recordAudit } from "@/lib/audit";
@@ -102,7 +102,9 @@ export async function buscarCerebro(input: {
 
   const t0 = performance.now();
   const responseWatermark = generateResponseWatermark();
-  const hits = (await searchCerebro(parsed.data.q, 8)).map((h) => ({
+  // D6 — hybrid retrieval (BM25 + vector RRF). Cae back a BM25 puro
+  // si los chunks aún no tienen embedding cargado.
+  const hits = (await searchCerebroHybrid(parsed.data.q, 8)).map((h) => ({
     id: h.doc.id,
     source: h.doc.source,
     page: h.doc.page,

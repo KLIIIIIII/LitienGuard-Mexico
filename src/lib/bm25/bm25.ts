@@ -49,6 +49,9 @@ export interface CerebroDoc {
   /** Optional metadata for filtering / display (e.g. specialty, year). */
   meta?: Record<string, string>;
   tipo?: CerebroChunkType;
+  /** Embedding 1536-dim para hybrid retrieval (D6). Opcional — los
+   *  chunks legacy sin embedding caen back a BM25 puro. */
+  embedding?: number[];
 }
 
 export interface BM25Index {

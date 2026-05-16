@@ -22,6 +22,10 @@ import {
   type SimilarCase,
 } from "@/lib/patient-memory";
 import {
+  multiHopReasoning,
+  type MultiHopResult,
+} from "@/lib/inference/multi-hop";
+import {
   generateResponseWatermark,
   recordQueryAudit,
 } from "@/lib/inference/query-audit";
@@ -45,6 +49,7 @@ export type AnalizarNotaResult =
       redFlags: SymptomRedFlags[];
       redFlagsSummary: { now: number; soon: number; monitor: number };
       similarCases: SimilarCase[];
+      multiHop: MultiHopResult;
       latencyMs: number;
       _wm: string;
     }
@@ -134,12 +139,18 @@ export async function analizarNotaSoap(
     const redFlags = detectRedFlagsInText(parsed.data.contextoClinico);
     const redFlagsSummary = summarizeRedFlags(redFlags);
 
-    // D3 — patient memory: buscar casos parecidos en la práctica del médico
-    const similarCases = await findSimilarCases(
-      user.id,
-      parsed.data.contextoClinico,
-      { limit: 4 },
-    );
+    // D3 — patient memory + D7 — multi-hop reasoning (en paralelo)
+    const [similarCases, multiHop] = await Promise.all([
+      findSimilarCases(user.id, parsed.data.contextoClinico, { limit: 4 }),
+      multiHopReasoning(
+        topDx.map((d) => ({
+          id: d.id,
+          label: d.label,
+          posterior: d.posterior,
+        })),
+        { maxDx: 3, guidelinesPerDx: 2 },
+      ),
+    ]);
 
     const latencyMs = Date.now() - t0;
 
@@ -179,6 +190,7 @@ export async function analizarNotaSoap(
       redFlags,
       redFlagsSummary,
       similarCases,
+      multiHop,
       latencyMs,
       _wm: wm,
     };

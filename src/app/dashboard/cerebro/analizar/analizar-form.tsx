@@ -15,6 +15,7 @@ import Link from "next/link";
 import { FINDINGS } from "@/lib/inference/knowledge-base";
 import type { SymptomRedFlags } from "@/lib/inference/red-flags";
 import type { SimilarCase } from "@/lib/patient-memory";
+import type { MultiHopResult } from "@/lib/inference/multi-hop";
 import {
   analizarNotaSoap,
   type AnalizarNotaResult,
@@ -195,6 +196,11 @@ export function AnalizarForm() {
               </Link>
             </section>
 
+            {/* Razonamiento multi-hop (D7) */}
+            {result.multiHop.chain.length > 0 && (
+              <MultiHopPanel multiHop={result.multiHop} />
+            )}
+
             {/* Casos parecidos en tu práctica (D3) */}
             {result.similarCases.length > 0 && (
               <SimilarCasesPanel cases={result.similarCases} />
@@ -354,6 +360,154 @@ function RedFlagsPanel({
               ))}
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function MultiHopPanel({ multiHop }: { multiHop: MultiHopResult }) {
+  return (
+    <section className="lg-card space-y-4">
+      <header>
+        <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
+          Razonamiento clínico encadenado
+        </p>
+        <h2 className="mt-1 text-h3 font-semibold tracking-tight text-ink-strong">
+          Diagnóstico → Evidencia → Manejo
+        </h2>
+        <p className="mt-1 text-caption text-ink-muted">
+          Tres pasos verificables por cada diagnóstico. Cada nodo cita su
+          fuente. Calculado en {multiHop.latencyMs} ms.
+        </p>
+      </header>
+      <div className="space-y-4">
+        {multiHop.chain.map((node, idx) => {
+          const pct = Math.round(node.dx.posterior * 100);
+          return (
+            <motion.article
+              key={node.dx.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.45,
+                delay: 0.1 + idx * 0.08,
+                ease: easeOut,
+              }}
+              className="rounded-xl border border-line bg-surface p-4"
+            >
+              {/* Hop 1 — Diagnóstico */}
+              <div className="flex items-center justify-between gap-3 border-b border-line pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-validation text-canvas text-[0.6rem] font-bold">
+                    1
+                  </span>
+                  <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
+                    Diagnóstico
+                  </p>
+                </div>
+                <span className="text-h3 font-bold tabular-nums text-validation">
+                  {pct}%
+                </span>
+              </div>
+              <p className="mt-2 text-body-sm font-semibold text-ink-strong">
+                {node.dx.label}
+              </p>
+
+              {/* Hop 2 — Evidencia */}
+              {node.guidelines.length > 0 && (
+                <>
+                  <div className="mt-4 flex items-center gap-2 border-b border-line pb-3">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-validation text-canvas text-[0.6rem] font-bold">
+                      2
+                    </span>
+                    <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
+                      Evidencia clínica
+                    </p>
+                  </div>
+                  <ul className="mt-2 space-y-2">
+                    {node.guidelines.map((g, gi) => (
+                      <li
+                        key={gi}
+                        className="rounded border border-line/60 bg-surface-alt/40 p-2.5"
+                      >
+                        <p className="text-caption font-semibold text-ink-strong">
+                          {g.title}
+                          <span className="ml-1 font-normal text-ink-muted">
+                            · {g.source} · pág. {g.page}
+                          </span>
+                        </p>
+                        <p className="mt-1 text-caption text-ink-muted leading-relaxed">
+                          {g.snippet}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              {/* Hop 3 — Manejo */}
+              {(node.farmacos.length > 0 ||
+                node.farmacosFueraCB.length > 0) && (
+                <>
+                  <div className="mt-4 flex items-center gap-2 border-b border-line pb-3">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-validation text-canvas text-[0.6rem] font-bold">
+                      3
+                    </span>
+                    <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
+                      Manejo sugerido
+                    </p>
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    {node.farmacos.length > 0 && (
+                      <div>
+                        <p className="text-caption font-semibold text-validation">
+                          En Cuadro Básico institucional
+                        </p>
+                        <ul className="mt-1 space-y-1.5">
+                          {node.farmacos.slice(0, 3).map((f, fi) => (
+                            <li
+                              key={fi}
+                              className="rounded border border-validation-soft bg-validation-soft/30 p-2"
+                            >
+                              <p className="text-caption font-semibold text-ink-strong">
+                                {f.nombreGenerico}
+                              </p>
+                              <p className="text-caption text-ink-muted">
+                                {f.grupo} · {f.presentacionIMSS}
+                              </p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {node.farmacosFueraCB.length > 0 && (
+                      <div>
+                        <p className="text-caption font-semibold text-warn">
+                          Fuera de Cuadro Básico (privado / consulta seguro)
+                        </p>
+                        <ul className="mt-1 space-y-1">
+                          {node.farmacosFueraCB.slice(0, 2).map((f, fi) => (
+                            <li
+                              key={fi}
+                              className="rounded border border-warn-soft bg-warn-soft/20 p-2"
+                            >
+                              <p className="text-caption font-semibold text-ink-strong">
+                                {f.nombreGenerico}
+                              </p>
+                              <p className="text-caption text-ink-muted">
+                                {f.grupo}
+                              </p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </motion.article>
+          );
+        })}
       </div>
     </section>
   );

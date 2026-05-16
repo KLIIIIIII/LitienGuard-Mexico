@@ -8,7 +8,6 @@ import {
   TIER_LABELS,
   type SubscriptionTier,
 } from "@/lib/entitlements";
-import { corpusStats } from "@/lib/bm25";
 import { CerebroSearch } from "./cerebro-search";
 
 export const dynamic = "force-dynamic";
@@ -63,8 +62,6 @@ export default async function CerebroPage() {
       </div>
     );
   }
-
-  const stats = await corpusStats();
 
   return (
     <div>
