@@ -74,10 +74,8 @@ export default async function PatronesPage({
         <p className="mt-2 max-w-3xl text-body-sm text-ink-muted leading-relaxed">
           El cerebro lee tus diagnósticos, recetas y outcomes para identificar
           patrones emergentes — diagnósticos que viajan juntos, dónde diverges
-          del motor, qué tan calibrado estás. La referencia académica viene
-          curada de Harvard, MIT, Stanford, Yale, Johns Hopkins, Mayo, UCSF,
-          Oxford, UCL, Heidelberg, Karolinska, Toronto, Cornell, Michigan,
-          UNAM, Tec de Monterrey, IBERO, UDEM e IE.
+          del motor, qué tan calibrado estás. La referencia clínica viene
+          curada con literatura primaria internacional y mexicana.
         </p>
       </header>
 

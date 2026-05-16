@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Quote, Building2 } from "lucide-react";
+import { Quote, BookOpen } from "lucide-react";
 import type { CanonicalPattern } from "@/lib/patterns/canonical-patterns";
 import { PatternHeatmap } from "./pattern-heatmap";
 
@@ -111,7 +111,7 @@ export function PatternsClient({ patterns, initialPatternId }: Props) {
           </div>
           <div className="rounded-xl border border-line bg-surface-alt/40 p-5">
             <div className="flex items-center gap-2 mb-2">
-              <Building2 className="h-3.5 w-3.5 text-ink-soft" strokeWidth={2} />
+              <BookOpen className="h-3.5 w-3.5 text-ink-soft" strokeWidth={2} />
               <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
                 Fuente primaria
               </p>
@@ -119,19 +119,6 @@ export function PatternsClient({ patterns, initialPatternId }: Props) {
             <p className="text-caption text-ink-strong leading-relaxed font-mono">
               {active.primarySource}
             </p>
-            <p className="mt-3 text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
-              Refinado en
-            </p>
-            <ul className="mt-1 flex flex-wrap gap-1.5">
-              {active.institutions.map((inst) => (
-                <li
-                  key={inst}
-                  className="rounded border border-line bg-surface px-2 py-0.5 text-[0.7rem] text-ink-strong"
-                >
-                  {inst}
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
       </article>

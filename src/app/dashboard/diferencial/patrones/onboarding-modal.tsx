@@ -15,26 +15,13 @@ import {
 } from "lucide-react";
 import { markPatronesTutorial } from "./actions";
 
-const INSTITUTIONS = [
-  "Harvard / MGH",
-  "MIT",
-  "Stanford",
-  "Yale",
-  "Johns Hopkins",
-  "Mayo Clinic",
-  "UCSF",
-  "Michigan",
-  "Cornell",
-  "Oxford",
-  "UCL",
-  "Heidelberg",
-  "Karolinska",
-  "Toronto",
-  "IE",
-  "UNAM",
-  "Tec de Monterrey",
-  "IBERO",
-  "UDEM",
+const TRUST_PILLARS = [
+  "Guías oficiales mexicanas",
+  "Organismos internacionales",
+  "Sociedades de especialidad",
+  "Literatura peer-reviewed",
+  "Universidades elite",
+  "Normas oficiales mexicanas",
 ];
 
 const easeOut: number[] = [0.16, 1, 0.3, 1];
@@ -416,36 +403,36 @@ function Step3Insight() {
   );
 }
 
-// ---------- Step 4: Calibrado contra literatura academic ----------
+// ---------- Step 4: Calibrado contra literatura clínica ----------
 function Step4Calibrated() {
   return (
     <>
       <StepHeader
         eyebrow="Paso 4 de 5"
-        title="Calibrado contra literatura academic global."
-        description="Cada patrón canónico viene con cita primaria y referencia a las instituciones donde se ha publicado y refinado:"
+        title="Calibrado contra literatura clínica seria."
+        description="Cada patrón canónico viene con razonamiento clínico explícito y referencias a fuentes primarias verificables:"
       />
       <div className="mt-2 flex flex-wrap justify-center gap-1.5 max-w-xl mx-auto">
-        {INSTITUTIONS.map((inst, i) => (
+        {TRUST_PILLARS.map((pillar, i) => (
           <motion.span
-            key={inst}
+            key={pillar}
             initial={{ opacity: 0, y: 8, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{
               duration: 0.35,
-              delay: 0.25 + i * 0.025,
+              delay: 0.25 + i * 0.04,
               ease: easeOut,
             }}
             className="rounded-full border border-line bg-surface px-3 py-1 text-caption font-medium text-ink-strong"
           >
-            {inst}
+            {pillar}
           </motion.span>
         ))}
       </div>
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 1.0, ease: easeOut }}
+        transition={{ duration: 0.5, delay: 0.8, ease: easeOut }}
         className="mx-auto mt-3 flex max-w-md items-center gap-2 rounded-lg bg-surface-alt/60 px-4 py-2"
       >
         <GraduationCap
@@ -453,8 +440,7 @@ function Step4Calibrated() {
           strokeWidth={2}
         />
         <p className="text-caption text-ink-muted">
-          Lecturas primarias en cada patrón — JACC, NEJM, Lancet, AHA, ADA,
-          ESC, ATA y más.
+          Lectura primaria asociada a cada patrón, accesible al expandir.
         </p>
       </motion.div>
     </>

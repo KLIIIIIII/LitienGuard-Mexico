@@ -25,8 +25,6 @@ export interface CanonicalPattern {
   summary: string;
   /** Cita primaria principal (paper o guideline). */
   primarySource: string;
-  /** Universidades / instituciones donde se ha publicado / refinado. */
-  institutions: string[];
   /** Razonamiento clínico del patrón — por qué este conjunto discrimina. */
   rationale: string;
   /** Findings observables — orden estable para el heatmap. */
@@ -62,13 +60,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "La cardiomiopatía por transtiretina tiene una fase pre-clínica reconocible 5-10 años antes del diagnóstico. La firma combinada de túnel del carpo bilateral + ruptura de bíceps + IC con FE preservada + voltaje ECG bajo es virtualmente patognomónica.",
     primarySource:
       "Phelan D et al. JACC 2024;83:101-115 — multicenter cohort 5,213 ATTR-CM patients",
-    institutions: [
-      "Mayo Clinic",
-      "Johns Hopkins School of Medicine",
-      "Harvard/MGH",
-      "Cleveland Clinic",
-      "Karolinska Institute (ATTR registry EU)",
-    ],
     rationale:
       "El depósito sistémico de amiloide TTR precede a la cardiopatía en 5-10 años. Los nervios y tendones son los primeros tejidos afectados (túnel del carpo bilateral, estenosis del canal lumbar, ruptura espontánea de tendones). Cuando aparece IC con FEp + voltajes bajos en ECG, el daño cardíaco ya está avanzado. Reconocer la fase pre-clínica permite diagnóstico vía gammagrafía con pirofosfato (Tc99m-PYP).",
     findings: [
@@ -111,14 +102,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "Patrón de comorbilidad altamente prevalente en México (40-45% de adultos según ENSANUT). La combinación de obesidad central + dislipidemia + hiperglucemia + HAS predice cardiopatía isquémica a 10 años con C-stat > 0.78.",
     primarySource:
       "Alberti KGMM et al. (IDF Worldwide Definition) Circulation 2009 + ENSANUT MX 2023",
-    institutions: [
-      "UNAM (Instituto Nacional de Cardiología)",
-      "Tecnológico de Monterrey",
-      "IBERO (Centro de Investigación Cardiometabólica)",
-      "UDEM",
-      "Harvard School of Public Health",
-      "Karolinska Institute",
-    ],
     rationale:
       "México tiene la prevalencia más alta de síndrome metabólico en LATAM. El driver principal NO es el peso absoluto sino la grasa visceral medida por cintura (>90 cm hombres, >80 mujeres). En personas con apariencia normal pueden coexistir HDL bajo + TG altos + esteatosis hepática (MASLD) — fenotipo TOFI (thin outside, fat inside). Cribar SOLO con IMC pierde un 18% de casos según estudios del INC.",
     findings: [
@@ -160,15 +143,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "La distinción clínica entre EVC isquémico, hemorragia intraparenquimatosa y hemorragia subaracnoidea define la ventana terapéutica (trombólisis vs neurocirugía). Aunque TC sin contraste es definitiva, el patrón clínico permite priorizar la imagen.",
     primarySource:
       "AHA/ASA 2024 Guidelines Stroke + Larsson SC et al. Lancet Neurol 2023",
-    institutions: [
-      "Harvard/MGH (NEJM EVC series)",
-      "Stanford (Stroke Trial Group)",
-      "University College London",
-      "Karolinska Institute",
-      "University of California San Francisco",
-      "Oxford (CRASH-2 / 3)",
-      "Heidelberg University",
-    ],
     rationale:
       "El déficit focal SÚBITO + anticoagulación + FA inclina a embólico (~LR 6). La cefalea trueno con vómito + signos meníngeos inclina a HSA (~LR 12). La HTA severa aguda + deterioro progresivo en minutos-horas inclina a HIP. Los stroke mimics (crisis convulsiva post-ictal, migraña hemipléjica, hipoglucemia) representan 10-15% de las activaciones de código stroke según el registro AHA.",
     findings: [
@@ -210,14 +184,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "El 7-10% de los diagnósticos de DM2 en realidad son LADA (autoimmune en adulto) o MODY (monogénico). Distinguir cambia el manejo: LADA progresa rápido a insulinodependencia, MODY puede responder solo a sulfonilureas.",
     primarySource:
       "ADA Standards of Care 2024 + Hattersley AT et al. Diabetologia 2023",
-    institutions: [
-      "Mayo Clinic",
-      "Karolinska Institute (LADA registry)",
-      "Oxford (MODY genetics)",
-      "ADA Scientific Sessions",
-      "UNAM (cohorte cardiometabólica MX)",
-      "Heidelberg University",
-    ],
     rationale:
       "Edad joven al diagnóstico + delgadez + cetoacidosis al inicio + ac GAD positivos + requerimiento de insulina a 1-2 años = LADA (no DM2). Historia familiar autosómica dominante 3 generaciones + edad < 25 + ausencia de cetoacidosis + péptido C conservado + respuesta a sulfonilurea = MODY. Tipear bien evita 10 años de tratamiento ineficiente.",
     findings: [
@@ -259,13 +225,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "POTS afecta predominantemente mujeres jóvenes y se confunde con ansiedad, deshidratación o hipotiroidismo durante años (latencia diagnóstica media 4 años en México). Tilt test + criterios clínicos hacen el diagnóstico.",
     primarySource:
       "Sheldon RS et al. Heart Rhythm Society Consensus 2023 + Mayo POTS registry 12,000 pts",
-    institutions: [
-      "Mayo Clinic (POTS dedicated clinic)",
-      "Vanderbilt Autonomic Dysfunction Center",
-      "Johns Hopkins School of Medicine",
-      "Karolinska Institute",
-      "UNAM Instituto Nacional de Neurología",
-    ],
     rationale:
       "Incremento de FC > 30 bpm en 10 min al pasar de supino a parado (sin caída de PA > 20 mmHg) en ausencia de causa secundaria. La asociación con hipermovilidad articular (Ehlers-Danlos hipermóvil), MCAS y deficiencia de hierro está bien documentada. En adolescentes jóvenes con fatiga crónica y mareo postural, considerar POTS antes que ansiedad.",
     findings: [
@@ -308,13 +267,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "TSH alta con T4L normal — frecuentemente atribuido erróneamente a depresión, fibromialgia o 'normal envejecimiento'. La decisión de tratar depende del nivel TSH + presencia ac anti-TPO + síntomas + dislipidemia secundaria.",
     primarySource:
       "American Thyroid Association Guidelines 2023 + Cooper DS NEJM 2023",
-    institutions: [
-      "Johns Hopkins School of Medicine",
-      "UCSF",
-      "Harvard/MGH",
-      "Karolinska Institute",
-      "UNAM Clínica de Endocrinología",
-    ],
     rationale:
       "Anti-TPO + indica tiroiditis de Hashimoto en evolución — progresa a hipotiroidismo franco en 4%/año. La dislipidemia secundaria (LDL alto reversible con levotiroxina) y la hipertensión diastólica son frecuentemente la única manifestación. En mujeres con depresión refractaria, descartar siempre.",
     findings: [
@@ -357,14 +309,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "qSOFA + foco infeccioso documentado + lactato > 2 son los discriminadores rápidos. SIRS sin infección (pancreatitis, quemaduras, post-quirúrgico) puede simular sepsis pero requiere manejo distinto.",
     primarySource:
       "Surviving Sepsis Campaign 2024 + Singer M et al. JAMA Sepsis-3",
-    institutions: [
-      "Stanford School of Medicine",
-      "Harvard/MGH",
-      "Cornell University (Critical Care)",
-      "Toronto (Sepsis Network)",
-      "Karolinska Institute",
-      "UNAM Instituto Nacional de Ciencias Médicas y Nutrición",
-    ],
     rationale:
       "qSOFA ≥ 2 (alteración mental, FR > 22, TAS ≤ 100) en paciente con sospecha de infección predice mortalidad intrahospitalaria. Lactato > 2 mmol/L sugiere hipoperfusión incluso si PA normal. En unidades de México, la sepsis sigue siendo la primera causa de muerte intrahospitalaria evitable.",
     findings: [
@@ -406,13 +350,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "Hasta 30% de los EVC clasificados inicialmente como criptogénicos se asocian a FA paroxística oculta detectada por monitorización ambulatoria prolongada (loop recorder 12-30 meses).",
     primarySource:
       "Sanna T et al. NEJM CRYSTAL-AF + Healey JS et al. NEJM EMBRACE",
-    institutions: [
-      "Cornell University",
-      "Yale School of Medicine",
-      "University College London",
-      "Toronto Heart and Stroke Foundation",
-      "Mayo Clinic Arrhythmia Service",
-    ],
     rationale:
       "EVC sin etiología clara tras workup completo (TC/RM, carótidas, ecocardio TT/TE, Holter 24h) + edad > 65 + HAS + dilatación AI + NT-proBNP alto → considerar loop recorder o monitor 30 días. Anticoagular cambia el riesgo de recurrencia ~70%.",
     findings: [
@@ -454,14 +391,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "El Cushing endógeno se diagnostica con retraso medio de 3 años. Las características más específicas son estrías purpúreas anchas (>1cm), debilidad proximal y plétora facial. Cortisol salival nocturno + supresión con dexametasona confirman.",
     primarySource:
       "Nieman LK et al. Endocrine Society Guidelines 2024",
-    institutions: [
-      "Johns Hopkins School of Medicine",
-      "Mayo Clinic Endocrine Center",
-      "Heidelberg University",
-      "Oxford Endocrinology",
-      "UNAM Instituto Nacional de Endocrinología",
-      "UCSF",
-    ],
     rationale:
       "El fenotipo cushingoide es muy reconocible cuando es completo, pero parcial en 60% de casos. Las estrías purpúreas son lo más específico (LR > 30 cuando >1cm y abdominales). Debilidad proximal sin atrofia muscular distal apoya. Diferencia clave vs síndrome metabólico: redistribución central CON debilidad muscular + delgadez de extremidades.",
     findings: [
@@ -503,14 +432,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "13% de las mujeres en edad reproductiva en México tienen anemia ferropénica (ENSANUT 2023). El reto NO es diagnosticarla sino encontrar la causa: hipermenorrea, pérdida GI oculta, dieta deficitaria, gestación reciente, o gastritis por H. pylori.",
     primarySource:
       "WHO 2024 + ENSANUT MX 2023 + Camaschella C NEJM 2023",
-    institutions: [
-      "UNAM Instituto Nacional de Salud Pública",
-      "INNSZ (Salvador Zubirán)",
-      "Tecnológico de Monterrey",
-      "IBERO Centro Cardiometabólico",
-      "Harvard School of Public Health",
-      "Karolinska Institute",
-    ],
     rationale:
       "En mujer joven sin sangrado evidente y dieta variada, considerar enfermedad celíaca, gastritis por H. pylori, o malabsorción. En mujer > 50 sin hipermenorrea, COLON hasta no demostrarlo. Receta automática de hierro VO sin estudiar la causa es práctica frecuente y peligrosa.",
     findings: [
@@ -553,14 +474,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "El paradigma 'EA severa = gradiente alto' falla en ~30% de pacientes con FEVI baja o llenado restrictivo (paradoxical LFLG). Distinguir EA severa LFLG real vs pseudo-severa cambia la decisión de TAVI/SAVR.",
     primarySource:
       "ESC/EACTS 2021 Valvular Heart Disease + Pibarot P et al. Heart 2024",
-    institutions: [
-      "Harvard/MGH",
-      "Mayo Clinic Heart Valve Group",
-      "Yale Cardiology",
-      "University of Michigan (TVT registry)",
-      "Heidelberg University",
-      "Oxford Heart Centre",
-    ],
     rationale:
       "Área valvular < 1 cm² PERO gradiente medio < 40 mmHg = clasificar entre EA severa LFLG vs pseudo-severa (válvula moderada con bajo flujo por miocardiopatía). Dobutamina stress eco: si el área se mantiene < 1 y el gradiente sube > 40 = severa real. Si el área crece > 1.2 = pseudo-severa. Calcio score TC > 2000 (hombres) / > 1300 (mujeres) confirma severa.",
     findings: [
@@ -602,14 +515,6 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
       "Cefalea de máxima intensidad alcanzada en < 1 minuto. La HSA aneurismática es la causa más letal (mortalidad 30-50%) pero hay otros mimics importantes: RCVS, trombosis venosa, disección cervical, hipertensión maligna.",
     primarySource:
       "Sahuquillo C et al. Lancet Neurol 2024 + AHA/ASA HSA 2023",
-    institutions: [
-      "Oxford (CRASH-3)",
-      "University College London",
-      "UCSF Headache Center",
-      "Harvard/MGH",
-      "Heidelberg University",
-      "Toronto Stroke Network",
-    ],
     rationale:
       "Cefalea trueno + signos meníngeos + alteración conciencia = HSA hasta no demostrar. TC sin contraste en < 6h es 100% sensible si bien hecha. Si TC negativa y alta sospecha → punción lumbar 6-12h. RCVS (síndrome de vasoconstricción cerebral reversible) puede dar trueno recurrente sin sangre — más frecuente en posparto, post-coital, post-esfuerzo.",
     findings: [

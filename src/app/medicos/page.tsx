@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 const FEATURES = [
   {
     title: "Cerebro clínico curado en español",
-    desc: "2,758 chunks indexados desde GPC IMSS, KDIGO, ENSANUT y tesis universitarias elite. BM25 + filtros por sector.",
+    desc: "Miles de fragmentos clínicos indexados desde guías oficiales mexicanas, literatura internacional peer-reviewed y tesis universitarias. Búsqueda en segundos.",
   },
   {
     title: "AI Scribe ambient con procesamiento local",
@@ -77,24 +77,24 @@ export default function MedicosPage() {
 
       <section className="border-b border-line bg-surface-alt py-20">
         <div className="lg-shell">
-          <Eyebrow>Cobertura clínica al cierre mayo 2026</Eyebrow>
+          <Eyebrow>Cobertura clínica activa</Eyebrow>
           <h2 className="mt-3 max-w-2xl text-h1 font-semibold tracking-tight text-ink-strong">
             Cuatro sectores activos. Diabetes a profundidad.
           </h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {[
-              { sector: "Diabetes", chunks: "1,016" },
-              { sector: "Cardiología", chunks: "318" },
-              { sector: "Neurología", chunks: "433" },
-              { sector: "Gineco-Oncología", chunks: "317" },
+              { sector: "Diabetes", note: "Profundidad alta" },
+              { sector: "Cardiología", note: "Cobertura activa" },
+              { sector: "Neurología", note: "Cobertura activa" },
+              { sector: "Gineco-Oncología", note: "Cobertura activa" },
             ].map((s) => (
               <TiltCard key={s.sector} className="p-5">
                 <Eyebrow tone="validation">{s.sector}</Eyebrow>
-                <p className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-                  {s.chunks}
+                <p className="mt-3 text-h3 font-semibold tracking-tight text-ink-strong">
+                  {s.note}
                 </p>
                 <p className="mt-1 text-caption text-ink-muted">
-                  chunks indexados con cita
+                  con cita verbatim
                 </p>
               </TiltCard>
             ))}

@@ -28,13 +28,13 @@ const STATS = [
     number: "4-6 hrs/día",
     label:
       "Lo que un médico mexicano dedica a documentar. LitienGuard Scribe estructura la nota SOAP firmable en segundos.",
-    sub: "Ross · FunSalud 2026",
+    sub: "Investigación pública del sector salud MX",
   },
   {
-    number: "6.1 años",
+    number: "Años",
     label:
-      "Tarda diagnosticarse ATTR-CM hoy. El diferencial bayesiano la sugiere en la primera consulta — con cita verbatim.",
-    sub: "Mayo Clin Proc 2021",
+      "De latencia en diagnósticos clínicos complejos hoy. El diferencial los sugiere en la primera consulta — con cita verbatim.",
+    sub: "Literatura clínica peer-reviewed",
   },
   {
     number: "Mandato 2026",
@@ -87,7 +87,7 @@ export function Hero() {
           >
             El scribe que escucha tu consulta, escribe la nota SOAP firmable y
             deja el expediente listo. Con cerebro clínico citado y diferencial
-            bayesiano — compatible con la Reforma LGS 2026.
+            diagnóstico — compatible con la Reforma LGS 2026.
           </motion.p>
         </div>
 
@@ -144,10 +144,9 @@ export function Hero() {
           transition={{ duration: 0.5, ease: EASE, delay: 0.7 }}
           className="mx-auto mt-[55px] max-w-[62ch] text-center text-[0.78rem] leading-relaxed text-ink-soft"
         >
-          Cerebro anclado en guías oficiales —{" "}
+          Cerebro anclado en{" "}
           <span className="text-ink-muted font-medium">
-            IMSS · CENETEC · KDIGO · ESC · AHA-ACC · Sepsis-3 · Mayo Clinic ·
-            Harvard Medical School
+            guías oficiales mexicanas y literatura clínica peer-reviewed
           </span>
           . Cada recomendación se entrega con la cita verbatim y el número de
           página del documento fuente.

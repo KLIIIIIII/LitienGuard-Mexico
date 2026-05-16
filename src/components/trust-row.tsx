@@ -4,20 +4,12 @@ import { motion } from "framer-motion";
 import { Eyebrow } from "@/components/eyebrow";
 
 const SOURCES = [
-  "IMSS · GPC",
-  "CENETEC",
-  "ENSANUT",
-  "KDIGO 2022",
-  "ADA Standards",
-  "WHO",
-  "IDF Atlas",
-  "Harvard DASH",
-  "MIT DSpace",
-  "Yale ELScholar",
-  "UNAM TESIUNAM",
-  "Tec de Monterrey",
-  "U. Navarra",
-  "INSP",
+  "Guías clínicas oficiales mexicanas",
+  "Organismos sanitarios internacionales",
+  "Sociedades médicas de especialidad",
+  "Repositorios académicos universitarios",
+  "Literatura primaria peer-reviewed",
+  "Normas oficiales mexicanas",
 ];
 
 export function TrustRow() {

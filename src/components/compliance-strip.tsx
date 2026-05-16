@@ -40,13 +40,13 @@ const ITEMS = [
 const SEGURIDAD = [
   {
     icon: KeyRound,
-    label: "Cifrado AES-256 + Google Cloud KMS",
+    label: "Cifrado AES-256 nivel bancario",
     detail: "Doble capa sobre el contenido clínico",
   },
   {
     icon: Server,
-    label: "Servidores fuera de México",
-    detail: "Infraestructura en Oregon, EE. UU.",
+    label: "Infraestructura cloud enterprise",
+    detail: "Centros de datos certificados internacionales",
   },
   {
     icon: ShieldCheck,

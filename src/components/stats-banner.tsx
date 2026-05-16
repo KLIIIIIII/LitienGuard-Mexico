@@ -27,15 +27,16 @@ const STATS: Stat[] = [
       "Médicos en México sin usar IA clínica. Mercado abierto — no hay que desplazar a nadie.",
   },
   {
-    value: 2758,
+    value: 4,
+    suffix: " sectores",
     label:
-      "Chunks indexados con cita verbatim. Diabetes, cardio, neuro y gineco-onco.",
+      "Cobertura clínica activa con cita verbatim: cardio, endocrino, neuro, gineco-onco.",
   },
   {
     value: 100,
     suffix: "%",
     label:
-      "Recomendaciones con cita verbatim. Cero alucinación — GPC, página y referencia bibliográfica original.",
+      "Recomendaciones con cita verbatim. Cero alucinación — guía, página y referencia bibliográfica original.",
   },
 ];
 
@@ -81,8 +82,8 @@ export function StatsBanner() {
             La documentación es el pain #1 del médico mexicano. Lo medimos.
           </h2>
           <p className="mt-3 max-w-prose text-body text-ink-muted">
-            Datos: FUNSALUD 2024 (90% sin IA), Ross/FunSalud 2026 (4-6 hrs/día
-            documentando), tarifa promedio consulta privada MX.
+            Datos: investigación pública del sector salud MX, tarifa promedio
+            consulta privada en CDMX/MTY/GDL.
           </p>
         </div>
 

@@ -55,7 +55,7 @@ export function HeroProductVisual() {
       <AppChrome
         path="dashboard/diferencial"
         breadcrumb={["Dashboard", "Diferencial diagnóstico", "Caso · G.R."]}
-        badge="Razonamiento bayesiano en vivo"
+        badge="Razonamiento clínico en vivo"
       >
         <div className="grid gap-5 lg:grid-cols-[1fr_minmax(0,1.15fr)]">
           {/* LEFT — clinical findings */}

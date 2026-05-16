@@ -37,7 +37,7 @@ const FEATURES = [
   },
   {
     title: "Validación de seguros dentales · próximamente Q4 2026",
-    desc: "Integración con Metlife Dental, AXA Dental, GNP Dental y planes corporativos para verificar cobertura antes de iniciar el tratamiento. En desarrollo — disponible para planes Esencial+ cuando lance.",
+    desc: "Integración con principales aseguradoras dentales del mercado mexicano para verificar cobertura antes de iniciar el tratamiento. En desarrollo — disponible para planes Esencial+ cuando lance.",
   },
 ];
 
@@ -50,7 +50,7 @@ const ARCHITECTURE = [
   {
     icon: ShieldCheck,
     title: "Estructura conforme NOM-024-SSA3 y LFPDPPP",
-    desc: "Expediente electrónico estructurado siguiendo NOM-024-SSA3-2012. TLS 1.3 en tránsito + cifrado en reposo (Supabase). Cada lectura y escritura queda registrada en el audit log con usuario, fecha y dispositivo.",
+    desc: "Expediente electrónico estructurado siguiendo NOM-024-SSA3-2012. TLS 1.3 en tránsito + cifrado en reposo nivel enterprise. Cada lectura y escritura queda registrada en el audit log con usuario, fecha y dispositivo.",
   },
   {
     icon: Printer,

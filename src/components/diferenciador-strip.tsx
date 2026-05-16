@@ -4,7 +4,7 @@ const DIFFERENCES = [
   {
     icon: Brain,
     title: "Un cerebro clínico curado por médicos",
-    desc: "No es una IA genérica. Cada recomendación viene con su guía clínica (GPC IMSS, ADA, KDIGO, ESC), su fuerza de evidencia y su cita textual. Sin inventar nada.",
+    desc: "No es una IA genérica. Cada recomendación viene con su guía clínica oficial, su fuerza de evidencia y su cita textual. Sin inventar nada.",
   },
   {
     icon: Users,
