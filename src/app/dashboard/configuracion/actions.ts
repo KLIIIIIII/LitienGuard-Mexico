@@ -268,3 +268,35 @@ export async function acceptConsentimientoPacientes(): Promise<
   revalidatePath("/dashboard/agenda");
   return { status: "ok" };
 }
+
+const VALID_ESTADOS = new Set([
+  "AGS","BC","BCS","CAMP","COAH","COL","CHIS","CHIH","CDMX","DGO",
+  "GTO","GRO","HGO","JAL","MEX","MICH","MOR","NAY","NL","OAX",
+  "PUE","QRO","QROO","SLP","SIN","SON","TAB","TAMS","TLAX","VER",
+  "YUC","ZAC",
+]);
+
+export async function guardarEstadoPractica(
+  estado: string | null,
+): Promise<{ status: "ok" } | { status: "error"; message: string }> {
+  if (estado !== null && !VALID_ESTADOS.has(estado)) {
+    return { status: "error", message: "Estado no válido." };
+  }
+
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado." };
+
+  const { error } = await supa
+    .from("profiles")
+    .update({ estado_practica: estado })
+    .eq("id", user.id);
+
+  if (error) return { status: "error", message: error.message };
+
+  revalidatePath("/dashboard/configuracion");
+  revalidatePath("/dashboard/diferencial");
+  return { status: "ok" };
+}

@@ -18,6 +18,10 @@ import {
   type SymptomRedFlags,
 } from "@/lib/inference/red-flags";
 import {
+  findSimilarCases,
+  type SimilarCase,
+} from "@/lib/patient-memory";
+import {
   generateResponseWatermark,
   recordQueryAudit,
 } from "@/lib/inference/query-audit";
@@ -40,6 +44,7 @@ export type AnalizarNotaResult =
       topDx: DxTop[];
       redFlags: SymptomRedFlags[];
       redFlagsSummary: { now: number; soon: number; monitor: number };
+      similarCases: SimilarCase[];
       latencyMs: number;
       _wm: string;
     }
@@ -129,6 +134,13 @@ export async function analizarNotaSoap(
     const redFlags = detectRedFlagsInText(parsed.data.contextoClinico);
     const redFlagsSummary = summarizeRedFlags(redFlags);
 
+    // D3 — patient memory: buscar casos parecidos en la práctica del médico
+    const similarCases = await findSimilarCases(
+      user.id,
+      parsed.data.contextoClinico,
+      { limit: 4 },
+    );
+
     const latencyMs = Date.now() - t0;
 
     void recordAudit({
@@ -166,6 +178,7 @@ export async function analizarNotaSoap(
       topDx,
       redFlags,
       redFlagsSummary,
+      similarCases,
       latencyMs,
       _wm: wm,
     };

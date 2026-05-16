@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { FINDINGS } from "@/lib/inference/knowledge-base";
 import type { SymptomRedFlags } from "@/lib/inference/red-flags";
+import type { SimilarCase } from "@/lib/patient-memory";
 import {
   analizarNotaSoap,
   type AnalizarNotaResult,
@@ -194,6 +195,11 @@ export function AnalizarForm() {
               </Link>
             </section>
 
+            {/* Casos parecidos en tu práctica (D3) */}
+            {result.similarCases.length > 0 && (
+              <SimilarCasesPanel cases={result.similarCases} />
+            )}
+
             {/* Findings extraídos */}
             {result.extractions.length > 0 && (
               <section className="lg-card space-y-3">
@@ -349,6 +355,68 @@ function RedFlagsPanel({
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+function SimilarCasesPanel({ cases }: { cases: SimilarCase[] }) {
+  return (
+    <section className="lg-card space-y-3">
+      <header>
+        <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
+          Casos parecidos en tu práctica
+        </p>
+        <h2 className="mt-1 text-h3 font-semibold tracking-tight text-ink-strong">
+          {cases.length} {cases.length === 1 ? "caso similar" : "casos similares"} que ya viste
+        </h2>
+        <p className="mt-1 text-caption text-ink-muted">
+          El cerebro encontró estos casos parecidos en tus consultas previas.
+          Útil para comparar manejo y outcome.
+        </p>
+      </header>
+      <ul className="space-y-2">
+        {cases.map((c, idx) => {
+          const sim = Math.round(c.similarity * 100);
+          return (
+            <motion.li
+              key={c.source_id}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.05 + idx * 0.04, ease: easeOut }}
+              className="rounded-lg border border-line bg-surface p-3"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-body-sm text-ink-strong line-clamp-2 leading-snug">
+                    {c.content_preview ?? "Sin preview"}
+                  </p>
+                  <p className="mt-1 text-caption text-ink-soft">
+                    {new Date(c.created_at).toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-h3 font-bold tabular-nums text-validation">
+                    {sim}%
+                  </p>
+                  <p className="text-caption text-ink-muted">similitud</p>
+                </div>
+              </div>
+              {c.source_type === "diferencial_session" && (
+                <a
+                  href={`/dashboard/diferencial/${c.source_id}`}
+                  className="mt-2 inline-flex items-center gap-1 text-caption font-semibold text-validation hover:underline"
+                >
+                  Abrir caso →
+                </a>
+              )}
+            </motion.li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

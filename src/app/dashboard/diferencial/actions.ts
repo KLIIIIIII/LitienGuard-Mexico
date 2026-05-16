@@ -24,11 +24,16 @@ import {
 import { DISEASES, LIKELIHOOD_RATIOS } from "@/lib/inference/knowledge-base";
 import { MX_NATIONAL_PRIORS } from "@/lib/inference/priors-mx";
 import {
+  aplicarMultiplicadoresRegionales,
+  type EstadoMx,
+} from "@/lib/inference/epidemio-estados-mx";
+import {
   generateResponseWatermark,
   recordQueryAudit,
 } from "@/lib/inference/query-audit";
 import type { InferenceResult } from "@/lib/inference/types";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
+import { persistEmbedding } from "@/lib/patient-memory";
 
 const saveSchema = z.object({
   paciente_iniciales: z.string().trim().max(10).optional().or(z.literal("")),
@@ -121,6 +126,17 @@ export async function saveDiferencialSession(
       top_diagnosis: d.top_diagnoses[0]?.label,
     },
   });
+
+  // D3 — patient memory: persistir embedding del contexto para futuras
+  // búsquedas de casos similares en la práctica del médico.
+  if (d.contexto_clinico && d.contexto_clinico.trim().length >= 40) {
+    void persistEmbedding({
+      medicoId: user.id,
+      sourceType: "diferencial_session",
+      sourceId: data.id,
+      text: d.contexto_clinico,
+    });
+  }
 
   revalidatePath("/dashboard/diferencial");
   return { status: "ok", id: data.id };
@@ -319,7 +335,7 @@ export async function procesarCasoCompleto(input: {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("subscription_tier")
+    .select("subscription_tier, estado_practica")
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
@@ -329,6 +345,12 @@ export async function procesarCasoCompleto(input: {
       message: "El diferencial requiere plan Profesional o superior.",
     };
   }
+
+  // D5.2 — si el médico configuró estado, aplica multiplicadores regionales
+  const estadoPractica = (profile?.estado_practica ?? null) as EstadoMx | null;
+  const priorsCalibrados = estadoPractica
+    ? aplicarMultiplicadoresRegionales(MX_NATIONAL_PRIORS, estadoPractica)
+    : MX_NATIONAL_PRIORS;
 
   const t0 = Date.now();
   const responseWatermark = generateResponseWatermark();
@@ -350,12 +372,12 @@ export async function procesarCasoCompleto(input: {
     }));
 
     // Inferencia bayesiana sobre todas las enfermedades del catálogo,
-    // con calibración a prevalencias mexicanas (D5).
+    // con calibración nacional (D5) y opcionalmente regional (D5.2).
     const inferenceResults = inferDifferential(
       observations,
       DISEASES,
       LIKELIHOOD_RATIOS,
-      { priorsOverride: MX_NATIONAL_PRIORS },
+      { priorsOverride: priorsCalibrados },
     );
 
     // Posterior del Dx propuesto (si está en el catálogo con confianza decente)

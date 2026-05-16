@@ -6,7 +6,12 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { FINDINGS } from "@/lib/inference/knowledge-base";
+import {
+  detectRedFlagsInText,
+  summarizeRedFlags,
+} from "@/lib/inference/red-flags";
 import { OutcomePanel } from "./outcome-panel";
+import { RedFlagsPanelStatic } from "./red-flags-panel-static";
 
 export const metadata: Metadata = {
   title: "Detalle del caso — LitienGuard",
@@ -141,6 +146,14 @@ export default async function DiferencialDetailPage({
           </p>
         )}
       </div>
+
+      {/* D4 — Red flags detectados en el contexto */}
+      {session.contexto_clinico && (() => {
+        const redFlags = detectRedFlagsInText(session.contexto_clinico);
+        if (redFlags.length === 0) return null;
+        const summary = summarizeRedFlags(redFlags);
+        return <RedFlagsPanelStatic flags={redFlags} summary={summary} />;
+      })()}
 
       {/* Findings observados */}
       <section className="lg-card space-y-4">

@@ -13,6 +13,8 @@ import { ReplayTutorialButton } from "@/components/replay-tutorial-button";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { CollectiveToggle } from "./collective-toggle";
+import { EstadoPracticaForm } from "./estado-practica-form";
+import type { EstadoMx } from "@/lib/inference/epidemio-estados-mx";
 import { ConsentToggle } from "./consent-toggle";
 import { ConsultorioForm } from "./consultorio-form";
 import { BookingForm } from "./booking-form";
@@ -42,7 +44,7 @@ export default async function ConfiguracionPage() {
   const { data: profile } = await supa
     .from("profiles")
     .select(
-      "share_with_collective,nombre,email,role,subscription_tier,profile_type,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio,recall_reply_to_email,pdf_brand_titulo,pdf_brand_subtitulo,consentimiento_pacientes_at",
+      "share_with_collective,nombre,email,role,subscription_tier,profile_type,cedula_profesional,especialidad,consultorio_nombre,consultorio_direccion,consultorio_telefono,accepts_public_bookings,booking_slug,booking_workdays,booking_hour_start,booking_hour_end,booking_slot_minutes,booking_advance_days,booking_bio,recall_reply_to_email,pdf_brand_titulo,pdf_brand_subtitulo,consentimiento_pacientes_at,estado_practica",
     )
     .eq("id", user.id)
     .single();
@@ -164,6 +166,21 @@ export default async function ConfiguracionPage() {
             initial={profile?.share_with_collective ?? false}
             practiceCount={practiceCount ?? 0}
           />
+
+          <div className="lg-card">
+            <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
+              Calibración regional del motor
+            </h2>
+            <p className="mt-2 text-body-sm text-ink-muted">
+              Configura el estado donde practicas para que el motor bayesiano
+              ajuste prevalencias a tu población.
+            </p>
+            <div className="mt-4">
+              <EstadoPracticaForm
+                initial={(profile?.estado_practica ?? null) as EstadoMx | null}
+              />
+            </div>
+          </div>
 
           <div className="lg-card">
             <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">

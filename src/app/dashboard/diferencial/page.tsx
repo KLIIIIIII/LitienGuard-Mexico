@@ -30,10 +30,11 @@ export default async function DiferencialPage({
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("subscription_tier")
+    .select("subscription_tier, estado_practica")
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const estadoPractica = profile?.estado_practica as string | null;
 
   const params = await searchParams;
   let initialClinicalText: string | undefined;
@@ -158,7 +159,7 @@ export default async function DiferencialPage({
           <div className="flex flex-wrap items-center gap-2">
             <Eyebrow tone="validation">Diferencial diagnóstico</Eyebrow>
             <span className="inline-flex items-center gap-1 rounded-full border border-validation-soft bg-validation-soft px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-eyebrow text-validation">
-              Calibrado MX
+              Calibrado MX{estadoPractica ? ` · ${estadoPractica}` : ""}
             </span>
           </div>
           <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
