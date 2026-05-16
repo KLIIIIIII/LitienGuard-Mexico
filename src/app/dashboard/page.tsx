@@ -390,8 +390,8 @@ export default async function DashboardPage() {
                 </div>
               </div>
               <p className="mt-3 text-body-sm text-ink-muted">
-                Consulta el cerebro curado en español con citas verbatim de
-                guías oficiales (IMSS, NOM-004, NICE, GINA, Surviving Sepsis).
+                Consulta el cerebro clínico curado en español con citas
+                verbatim a guías oficiales y literatura peer-reviewed.
               </p>
               <Link
                 href="/contacto"

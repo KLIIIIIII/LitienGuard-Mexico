@@ -8,7 +8,7 @@ const VERBS = [
   {
     n: "01",
     verb: "Consultar",
-    desc: "Pregunta clínica con contexto del paciente. Devolvemos chunks verbatim con cita: GPC, página, fuerza de evidencia.",
+    desc: "Pregunta clínica con contexto del paciente. Devolvemos fragmentos verbatim con cita, página y fuerza de evidencia.",
   },
   {
     n: "02",
@@ -18,12 +18,12 @@ const VERBS = [
   {
     n: "03",
     verb: "Registrar",
-    desc: "Documenta tu decisión y el outcome del paciente. Sin PII en el LLM. Persistencia local con SHA-256.",
+    desc: "Documenta tu decisión y el outcome del paciente. Procesamiento privado, sin enviar identidad del paciente a modelos externos.",
   },
   {
     n: "04",
     verb: "Mejorar",
-    desc: "Loop de calidad: tus outcomes alimentan el cerebro. Cada hospital socio enriquece el conocimiento del siguiente.",
+    desc: "Loop de calidad: tus outcomes alimentan tu propia calibración personal. La red colectiva opcional enriquece a todos.",
   },
 ];
 

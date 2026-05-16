@@ -91,9 +91,9 @@ const FEATURES: Record<FeatureKey, FeatureDef> = {
     key: "cerebro-read",
     name: "Cerebro — búsqueda en guías",
     description:
-      "Busca recomendaciones verbatim en IMSS, CENETEC, NICE, KDIGO, ESC, AHA, Mayo Clinic. Cada respuesta cita la página exacta del documento fuente.",
+      "Busca recomendaciones verbatim en guías clínicas oficiales mexicanas y literatura primaria peer-reviewed. Cada respuesta cita la página exacta del documento fuente.",
     howToUse:
-      "Cerebro → escribe tu pregunta clínica en español ('Iniciar SGLT2i en ERC etapa 3'). Te devuelve el chunk verbatim de la guía oficial con número de página y URL.",
+      "Cerebro → escribe tu pregunta clínica en español ('Iniciar SGLT2i en ERC etapa 3'). Te devuelve el fragmento verbatim de la guía oficial con número de página y URL.",
     href: "/dashboard/cerebro",
     icon: BookOpen,
   },

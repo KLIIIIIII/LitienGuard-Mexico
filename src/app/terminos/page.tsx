@@ -108,10 +108,10 @@ export default function TerminosPage() {
             </li>
             <li>
               Extraer, copiar, indexar o agregar de forma sistemática el
-              contenido del cerebro curado, sus chunks, los likelihood ratios
-              del motor de inferencia, las recomendaciones generadas o
-              cualquier output del servicio para entrenar modelos propios o
-              construir productos competidores.
+              contenido del cerebro clínico curado, sus fragmentos textuales,
+              los parámetros internos del motor de inferencia, las
+              recomendaciones generadas o cualquier output del servicio para
+              entrenar modelos propios o construir productos competidores.
             </li>
             <li>
               Acceder al servicio mediante medios automatizados (scrapers,

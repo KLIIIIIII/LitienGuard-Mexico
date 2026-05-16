@@ -58,8 +58,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "cardio",
     summary:
       "La cardiomiopatía por transtiretina tiene una fase pre-clínica reconocible 5-10 años antes del diagnóstico. La firma combinada de túnel del carpo bilateral + ruptura de bíceps + IC con FE preservada + voltaje ECG bajo es virtualmente patognomónica.",
-    primarySource:
-      "Phelan D et al. JACC 2024;83:101-115 — multicenter cohort 5,213 ATTR-CM patients",
+    primarySource: "Cohorte multicéntrica internacional · cardiología 2024",
     rationale:
       "El depósito sistémico de amiloide TTR precede a la cardiopatía en 5-10 años. Los nervios y tendones son los primeros tejidos afectados (túnel del carpo bilateral, estenosis del canal lumbar, ruptura espontánea de tendones). Cuando aparece IC con FEp + voltajes bajos en ECG, el daño cardíaco ya está avanzado. Reconocer la fase pre-clínica permite diagnóstico vía gammagrafía con pirofosfato (Tc99m-PYP).",
     findings: [
@@ -100,8 +99,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "endocrino",
     summary:
       "Patrón de comorbilidad altamente prevalente en México (40-45% de adultos según ENSANUT). La combinación de obesidad central + dislipidemia + hiperglucemia + HAS predice cardiopatía isquémica a 10 años con C-stat > 0.78.",
-    primarySource:
-      "Alberti KGMM et al. (IDF Worldwide Definition) Circulation 2009 + ENSANUT MX 2023",
+    primarySource: "Consenso internacional + datos epidemiológicos MX · 2009-2024",
     rationale:
       "México tiene la prevalencia más alta de síndrome metabólico en LATAM. El driver principal NO es el peso absoluto sino la grasa visceral medida por cintura (>90 cm hombres, >80 mujeres). En personas con apariencia normal pueden coexistir HDL bajo + TG altos + esteatosis hepática (MASLD) — fenotipo TOFI (thin outside, fat inside). Cribar SOLO con IMC pierde un 18% de casos según estudios del INC.",
     findings: [
@@ -141,8 +139,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "neuro",
     summary:
       "La distinción clínica entre EVC isquémico, hemorragia intraparenquimatosa y hemorragia subaracnoidea define la ventana terapéutica (trombólisis vs neurocirugía). Aunque TC sin contraste es definitiva, el patrón clínico permite priorizar la imagen.",
-    primarySource:
-      "AHA/ASA 2024 Guidelines Stroke + Larsson SC et al. Lancet Neurol 2023",
+    primarySource: "Guías clínicas internacionales neurovasculares · 2024",
     rationale:
       "El déficit focal SÚBITO + anticoagulación + FA inclina a embólico (~LR 6). La cefalea trueno con vómito + signos meníngeos inclina a HSA (~LR 12). La HTA severa aguda + deterioro progresivo en minutos-horas inclina a HIP. Los stroke mimics (crisis convulsiva post-ictal, migraña hemipléjica, hipoglucemia) representan 10-15% de las activaciones de código stroke según el registro AHA.",
     findings: [
@@ -182,8 +179,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "endocrino",
     summary:
       "El 7-10% de los diagnósticos de DM2 en realidad son LADA (autoimmune en adulto) o MODY (monogénico). Distinguir cambia el manejo: LADA progresa rápido a insulinodependencia, MODY puede responder solo a sulfonilureas.",
-    primarySource:
-      "ADA Standards of Care 2024 + Hattersley AT et al. Diabetologia 2023",
+    primarySource: "Estándares internacionales de diabetes · 2023-2024",
     rationale:
       "Edad joven al diagnóstico + delgadez + cetoacidosis al inicio + ac GAD positivos + requerimiento de insulina a 1-2 años = LADA (no DM2). Historia familiar autosómica dominante 3 generaciones + edad < 25 + ausencia de cetoacidosis + péptido C conservado + respuesta a sulfonilurea = MODY. Tipear bien evita 10 años de tratamiento ineficiente.",
     findings: [
@@ -223,8 +219,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "neuro",
     summary:
       "POTS afecta predominantemente mujeres jóvenes y se confunde con ansiedad, deshidratación o hipotiroidismo durante años (latencia diagnóstica media 4 años en México). Tilt test + criterios clínicos hacen el diagnóstico.",
-    primarySource:
-      "Sheldon RS et al. Heart Rhythm Society Consensus 2023 + Mayo POTS registry 12,000 pts",
+    primarySource: "Consenso de sociedades cardiovasculares + registro multicéntrico",
     rationale:
       "Incremento de FC > 30 bpm en 10 min al pasar de supino a parado (sin caída de PA > 20 mmHg) en ausencia de causa secundaria. La asociación con hipermovilidad articular (Ehlers-Danlos hipermóvil), MCAS y deficiencia de hierro está bien documentada. En adolescentes jóvenes con fatiga crónica y mareo postural, considerar POTS antes que ansiedad.",
     findings: [
@@ -265,8 +260,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "endocrino",
     summary:
       "TSH alta con T4L normal — frecuentemente atribuido erróneamente a depresión, fibromialgia o 'normal envejecimiento'. La decisión de tratar depende del nivel TSH + presencia ac anti-TPO + síntomas + dislipidemia secundaria.",
-    primarySource:
-      "American Thyroid Association Guidelines 2023 + Cooper DS NEJM 2023",
+    primarySource: "Guías internacionales de endocrinología tiroidea · 2023",
     rationale:
       "Anti-TPO + indica tiroiditis de Hashimoto en evolución — progresa a hipotiroidismo franco en 4%/año. La dislipidemia secundaria (LDL alto reversible con levotiroxina) y la hipertensión diastólica son frecuentemente la única manifestación. En mujeres con depresión refractaria, descartar siempre.",
     findings: [
@@ -307,8 +301,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "infecto",
     summary:
       "qSOFA + foco infeccioso documentado + lactato > 2 son los discriminadores rápidos. SIRS sin infección (pancreatitis, quemaduras, post-quirúrgico) puede simular sepsis pero requiere manejo distinto.",
-    primarySource:
-      "Surviving Sepsis Campaign 2024 + Singer M et al. JAMA Sepsis-3",
+    primarySource: "Consenso internacional de medicina crítica · 2024",
     rationale:
       "qSOFA ≥ 2 (alteración mental, FR > 22, TAS ≤ 100) en paciente con sospecha de infección predice mortalidad intrahospitalaria. Lactato > 2 mmol/L sugiere hipoperfusión incluso si PA normal. En unidades de México, la sepsis sigue siendo la primera causa de muerte intrahospitalaria evitable.",
     findings: [
@@ -348,8 +341,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "cardio",
     summary:
       "Hasta 30% de los EVC clasificados inicialmente como criptogénicos se asocian a FA paroxística oculta detectada por monitorización ambulatoria prolongada (loop recorder 12-30 meses).",
-    primarySource:
-      "Sanna T et al. NEJM CRYSTAL-AF + Healey JS et al. NEJM EMBRACE",
+    primarySource: "Ensayos clínicos randomizados de monitorización ambulatoria",
     rationale:
       "EVC sin etiología clara tras workup completo (TC/RM, carótidas, ecocardio TT/TE, Holter 24h) + edad > 65 + HAS + dilatación AI + NT-proBNP alto → considerar loop recorder o monitor 30 días. Anticoagular cambia el riesgo de recurrencia ~70%.",
     findings: [
@@ -389,8 +381,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "endocrino",
     summary:
       "El Cushing endógeno se diagnostica con retraso medio de 3 años. Las características más específicas son estrías purpúreas anchas (>1cm), debilidad proximal y plétora facial. Cortisol salival nocturno + supresión con dexametasona confirman.",
-    primarySource:
-      "Nieman LK et al. Endocrine Society Guidelines 2024",
+    primarySource: "Guías clínicas endocrinas internacionales · 2024",
     rationale:
       "El fenotipo cushingoide es muy reconocible cuando es completo, pero parcial en 60% de casos. Las estrías purpúreas son lo más específico (LR > 30 cuando >1cm y abdominales). Debilidad proximal sin atrofia muscular distal apoya. Diferencia clave vs síndrome metabólico: redistribución central CON debilidad muscular + delgadez de extremidades.",
     findings: [
@@ -430,8 +421,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "infecto", // catálogo amplio
     summary:
       "13% de las mujeres en edad reproductiva en México tienen anemia ferropénica (ENSANUT 2023). El reto NO es diagnosticarla sino encontrar la causa: hipermenorrea, pérdida GI oculta, dieta deficitaria, gestación reciente, o gastritis por H. pylori.",
-    primarySource:
-      "WHO 2024 + ENSANUT MX 2023 + Camaschella C NEJM 2023",
+    primarySource: "Lineamientos OMS + datos epidemiológicos nacionales · 2023-2024",
     rationale:
       "En mujer joven sin sangrado evidente y dieta variada, considerar enfermedad celíaca, gastritis por H. pylori, o malabsorción. En mujer > 50 sin hipermenorrea, COLON hasta no demostrarlo. Receta automática de hierro VO sin estudiar la causa es práctica frecuente y peligrosa.",
     findings: [
@@ -472,8 +462,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "cardio",
     summary:
       "El paradigma 'EA severa = gradiente alto' falla en ~30% de pacientes con FEVI baja o llenado restrictivo (paradoxical LFLG). Distinguir EA severa LFLG real vs pseudo-severa cambia la decisión de TAVI/SAVR.",
-    primarySource:
-      "ESC/EACTS 2021 Valvular Heart Disease + Pibarot P et al. Heart 2024",
+    primarySource: "Guías internacionales de valvulopatías · 2021-2024",
     rationale:
       "Área valvular < 1 cm² PERO gradiente medio < 40 mmHg = clasificar entre EA severa LFLG vs pseudo-severa (válvula moderada con bajo flujo por miocardiopatía). Dobutamina stress eco: si el área se mantiene < 1 y el gradiente sube > 40 = severa real. Si el área crece > 1.2 = pseudo-severa. Calcio score TC > 2000 (hombres) / > 1300 (mujeres) confirma severa.",
     findings: [
@@ -513,8 +502,7 @@ export const CANONICAL_PATTERNS: CanonicalPattern[] = [
     category: "neuro",
     summary:
       "Cefalea de máxima intensidad alcanzada en < 1 minuto. La HSA aneurismática es la causa más letal (mortalidad 30-50%) pero hay otros mimics importantes: RCVS, trombosis venosa, disección cervical, hipertensión maligna.",
-    primarySource:
-      "Sahuquillo C et al. Lancet Neurol 2024 + AHA/ASA HSA 2023",
+    primarySource: "Guías internacionales de cefaleas + neurovasculares · 2023-2024",
     rationale:
       "Cefalea trueno + signos meníngeos + alteración conciencia = HSA hasta no demostrar. TC sin contraste en < 6h es 100% sensible si bien hecha. Si TC negativa y alta sospecha → punción lumbar 6-12h. RCVS (síndrome de vasoconstricción cerebral reversible) puede dar trueno recurrente sin sangre — más frecuente en posparto, post-coital, post-esfuerzo.",
     findings: [

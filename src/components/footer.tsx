@@ -53,8 +53,8 @@ export function Footer() {
               </svg>
             </Link>
             <p className="mt-4 max-w-xs text-body-sm text-ink-muted">
-              Sistema operativo clínico latinoamericano. Evidencia curada en
-              español, anclada en México.
+              La capa de inteligencia clínica para el médico latinoamericano.
+              Construida con rigor académico de talla mundial.
             </p>
           </div>
 

@@ -50,11 +50,12 @@ export function FloatingMockup() {
             </span>
             <div>
               <p className="text-caption font-semibold text-ink-strong">
-                IMSS-718 · Pág. 24
+                Guía clínica oficial · Pág. 24
               </p>
               <p className="mt-1 text-caption leading-snug text-ink-muted">
-                Iniciar SGLT2i con beneficio renal (empagliflozina o
-                dapagliflozina). Recomendación fuerte (NICE A).
+                Iniciar SGLT2i con beneficio renal en pacientes con DM2 y
+                enfermedad renal crónica. Recomendación de alto nivel de
+                evidencia.
               </p>
             </div>
           </div>

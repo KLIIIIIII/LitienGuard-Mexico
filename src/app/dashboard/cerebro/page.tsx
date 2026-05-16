@@ -46,9 +46,9 @@ export default async function CerebroPage() {
             </h1>
             <p className="mt-3 max-w-prose text-body text-ink-muted">
               Tu plan actual es <strong>{TIER_LABELS[tier]}</strong>. Para
-              consultar el cerebro con citas verbatim de guías oficiales (IMSS,
-              NOM-004, NICE, GINA, Surviving Sepsis), necesitas el plan Pro o
-              Enterprise.
+              consultar el cerebro con citas verbatim a guías clínicas
+              oficiales y literatura primaria peer-reviewed, necesitas el plan
+              Pro o Enterprise.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link href="/contacto" className="lg-cta-primary">
@@ -82,9 +82,9 @@ export default async function CerebroPage() {
               Búsqueda con evidencia
             </h1>
             <p className="mt-2 max-w-prose text-body text-ink-muted">
-              Consulta el cerebro curado en español. {stats.docs} fragmentos de
-              guías oficiales (IMSS, NOM-004, NICE, GINA, Surviving Sepsis).
-              Cada resultado incluye cita verbatim, fuente y página.
+              Consulta el cerebro clínico curado en español. Cada resultado
+              incluye cita verbatim, fuente y número de página del documento
+              original.
             </p>
           </div>
         </div>
