@@ -65,7 +65,32 @@ export const URGENCIAS_TIPOS = {
   codigo_stroke: "codigo_stroke",
   codigo_iam: "codigo_iam",
   dka_protocolo: "dka_protocolo",
+  disposition: "disposition",
 } as const;
+
+export type DispositionTipo =
+  | "alta"
+  | "observacion"
+  | "hospitalizacion"
+  | "uci"
+  | "quirofano"
+  | "traslado"
+  | "morgue"
+  | "lwbs";
+
+export const DISPOSITION_LABELS: Record<
+  DispositionTipo,
+  { label: string; tone: "good" | "warning" | "critical" | "neutral" }
+> = {
+  alta: { label: "Alta domiciliaria", tone: "good" },
+  observacion: { label: "Observación", tone: "warning" },
+  hospitalizacion: { label: "Hospitalización a piso", tone: "warning" },
+  uci: { label: "Ingreso a UCI", tone: "critical" },
+  quirofano: { label: "Pase a quirófano", tone: "critical" },
+  traslado: { label: "Traslado a otra unidad", tone: "neutral" },
+  morgue: { label: "Defunción", tone: "critical" },
+  lwbs: { label: "Salió sin ser visto (LWBS)", tone: "critical" },
+};
 
 export const QUIROFANO_TIPOS = {
   pre_quirurgico: "pre_quirurgico",

@@ -32,22 +32,31 @@ import type { DataTableColumn, CodeKind } from "@/components/clinical";
 import {
   URGENCIAS_TIPOS,
   TRIAGE_NIVELES,
+  DISPOSITION_LABELS,
   type EventoModulo,
   type TriageNivel,
+  type DispositionTipo,
 } from "@/lib/modulos-eventos";
 import {
   iniciarTriage,
   iniciarProtocolo,
   completarProtocolo,
   cancelarProtocolo,
+  registrarDisposition,
 } from "./actions";
+import { LogOut, ArrowRight } from "lucide-react";
 
 /* ============================================================
    Catálogo de protocolos
    ============================================================ */
 
+type ProtocoloTipoEnum = Exclude<
+  keyof typeof URGENCIAS_TIPOS,
+  "triage" | "disposition"
+>;
+
 type ProtocoloDef = {
-  tipo: keyof typeof URGENCIAS_TIPOS;
+  tipo: ProtocoloTipoEnum;
   kind: CodeKind;
   titulo: string;
   subtitulo: string;
@@ -286,7 +295,7 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
     null,
   );
   const [drawerMode, setDrawerMode] = useState<
-    "none" | "new_triage" | "activate_protocol"
+    "none" | "new_triage" | "activate_protocol" | "disposition"
   >("none");
   const [protocolToActivate, setProtocolToActivate] = useState<
     keyof typeof PROTOCOLOS | null
@@ -294,7 +303,11 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
 
   /* --------- Procesar eventos a filas + protocolos activos --------- */
   const { triageRows, protocolosActivos, metricas } = useMemo(() => {
-    const triages = eventos.filter((e) => e.tipo === URGENCIAS_TIPOS.triage);
+    // Solo triages activos en el tracking board (los con disposition ya
+    // cerraron como status="completado" — desaparecen automáticamente)
+    const triages = eventos.filter(
+      (e) => e.tipo === URGENCIAS_TIPOS.triage && e.status === "activo",
+    );
     const activos = eventos.filter(
       (e) =>
         e.status === "activo" &&
@@ -366,14 +379,38 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
         ? Math.round((sepsisOnTime / completadosUltimos.length) * 100)
         : null;
 
+    // LOS promedio y throughput desde disposition events (AHRQ)
+    const dispositions = eventos.filter(
+      (e) => e.tipo === URGENCIAS_TIPOS.disposition,
+    );
+    const losTotales: number[] = [];
+    let lwbsCount = 0;
+    for (const d of dispositions) {
+      const m = (d.metricas ?? {}) as { los_minutos?: number; disposition?: string };
+      if (typeof m.los_minutos === "number") losTotales.push(m.los_minutos);
+      if (m.disposition === "lwbs") lwbsCount += 1;
+    }
+    const losPromedio =
+      losTotales.length > 0
+        ? Math.round(losTotales.reduce((s, n) => s + n, 0) / losTotales.length)
+        : null;
+    const lwbsRate =
+      dispositions.length > 0
+        ? Math.round((lwbsCount / dispositions.length) * 100)
+        : null;
+
     return {
       triageRows: rows,
       protocolosActivos: activos,
+      dispositions,
       metricas: {
         enTriage,
         conProtocoloActivo,
         tiempoPromedio,
         sepsisCompliance,
+        losPromedio,
+        lwbsRate,
+        dispositionsCount: dispositions.length,
       },
     };
   }, [eventos]);
@@ -454,6 +491,42 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
             caption="< 60min bundle"
           />
         </section>
+
+        {/* ============ Throughput AHRQ (LOS · dispositions · LWBS) ============ */}
+        {metricas.dispositionsCount > 0 && (
+          <section className="grid gap-3 sm:grid-cols-3">
+            <ClinicalMetric
+              label="LOS promedio ED"
+              value={metricas.losPromedio ?? "—"}
+              unit={metricas.losPromedio != null ? "min" : ""}
+              icon={Clock}
+              caption="Triage → disposition"
+              size="md"
+            />
+            <ClinicalMetric
+              label="Dispositions"
+              value={metricas.dispositionsCount}
+              unit={metricas.dispositionsCount === 1 ? "paciente" : "pacientes"}
+              icon={LogOut}
+              caption="Últimas 8h"
+              size="md"
+            />
+            <ClinicalMetric
+              label="LWBS rate"
+              value={metricas.lwbsRate ?? "—"}
+              unit={metricas.lwbsRate != null ? "%" : ""}
+              icon={TrendingUp}
+              critical={metricas.lwbsRate != null && metricas.lwbsRate > 5}
+              deltaInterpretation={
+                metricas.lwbsRate != null && metricas.lwbsRate <= 2
+                  ? "good"
+                  : "bad"
+              }
+              caption="Salió sin ser visto"
+              size="md"
+            />
+          </section>
+        )}
 
         {/* ============ Code timers row ============ */}
         {protocolosActivos.length > 0 && (
@@ -561,15 +634,29 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
                 <p className="mt-0.5 text-caption text-ink-muted">
                   {selectedRow.motivo}
                 </p>
+                <p className="mt-1 text-caption text-ink-soft tabular-nums">
+                  LOS actual: {selectedRow.minutosEnSala} min
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedPatientId(null)}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-ink-muted hover:bg-surface-alt hover:text-ink-strong"
-                aria-label="Cerrar"
-              >
-                <X className="h-3.5 w-3.5" strokeWidth={2.2} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDrawerMode("disposition")}
+                  className="lg-cta-primary inline-flex items-center gap-1.5 text-caption"
+                >
+                  <LogOut className="h-3.5 w-3.5" strokeWidth={2.4} />
+                  Dar disposición
+                  <ArrowRight className="h-3 w-3" strokeWidth={2.4} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPatientId(null)}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-ink-muted hover:bg-surface-alt hover:text-ink-strong"
+                  aria-label="Cerrar"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2.2} />
+                </button>
+              </div>
             </div>
 
             {/* Protocolos activos del paciente */}
@@ -664,8 +751,151 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
             }}
           />
         )}
+        {drawerMode === "disposition" && selectedRow && (
+          <DispositionDrawer
+            triageId={selectedRow.id}
+            iniciales={selectedRow.iniciales}
+            losMinutos={selectedRow.minutosEnSala}
+            onClose={() => {
+              setDrawerMode("none");
+              setSelectedPatientId(null);
+            }}
+          />
+        )}
       </AnimatePresence>
     </>
+  );
+}
+
+/* ============================================================
+   Drawer: Disposition (cierre del paciente en ED)
+   ============================================================ */
+function DispositionDrawer({
+  triageId,
+  iniciales,
+  losMinutos,
+  onClose,
+}: {
+  triageId: string;
+  iniciales: string;
+  losMinutos: number;
+  onClose: () => void;
+}) {
+  const [tipo, setTipo] = useState<DispositionTipo>("alta");
+  const [razon, setRazon] = useState("");
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function submit() {
+    setError(null);
+    startTransition(async () => {
+      const r = await registrarDisposition({
+        triageEventoId: triageId,
+        tipo,
+        razon: razon.trim() || undefined,
+      });
+      if (r.status === "ok") onClose();
+      else setError(r.message);
+    });
+  }
+
+  return (
+    <Drawer title="Disposición del paciente" onClose={onClose}>
+      <div className="space-y-3">
+        <div className="rounded-xl border border-line bg-surface-alt p-3">
+          <p className="text-caption text-ink-soft">Paciente</p>
+          <p className="mt-0.5 text-body-sm font-semibold text-ink-strong">
+            {iniciales}
+          </p>
+          <p className="mt-1 text-caption text-ink-muted tabular-nums">
+            LOS: {losMinutos} min en sala
+          </p>
+        </div>
+
+        <div>
+          <p className="text-caption font-medium text-ink-muted mb-1.5">
+            Tipo de disposición
+          </p>
+          <div className="space-y-1.5">
+            {(Object.entries(DISPOSITION_LABELS) as Array<
+              [DispositionTipo, (typeof DISPOSITION_LABELS)[DispositionTipo]]
+            >).map(([key, meta]) => {
+              const selected = tipo === key;
+              const toneCls =
+                meta.tone === "critical"
+                  ? "border-rose"
+                  : meta.tone === "warning"
+                    ? "border-warn"
+                    : meta.tone === "good"
+                      ? "border-validation"
+                      : "border-line";
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setTipo(key)}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left transition-all ${
+                    selected
+                      ? `${toneCls} bg-surface ring-2 ring-accent/30`
+                      : "border-line bg-surface hover:border-line-strong"
+                  }`}
+                >
+                  <span className="text-body-sm text-ink-strong">
+                    {meta.label}
+                  </span>
+                  {selected && (
+                    <CheckCircle2
+                      className="h-4 w-4 text-validation"
+                      strokeWidth={2.4}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <Field label="Razón / nota breve (opcional)">
+          <textarea
+            value={razon}
+            onChange={(e) => setRazon(e.target.value.slice(0, 500))}
+            placeholder="Ej. Dolor controlado, signos vitales estables, alta con cita en 48h"
+            className="lg-input min-h-[72px] resize-y"
+          />
+        </Field>
+
+        {error && (
+          <ClinicalAlert
+            severity="critical"
+            title="No se pudo registrar"
+            description={error}
+          />
+        )}
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-line">
+          <button
+            type="button"
+            onClick={onClose}
+            className="lg-cta-ghost text-caption"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={pending}
+            className="lg-cta-primary inline-flex items-center gap-2 text-caption disabled:opacity-50"
+          >
+            {pending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.4} />
+            ) : (
+              <LogOut className="h-3.5 w-3.5" strokeWidth={2.4} />
+            )}
+            Registrar disposición
+          </button>
+        </div>
+      </div>
+    </Drawer>
   );
 }
 

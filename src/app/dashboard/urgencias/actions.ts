@@ -8,6 +8,7 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import {
   URGENCIAS_TIPOS,
   type TriageNivel,
+  type DispositionTipo,
 } from "@/lib/modulos-eventos";
 
 const tipoSchema = z.enum([
@@ -245,6 +246,124 @@ export async function completarProtocolo(
     metadata: {
       tipo: existing.tipo,
       pasos: parsed.data.pasosCompletados?.length ?? 0,
+    },
+  });
+
+  revalidatePath("/dashboard/urgencias");
+  return { status: "ok" };
+}
+
+/**
+ * Registra disposición de un paciente de urgencias.
+ * Calcula LOS desde el triage al cierre.
+ */
+const dispositionSchema = z.object({
+  triageEventoId: z.string().uuid(),
+  tipo: z.enum([
+    "alta",
+    "observacion",
+    "hospitalizacion",
+    "uci",
+    "quirofano",
+    "traslado",
+    "morgue",
+    "lwbs",
+  ]),
+  razon: z.string().trim().max(500).optional(),
+});
+
+export async function registrarDisposition(
+  input: z.infer<typeof dispositionSchema>,
+): Promise<ActionResult> {
+  const gate = await authAndGate();
+  if (!gate.ok) return { status: "error", message: gate.message };
+
+  const parsed = dispositionSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+    };
+  }
+
+  const supa = await createSupabaseServer();
+
+  // Leer el triage para calcular LOS y vincular paciente
+  const { data: triage } = await supa
+    .from("eventos_modulos")
+    .select("id, datos, created_at, status, user_id")
+    .eq("id", parsed.data.triageEventoId)
+    .eq("user_id", gate.userId)
+    .single();
+
+  if (!triage) {
+    return { status: "error", message: "Triage no encontrado." };
+  }
+  if (triage.status === "completado") {
+    return { status: "error", message: "Este paciente ya fue dado de baja." };
+  }
+
+  const triageData = triage.datos as {
+    paciente_iniciales?: string | null;
+    paciente_edad?: number | null;
+    paciente_sexo?: "M" | "F" | "X" | null;
+    motivo?: string;
+    nivel?: TriageNivel;
+  };
+
+  const losMin = Math.floor(
+    (Date.now() - new Date(triage.created_at).getTime()) / 60000,
+  );
+
+  // Insertar evento disposition
+  const { error: dispErr } = await supa.from("eventos_modulos").insert({
+    user_id: gate.userId,
+    modulo: "urgencias",
+    tipo: URGENCIAS_TIPOS.disposition,
+    datos: {
+      triage_evento_id: parsed.data.triageEventoId,
+      paciente_iniciales: triageData.paciente_iniciales ?? null,
+      paciente_edad: triageData.paciente_edad ?? null,
+      paciente_sexo: triageData.paciente_sexo ?? null,
+      tipo: parsed.data.tipo as DispositionTipo,
+      razon: parsed.data.razon ?? null,
+    },
+    status: "completado",
+    completed_at: new Date().toISOString(),
+    metricas: {
+      los_minutos: losMin,
+      disposition: parsed.data.tipo,
+      nivel_triage: triageData.nivel ?? null,
+    },
+  });
+
+  if (dispErr) {
+    return { status: "error", message: "No se pudo registrar la disposición." };
+  }
+
+  // Cerrar el triage marcándolo completado
+  const { error: triageErr } = await supa
+    .from("eventos_modulos")
+    .update({
+      status: "completado",
+      completed_at: new Date().toISOString(),
+    })
+    .eq("id", parsed.data.triageEventoId)
+    .eq("user_id", gate.userId);
+
+  if (triageErr) {
+    return {
+      status: "error",
+      message: "Disposition registrada pero no se cerró el triage.",
+    };
+  }
+
+  void recordAudit({
+    userId: gate.userId,
+    action: "urgencias.disposition",
+    metadata: {
+      tipo: parsed.data.tipo,
+      los_minutos: losMin,
     },
   });
 
