@@ -4,6 +4,7 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { NoteStatusBadge } from "@/components/note-status-badge";
+import { PatientHeader } from "@/components/clinical";
 import { SoapEditor } from "./soap-editor";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { decryptField } from "@/lib/encryption";
@@ -111,8 +112,23 @@ export default async function NotaPage({
     .join(" · ");
 
   return (
-    <div>
-      <div>
+    <>
+      <PatientHeader
+        iniciales={n.paciente_iniciales}
+        nombre={fullName || null}
+        edad={n.paciente_edad}
+        sexo={
+          n.paciente_sexo === "M"
+            ? "M"
+            : n.paciente_sexo === "F"
+              ? "F"
+              : null
+        }
+        mrn={`NOTA-${n.id.slice(0, 6).toUpperCase()}`}
+        compact
+      />
+
+      <div className="pt-2">
         <Link
           href="/dashboard/notas"
           className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -245,6 +261,6 @@ export default async function NotaPage({
           </details>
         )}
       </div>
-    </div>
+    </>
   );
 }

@@ -13,6 +13,10 @@ import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
 import { AnunciosBanner, type AnuncioItem } from "@/components/anuncios-banner";
 import { WelcomeTour } from "@/components/welcome-tour";
+import {
+  CriticalAlertsBanner,
+  type CriticalAlertItem,
+} from "@/components/critical-alerts-banner";
 import { ClinicalMetric } from "@/components/clinical";
 import {
   canUseScribe,
@@ -73,6 +77,7 @@ export default async function DashboardPage() {
     { count: notasMes },
     { data: anunciosRaw },
     { data: anunciosVistosRaw },
+    { data: criticalAlertsRaw },
   ] = await Promise.all([
     supa
       .from("notas_scribe")
@@ -101,7 +106,44 @@ export default async function DashboardPage() {
       .from("anuncios_vistos")
       .select("anuncio_id, descartado_at")
       .eq("user_id", user.id),
+    supa
+      .from("eventos_modulos")
+      .select("id, modulo, datos, metricas, created_at")
+      .eq("tipo", "critical_alert")
+      .is("acknowledged_at", null)
+      .order("created_at", { ascending: false })
+      .limit(20),
   ]);
+
+  const criticalAlerts: CriticalAlertItem[] = (
+    (criticalAlertsRaw ?? []) as Array<{
+      id: string;
+      modulo: string;
+      datos: Record<string, unknown>;
+      metricas: Record<string, unknown>;
+      created_at: string;
+    }>
+  ).map((row) => {
+    const d = row.datos as {
+      paciente_iniciales?: string | null;
+      findings?: Array<{
+        label: string;
+        severity: "critical" | "warning";
+        match: string;
+      }>;
+      snippet?: string;
+    };
+    const m = row.metricas as { severity?: "critical" | "warning" };
+    return {
+      id: row.id,
+      modulo: row.modulo,
+      paciente_iniciales: d.paciente_iniciales ?? null,
+      findings: d.findings ?? [],
+      snippet: d.snippet ?? "",
+      severity: m.severity ?? "warning",
+      created_at: row.created_at,
+    };
+  });
 
   const dismissedIds = new Set(
     (anunciosVistosRaw ?? [])
@@ -144,6 +186,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {criticalAlerts.length > 0 && (
+        <CriticalAlertsBanner alerts={criticalAlerts} />
+      )}
       {anuncios.length > 0 && <AnunciosBanner anuncios={anuncios} />}
 
       {/* ============================================================

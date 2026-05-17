@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, AlertCircle } from "lucide-react";
+import { Plus, Trash2, AlertCircle, AlertTriangle, ShieldAlert, X } from "lucide-react";
 import { createReceta, type RecetaInput } from "../actions";
+import { matchAllergyConflicts } from "@/lib/clinical-safety";
 
 interface ItemState {
   medicamento: string;
@@ -46,6 +47,44 @@ export function RecetaForm({
   const [indicaciones_generales, setIndGenerales] = useState("");
   const [items, setItems] = useState<ItemState[]>([emptyItem()]);
 
+  // Allergy hard-stop (AMIA error prevention + ISMP guidelines)
+  const [alergias, setAlergias] = useState<string[]>([]);
+  const [alergiaInput, setAlergiaInput] = useState("");
+  const [showOverrideDialog, setShowOverrideDialog] = useState(false);
+  const [overrideReason, setOverrideReason] = useState("");
+  const [overrideAuthorized, setOverrideAuthorized] = useState(false);
+
+  function addAlergia(label: string) {
+    const clean = label.trim();
+    if (!clean || clean.length > 80) return;
+    if (alergias.some((a) => a.toLowerCase() === clean.toLowerCase())) return;
+    setAlergias((prev) => [...prev, clean]);
+    setAlergiaInput("");
+  }
+
+  function removeAlergia(label: string) {
+    setAlergias((prev) => prev.filter((a) => a !== label));
+  }
+
+  // Cross-check en vivo (no bloquea hasta submit)
+  const allergyConflicts = useMemo(() => {
+    const meds = items
+      .map((it) => it.medicamento.trim())
+      .filter((m) => m.length > 0);
+    return matchAllergyConflicts(meds, alergias);
+  }, [items, alergias]);
+
+  const ALERGIA_SUGGESTIONS = [
+    "Penicilina",
+    "Sulfamidas",
+    "AINEs",
+    "Aspirina",
+    "Yodo / contraste",
+    "Macrólidos",
+    "Quinolonas",
+    "Látex",
+  ];
+
   function updateItem(idx: number, field: keyof ItemState, value: string) {
     setItems((curr) =>
       curr.map((it, i) => (i === idx ? { ...it, [field]: value } : it)),
@@ -81,6 +120,12 @@ export function RecetaForm({
 
     if (cleanItems.length === 0) {
       setError("Agrega al menos un medicamento.");
+      return;
+    }
+
+    // Allergy hard-stop: si hay conflictos y aún no se autorizó override, abrir dialog
+    if (allergyConflicts.length > 0 && !overrideAuthorized) {
+      setShowOverrideDialog(true);
       return;
     }
 
@@ -197,6 +242,127 @@ export function RecetaForm({
               <option value="O">Otro / Prefiere no decir</option>
             </select>
           </div>
+        </div>
+
+        {/* Alergias del paciente — feature de seguridad clínica */}
+        <div className="rounded-lg border border-warn-soft bg-warn-soft/30 p-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle
+              className="h-4 w-4 text-warn"
+              strokeWidth={2.2}
+            />
+            <p className="text-caption uppercase tracking-eyebrow text-warn font-semibold">
+              Alergias documentadas del paciente
+            </p>
+          </div>
+          <p className="mt-1 text-caption text-ink-muted">
+            Antes de firmar, validamos los medicamentos contra esta lista
+            (allergy hard-stop sintáctico).
+          </p>
+
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            {alergias.length === 0 ? (
+              <p className="text-caption text-ink-quiet italic">
+                Ninguna documentada — agrega si aplica.
+              </p>
+            ) : (
+              alergias.map((a) => (
+                <span
+                  key={a}
+                  className="inline-flex items-center gap-1 rounded-full bg-warn px-2 py-0.5 text-caption font-semibold text-canvas"
+                >
+                  {a}
+                  <button
+                    type="button"
+                    onClick={() => removeAlergia(a)}
+                    disabled={pending}
+                    className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full hover:bg-warn-soft hover:text-warn"
+                    aria-label={`Quitar ${a}`}
+                  >
+                    <X className="h-2 w-2" strokeWidth={2.6} />
+                  </button>
+                </span>
+              ))
+            )}
+          </div>
+
+          <div className="mt-2 flex items-center gap-2">
+            <input
+              type="text"
+              value={alergiaInput}
+              onChange={(e) => setAlergiaInput(e.target.value.slice(0, 80))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addAlergia(alergiaInput);
+                }
+              }}
+              placeholder="Agregar alergia (Enter)"
+              disabled={pending}
+              className="lg-input flex-1 text-caption"
+            />
+            <button
+              type="button"
+              onClick={() => addAlergia(alergiaInput)}
+              disabled={pending || alergiaInput.trim().length === 0}
+              className="lg-cta-ghost text-caption disabled:opacity-50"
+            >
+              + Agregar
+            </button>
+          </div>
+
+          <div className="mt-2 flex flex-wrap gap-1">
+            <span className="text-caption text-ink-soft">Sugeridas:</span>
+            {ALERGIA_SUGGESTIONS.filter(
+              (s) =>
+                !alergias.some((a) => a.toLowerCase() === s.toLowerCase()),
+            )
+              .slice(0, 8)
+              .map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => addAlergia(s)}
+                  disabled={pending}
+                  className="rounded-full border border-line bg-surface px-2 py-0.5 text-caption text-ink-muted hover:border-warn hover:text-warn disabled:opacity-50"
+                >
+                  + {s}
+                </button>
+              ))}
+          </div>
+
+          {/* Live conflict warning */}
+          {allergyConflicts.length > 0 && (
+            <div className="mt-3 rounded-lg border-2 border-code-red bg-code-red-bg/40 p-3">
+              <div className="flex items-start gap-2">
+                <ShieldAlert
+                  className="mt-0.5 h-4 w-4 shrink-0 text-code-red"
+                  strokeWidth={2.4}
+                />
+                <div className="flex-1">
+                  <p className="text-caption font-bold text-code-red uppercase tracking-eyebrow">
+                    Conflicto detectado · {allergyConflicts.length}
+                  </p>
+                  <ul className="mt-1 space-y-0.5">
+                    {allergyConflicts.map((c, i) => (
+                      <li key={i} className="text-caption text-ink-strong">
+                        <span className="font-semibold">{c.medication}</span>{" "}
+                        vs alergia{" "}
+                        <span className="font-semibold">{c.allergy}</span>:{" "}
+                        <span className="text-ink-muted italic">
+                          {c.reason}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="hidden"></div>
         </div>
       </section>
 
@@ -426,11 +592,113 @@ export function RecetaForm({
         <button
           type="submit"
           disabled={pending}
-          className="lg-cta-primary disabled:opacity-60"
+          className={`disabled:opacity-60 ${
+            allergyConflicts.length > 0
+              ? "lg-cta-primary bg-code-red hover:bg-code-red"
+              : "lg-cta-primary"
+          }`}
         >
-          {pending ? "Guardando…" : "Guardar borrador"}
+          {pending
+            ? "Guardando…"
+            : allergyConflicts.length > 0
+              ? `⚠ Conflicto · Revisar antes de continuar`
+              : "Guardar borrador"}
         </button>
       </div>
+
+      {/* Allergy override dialog */}
+      {showOverrideDialog && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="override-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 backdrop-blur-sm p-4"
+        >
+          <div className="w-full max-w-lg rounded-2xl border-2 border-code-red bg-surface p-6 shadow-deep">
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg bg-code-red-bg p-2 text-code-red shrink-0">
+                <ShieldAlert className="h-5 w-5" strokeWidth={2.2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3
+                  id="override-title"
+                  className="text-h3 font-bold text-code-red"
+                >
+                  Alto · Conflicto con alergia documentada
+                </h3>
+                <p className="mt-1.5 text-body-sm text-ink-strong">
+                  Esta receta contiene{" "}
+                  <strong>{allergyConflicts.length}</strong>{" "}
+                  {allergyConflicts.length === 1 ? "medicamento" : "medicamentos"}{" "}
+                  que entran en conflicto con las alergias documentadas del
+                  paciente. Cumplir AMIA error prevention requiere registro
+                  explícito del override.
+                </p>
+
+                <ul className="mt-3 space-y-1.5 max-h-40 overflow-y-auto rounded-lg bg-code-red-bg/30 p-3">
+                  {allergyConflicts.map((c, i) => (
+                    <li key={i} className="text-caption">
+                      <span className="font-bold text-ink-strong">
+                        {c.medication}
+                      </span>{" "}
+                      <span className="text-ink-muted">vs alergia</span>{" "}
+                      <span className="font-bold text-ink-strong">
+                        {c.allergy}
+                      </span>
+                      <p className="mt-0.5 text-ink-muted italic">
+                        {c.reason}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-4">
+                  <label className="block text-caption font-semibold text-ink-strong">
+                    Justificación clínica (obligatoria si vas a continuar)
+                  </label>
+                  <textarea
+                    value={overrideReason}
+                    onChange={(e) =>
+                      setOverrideReason(e.target.value.slice(0, 500))
+                    }
+                    placeholder="Ej. Alergia documentada como rash leve histórico; balance beneficio/riesgo favorece tratamiento bajo monitoreo"
+                    className="lg-input mt-1.5 min-h-[80px] resize-y w-full"
+                  />
+                </div>
+
+                <div className="mt-4 flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOverrideDialog(false);
+                      setOverrideReason("");
+                    }}
+                    className="lg-cta-ghost text-caption"
+                  >
+                    Cancelar · Revisar medicamentos
+                  </button>
+                  <button
+                    type="button"
+                    disabled={overrideReason.trim().length < 10 || pending}
+                    onClick={() => {
+                      setOverrideAuthorized(true);
+                      setShowOverrideDialog(false);
+                      // Re-disparar onSubmit con override autorizado.
+                      setTimeout(() => {
+                        const form = document.querySelector("form");
+                        if (form) form.requestSubmit();
+                      }, 30);
+                    }}
+                    className="lg-cta-primary bg-code-red hover:bg-code-red text-caption disabled:opacity-50"
+                  >
+                    Continuar bajo mi responsabilidad
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

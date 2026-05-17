@@ -7,6 +7,10 @@ import { recordAudit } from "@/lib/audit";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { RADIOLOGIA_TIPOS } from "@/lib/modulos-eventos";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
+import {
+  detectCriticalValues,
+  summarizeSeverity,
+} from "@/lib/clinical-safety";
 
 const peticionSchema = z.object({
   pacienteIniciales: z.string().max(8).optional(),
@@ -139,11 +143,17 @@ export async function adjuntarReporte(
     return { status: "error", message: "Petición no encontrada." };
   }
 
+  // Detectar hallazgos críticos en el reporte (ACR critical findings guidelines)
+  const findings = detectCriticalValues(parsed.data.reporte);
+  const severity = summarizeSeverity(findings);
+
   const datos = {
     ...(existing.datos as Record<string, unknown>),
     reporte: parsed.data.reporte,
     hallazgos_positivos: parsed.data.hallazgosPositivos ?? [],
     reportado_at: new Date().toISOString(),
+    findings_criticos: findings,
+    severity,
   };
 
   const { error } = await supa
@@ -160,15 +170,41 @@ export async function adjuntarReporte(
     return { status: "error", message: "No se pudo actualizar." };
   }
 
+  // Si hay hallazgos críticos, crear evento dedicado de critical_alert
+  if (severity && findings.length > 0) {
+    const pacienteIniciales =
+      ((existing.datos as { paciente_iniciales?: string | null })
+        ?.paciente_iniciales as string | null) ?? null;
+    await supa.from("eventos_modulos").insert({
+      user_id: user.id,
+      modulo: "radiologia",
+      tipo: "critical_alert",
+      datos: {
+        source_evento_id: parsed.data.eventoId,
+        paciente_iniciales: pacienteIniciales,
+        findings,
+        snippet: parsed.data.reporte.slice(0, 200),
+      },
+      status: "activo",
+      metricas: {
+        severity,
+        n_findings: findings.length,
+      },
+    });
+  }
+
   void recordAudit({
     userId: user.id,
     action: "radiologia.reporte_adjuntado",
     metadata: {
       evento_id: parsed.data.eventoId,
       hallazgos: parsed.data.hallazgosPositivos?.length ?? 0,
+      severity,
+      findings_count: findings.length,
     },
   });
 
   revalidatePath("/dashboard/radiologia");
+  revalidatePath("/dashboard");
   return { status: "ok", eventoId: parsed.data.eventoId };
 }

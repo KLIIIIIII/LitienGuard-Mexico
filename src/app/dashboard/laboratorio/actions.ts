@@ -7,6 +7,10 @@ import { recordAudit } from "@/lib/audit";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { LABORATORIO_TIPOS } from "@/lib/modulos-eventos";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
+import {
+  detectCriticalValues,
+  summarizeSeverity,
+} from "@/lib/clinical-safety";
 
 const peticionSchema = z.object({
   pacienteIniciales: z.string().max(8).optional(),
@@ -129,10 +133,16 @@ export async function marcarRecibido(
     return { status: "error", message: "Petición no encontrada." };
   }
 
+  // Detectar valores críticos en el texto del resultado
+  const findings = detectCriticalValues(resultados);
+  const severity = summarizeSeverity(findings);
+
   const datos = {
     ...(existing.datos as Record<string, unknown>),
     resultados_texto: resultados,
     recibido_at: new Date().toISOString(),
+    findings_criticos: findings,
+    severity,
   };
 
   const { error } = await supa
@@ -149,12 +159,41 @@ export async function marcarRecibido(
     return { status: "error", message: "No se pudo actualizar." };
   }
 
+  // Si hay hallazgos críticos, crear evento dedicado de critical_alert
+  // para que aparezca en el banner del dashboard (ACR/AHRQ compliance).
+  if (severity && findings.length > 0) {
+    const pacienteIniciales =
+      ((existing.datos as { paciente_iniciales?: string | null })
+        ?.paciente_iniciales as string | null) ?? null;
+    await supa.from("eventos_modulos").insert({
+      user_id: user.id,
+      modulo: "laboratorio",
+      tipo: "critical_alert",
+      datos: {
+        source_evento_id: eventoId,
+        paciente_iniciales: pacienteIniciales,
+        findings,
+        snippet: resultados.slice(0, 200),
+      },
+      status: "activo",
+      metricas: {
+        severity,
+        n_findings: findings.length,
+      },
+    });
+  }
+
   void recordAudit({
     userId: user.id,
     action: "laboratorio.resultado_recibido",
-    metadata: { evento_id: eventoId },
+    metadata: {
+      evento_id: eventoId,
+      severity,
+      findings_count: findings.length,
+    },
   });
 
   revalidatePath("/dashboard/laboratorio");
+  revalidatePath("/dashboard");
   return { status: "ok", eventoId };
 }

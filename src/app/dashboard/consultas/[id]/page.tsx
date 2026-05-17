@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
+import { PatientHeader } from "@/components/clinical";
 import {
   canUseScribe,
   canUseRecetas,
@@ -141,8 +142,40 @@ export default async function ConsultaDetallePage({
 
   const isLocked = consulta.status === "cancelada";
 
+  // Cargar alergias del paciente si está vinculado al padrón
+  let alergiasPaciente: string[] | null = null;
+  if (consulta.paciente_id) {
+    const { data: pac } = await supa
+      .from("pacientes")
+      .select("alergias")
+      .eq("id", consulta.paciente_id)
+      .single();
+    alergiasPaciente = pac?.alergias && pac.alergias.length > 0 ? pac.alergias : null;
+  }
+
   return (
-    <div>
+    <>
+      <PatientHeader
+        iniciales={consulta.paciente_iniciales}
+        nombre={fullName}
+        edad={consulta.paciente_edad}
+        sexo={
+          consulta.paciente_sexo === "M"
+            ? "M"
+            : consulta.paciente_sexo === "F"
+              ? "F"
+              : null
+        }
+        mrn={
+          consulta.paciente_id
+            ? `MRN-${consulta.paciente_id.slice(0, 6).toUpperCase()}`
+            : `CONS-${consulta.id.slice(0, 6).toUpperCase()}`
+        }
+        alergias={alergiasPaciente}
+        compact
+      />
+
+      <div className="pt-2">
       <Link
         href="/dashboard/consultas"
         className="inline-flex items-center gap-1 text-caption text-ink-muted hover:text-ink-strong"
@@ -385,7 +418,8 @@ export default async function ConsultaDetallePage({
           )}
         </aside>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

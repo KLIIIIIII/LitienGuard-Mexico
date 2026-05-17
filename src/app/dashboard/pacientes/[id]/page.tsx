@@ -12,11 +12,13 @@ import {
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
+import { PatientHeader } from "@/components/clinical";
 import {
   canUsePacientes,
   type SubscriptionTier,
 } from "@/lib/entitlements";
 import { RecallTrigger } from "./recall-trigger";
+import { AlergiasEditor } from "./alergias-editor";
 
 export const metadata: Metadata = {
   title: "Paciente — LitienGuard",
@@ -70,7 +72,7 @@ export default async function PacienteDetailPage({
   const { data: paciente } = await supa
     .from("pacientes")
     .select(
-      "id, nombre, apellido_paterno, apellido_materno, email, telefono, fecha_nacimiento, sexo, ultima_consulta_at, recall_enviado_at, notas_internas, etiquetas, created_at",
+      "id, nombre, apellido_paterno, apellido_materno, email, telefono, fecha_nacimiento, sexo, ultima_consulta_at, recall_enviado_at, notas_internas, etiquetas, alergias, created_at",
     )
     .eq("id", id)
     .eq("medico_id", user.id)
@@ -114,8 +116,31 @@ export default async function PacienteDetailPage({
     .filter(Boolean)
     .join(" ");
 
+  const alergiasArr: string[] = Array.isArray(paciente.alergias)
+    ? paciente.alergias
+    : [];
+
   return (
-    <div className="space-y-8">
+    <>
+      <PatientHeader
+        nombre={fullName}
+        edad={edad}
+        sexo={
+          paciente.sexo === "M"
+            ? "M"
+            : paciente.sexo === "F"
+              ? "F"
+              : paciente.sexo === "O"
+                ? "X"
+                : null
+        }
+        mrn={`MRN-${paciente.id.slice(0, 6).toUpperCase()}`}
+        fechaNacimiento={paciente.fecha_nacimiento}
+        alergias={alergiasArr.length > 0 ? alergiasArr : null}
+        compact
+      />
+
+      <div className="space-y-8 pt-2">
       <div>
         <Link
           href="/dashboard/pacientes"
@@ -220,6 +245,14 @@ export default async function PacienteDetailPage({
                 </p>
               </div>
             )}
+
+            {/* Alergias — feature de seguridad clínica (AMIA error prevention) */}
+            <div className="mt-5">
+              <AlergiasEditor
+                pacienteId={paciente.id}
+                initial={alergiasArr}
+              />
+            </div>
           </section>
 
           {/* Citas vinculadas */}
@@ -290,7 +323,8 @@ export default async function PacienteDetailPage({
           </div>
         </aside>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
