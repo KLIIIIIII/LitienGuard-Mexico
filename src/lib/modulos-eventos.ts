@@ -105,6 +105,7 @@ export const UCI_TIPOS = {
   ventilacion: "ventilacion",
   vasoactivos: "vasoactivos",
   fast_hug: "fast_hug",
+  cam_icu: "cam_icu",
 } as const;
 
 export const LABORATORIO_TIPOS = {

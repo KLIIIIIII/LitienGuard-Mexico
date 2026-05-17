@@ -7,6 +7,7 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
 import { UciBoard } from "./uci-board";
+import { UciBundles } from "./uci-bundles";
 
 export const metadata: Metadata = {
   title: "UCI — LitienGuard",
@@ -83,6 +84,8 @@ export default async function UciPage() {
       </header>
 
       <UciBoard eventos={eventos} />
+
+      <UciBundles eventos={eventos} />
     </div>
   );
 }
