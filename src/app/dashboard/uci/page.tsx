@@ -6,6 +6,8 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
+import { loadBoardData } from "@/lib/encounters/board-data";
+import { EncounterBoard } from "@/components/encounters";
 import { UciBoard } from "./uci-board";
 import { UciBundles } from "./uci-bundles";
 
@@ -44,6 +46,12 @@ export default async function UciPage() {
     );
   }
 
+  const board = await loadBoardData(supa, {
+    userId: user.id,
+    modulo: "uci",
+    historicoLimit: 80,
+  });
+
   const desdeIso = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
@@ -53,11 +61,11 @@ export default async function UciPage() {
     .eq("modulo", "uci")
     .gte("created_at", desdeIso)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(80);
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -72,20 +80,44 @@ export default async function UciPage() {
             <HeartPulse className="h-5 w-5" strokeWidth={2} />
           </div>
           <div>
-            <Eyebrow tone="warn">UCI</Eyebrow>
-            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-              Pacientes UCI · SOFA seguimiento
+            <Eyebrow tone="warn">Cuidados intensivos</Eyebrow>
+            <h1 className="mt-1 text-h1 font-semibold tracking-tight text-ink-strong">
+              Census UCI · ABCDEF bundle
             </h1>
+            <p className="mt-1 text-caption text-ink-muted">
+              Pacientes ventilados o con vasoactivos activos · seguimiento
+              outcome 15 días post-alta · histórico de admisiones críticas.
+            </p>
           </div>
         </div>
-        <p className="text-caption text-ink-soft">
-          Critical Care · seguimiento longitudinal
-        </p>
       </header>
 
-      <UciBoard eventos={eventos} />
+      <EncounterBoard
+        activos={board.activos}
+        altaReciente={board.altaReciente}
+        historico={board.historico}
+        throughput={board.throughput}
+        avgLOSminutes={board.avgLOSminutes}
+        admissions24h={board.admissions24h}
+        discharges24h={board.discharges24h}
+      />
 
-      <UciBundles eventos={eventos} />
+      {eventos.length > 0 && (
+        <section className="space-y-3">
+          <header>
+            <Eyebrow tone="accent">Workflow UCI · últimos 30 días</Eyebrow>
+            <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+              SOFA seguimiento + bundle compliance
+            </h2>
+            <p className="mt-1 text-caption text-ink-muted">
+              Vista detallada de scores y bundles: SOFA evolución, APACHE II,
+              FAST-HUG, CAM-ICU. Para revisión clínica y reporte de calidad.
+            </p>
+          </header>
+          <UciBoard eventos={eventos} />
+          <UciBundles eventos={eventos} />
+        </section>
+      )}
     </div>
   );
 }
