@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Lock, ChevronRight } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { MfaPanel } from "./mfa-panel";
 
@@ -42,6 +44,30 @@ export default async function SeguridadPage() {
         existingFactorId={verifiedFactor?.id ?? null}
         existingFactorName={verifiedFactor?.friendly_name ?? null}
       />
+
+      <Link
+        href="/dashboard/seguridad/cifrado"
+        className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface px-5 py-4 transition-colors hover:border-validation/40 hover:bg-validation-soft/30"
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-validation-soft text-validation">
+            <Lock className="h-4 w-4" strokeWidth={2.2} />
+          </div>
+          <div>
+            <p className="text-body-sm font-semibold text-ink-strong">
+              Cifrado del expediente
+            </p>
+            <p className="mt-0.5 text-caption text-ink-muted leading-snug max-w-prose">
+              Qué se cifra hoy, cómo funciona el envelope encryption con
+              Google Cloud KMS y el roadmap de las capas que faltan.
+            </p>
+          </div>
+        </div>
+        <ChevronRight
+          className="h-4 w-4 shrink-0 text-ink-quiet"
+          strokeWidth={2}
+        />
+      </Link>
     </div>
   );
 }
