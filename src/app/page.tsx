@@ -1,5 +1,5 @@
 import { Hero } from "@/components/hero";
-import { StatsBanner } from "@/components/stats-banner";
+import { BrainArchitecture } from "@/components/brain-architecture";
 import { ForWhomGrid } from "@/components/for-whom-grid";
 import { HowItWorks } from "@/components/how-it-works";
 import { TrustRow } from "@/components/trust-row";
@@ -15,7 +15,7 @@ export default function HomePage() {
     <>
       <Hero />
       <ComplianceStrip />
-      <StatsBanner />
+      <BrainArchitecture />
       <ForWhomGrid />
       <HowItWorks />
 
