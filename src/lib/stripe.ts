@@ -44,12 +44,15 @@ export type BillingCycle = "mensual" | "anual";
 export type AccessTier = "pilot" | "pro" | "enterprise";
 
 /* Multiplicadores por perfil (sobre base Médico General).
-   Core agrupa las 5 especialidades curadas con cerebro profundo. */
+   Core agrupa las 5 especialidades curadas con cerebro profundo.
+   Dentista paga lo mismo que Médico General — el valor del scribe
+   ambient, recetas con allergy hard-stop, agenda y cerebro lectura
+   es equivalente. */
 const SPECIALTY_MULT: Record<Specialty, { esencial: number; profesional: number }> = {
   general: { esencial: 1.0, profesional: 1.0 },
   core: { esencial: 1.3, profesional: 1.3 },
   otra_especialidad: { esencial: 1.3, profesional: 1.3 },
-  dentista: { esencial: 0.9, profesional: 1.0 },
+  dentista: { esencial: 1.0, profesional: 1.0 },
 };
 
 /* Multiplicador por segmento (sobre base Solo) */

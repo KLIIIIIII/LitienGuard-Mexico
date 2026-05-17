@@ -62,7 +62,7 @@ const FEATURES_BY_TIER: Record<
     { label: "Diferencial bayesiano multi-señal con anti-anclaje", ok: true },
     { label: "Auto-extracción de findings", ok: true },
     { label: "Motor de patrones multi-estudio (60 estudios)", ok: true },
-    { label: "5 módulos hospitalarios (Urgencias/OR/UCI/Lab/Rad)", ok: true },
+    { label: "9 módulos clínicos (Urgencias/UCI/OR + Lab/Rad + Cardio/Neuro/Onco/Endo)", ok: true },
     { label: "Mi calidad personal — PPV calibrado", ok: true },
     { label: "Outcome loop con patient memory", ok: true },
     { label: "Tour interactivo + capacitación inline", ok: true },
@@ -369,7 +369,7 @@ export function PricingMatrix({
               ? `Base 6 médicos + $${quoteProfesional.extraSeatMxn} MXN/médico extra. Multi-tenant.`
               : segment === "equipo"
                 ? `Mínimo 2, máximo 5 médicos. $${quoteProfesional.monthlyMxn}/médico/mes.`
-                : "El motor completo: cerebro + diferencial + scribe + 5 módulos hospitalarios."
+                : "El motor completo: cerebro + diferencial + scribe + 9 módulos clínicos (3 áreas críticas + 2 apoyo dx + 4 especialidades)."
           }
           features={
             segment === "clinica"

@@ -61,6 +61,9 @@ export function DashboardSidebar({
   showOdontograma = true,
   showDiferencial = true,
   showRcm = true,
+  showAreasCriticas = true,
+  showApoyoDiagnostico = true,
+  showEspecialidadesMedicas = true,
 }: {
   tier: SubscriptionTier;
   isAdmin: boolean;
@@ -72,6 +75,9 @@ export function DashboardSidebar({
   showOdontograma?: boolean;
   showDiferencial?: boolean;
   showRcm?: boolean;
+  showAreasCriticas?: boolean;
+  showApoyoDiagnostico?: boolean;
+  showEspecialidadesMedicas?: boolean;
 }) {
   const pathname = usePathname();
   void showRcm; // reservado para items futuros RCM si se agregan al sidebar
@@ -195,84 +201,96 @@ export function DashboardSidebar({
           : []),
       ],
     },
-    {
-      title: "Áreas críticas",
-      items: [
-        {
-          href: "/dashboard/urgencias",
-          label: "Urgencias",
-          icon: Siren,
-          match: (p) => p.startsWith("/dashboard/urgencias"),
-          locked: !canCerebro,
-        },
-        {
-          href: "/dashboard/uci",
-          label: "UCI",
-          icon: HeartPulse,
-          match: (p) => p.startsWith("/dashboard/uci"),
-          locked: !canCerebro,
-        },
-        {
-          href: "/dashboard/quirofano",
-          label: "Quirófano",
-          icon: ClipboardCheck,
-          match: (p) => p.startsWith("/dashboard/quirofano"),
-          locked: !canCerebro,
-        },
-      ],
-    },
-    {
-      title: "Apoyo diagnóstico",
-      items: [
-        {
-          href: "/dashboard/laboratorio",
-          label: "Laboratorio",
-          icon: FlaskConical,
-          match: (p) => p.startsWith("/dashboard/laboratorio"),
-          locked: !canCerebro,
-        },
-        {
-          href: "/dashboard/radiologia",
-          label: "Radiología",
-          icon: ScanLine,
-          match: (p) => p.startsWith("/dashboard/radiologia"),
-          locked: !canCerebro,
-        },
-      ],
-    },
-    {
-      title: "Especialidades",
-      items: [
-        {
-          href: "/dashboard/cardiologia",
-          label: "Cardiología",
-          icon: Heart,
-          match: (p) => p.startsWith("/dashboard/cardiologia"),
-          locked: !canCerebro,
-        },
-        {
-          href: "/dashboard/neurologia",
-          label: "Neurología",
-          icon: Brain,
-          match: (p) => p.startsWith("/dashboard/neurologia"),
-          locked: !canCerebro,
-        },
-        {
-          href: "/dashboard/oncologia",
-          label: "Oncología",
-          icon: Activity,
-          match: (p) => p.startsWith("/dashboard/oncologia"),
-          locked: !canCerebro,
-        },
-        {
-          href: "/dashboard/endocrinologia",
-          label: "Endocrinología",
-          icon: Droplet,
-          match: (p) => p.startsWith("/dashboard/endocrinologia"),
-          locked: !canCerebro,
-        },
-      ],
-    },
+    ...(showAreasCriticas
+      ? [
+          {
+            title: "Áreas críticas",
+            items: [
+              {
+                href: "/dashboard/urgencias",
+                label: "Urgencias",
+                icon: Siren,
+                match: (p: string) => p.startsWith("/dashboard/urgencias"),
+                locked: !canCerebro,
+              },
+              {
+                href: "/dashboard/uci",
+                label: "UCI",
+                icon: HeartPulse,
+                match: (p: string) => p.startsWith("/dashboard/uci"),
+                locked: !canCerebro,
+              },
+              {
+                href: "/dashboard/quirofano",
+                label: "Quirófano",
+                icon: ClipboardCheck,
+                match: (p: string) => p.startsWith("/dashboard/quirofano"),
+                locked: !canCerebro,
+              },
+            ],
+          } satisfies NavGroup,
+        ]
+      : []),
+    ...(showApoyoDiagnostico
+      ? [
+          {
+            title: "Apoyo diagnóstico",
+            items: [
+              {
+                href: "/dashboard/laboratorio",
+                label: "Laboratorio",
+                icon: FlaskConical,
+                match: (p: string) => p.startsWith("/dashboard/laboratorio"),
+                locked: !canCerebro,
+              },
+              {
+                href: "/dashboard/radiologia",
+                label: "Radiología",
+                icon: ScanLine,
+                match: (p: string) => p.startsWith("/dashboard/radiologia"),
+                locked: !canCerebro,
+              },
+            ],
+          } satisfies NavGroup,
+        ]
+      : []),
+    ...(showEspecialidadesMedicas
+      ? [
+          {
+            title: "Especialidades",
+            items: [
+              {
+                href: "/dashboard/cardiologia",
+                label: "Cardiología",
+                icon: Heart,
+                match: (p: string) => p.startsWith("/dashboard/cardiologia"),
+                locked: !canCerebro,
+              },
+              {
+                href: "/dashboard/neurologia",
+                label: "Neurología",
+                icon: Brain,
+                match: (p: string) => p.startsWith("/dashboard/neurologia"),
+                locked: !canCerebro,
+              },
+              {
+                href: "/dashboard/oncologia",
+                label: "Oncología",
+                icon: Activity,
+                match: (p: string) => p.startsWith("/dashboard/oncologia"),
+                locked: !canCerebro,
+              },
+              {
+                href: "/dashboard/endocrinologia",
+                label: "Endocrinología",
+                icon: Droplet,
+                match: (p: string) => p.startsWith("/dashboard/endocrinologia"),
+                locked: !canCerebro,
+              },
+            ],
+          } satisfies NavGroup,
+        ]
+      : []),
     {
       title: "Cuenta",
       items: [

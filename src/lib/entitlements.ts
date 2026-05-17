@@ -181,3 +181,39 @@ export function shouldShowRcm(p: ProfileType | null | undefined): boolean {
 export function shouldShowScribe(_p: ProfileType | null | undefined): boolean {
   return true; // todos los perfiles usan Scribe
 }
+
+/**
+ * Áreas críticas (Urgencias / UCI / Quirófano) — solo aplican al
+ * médico general/especialista o al hospital. Un dentista en consultorio
+ * privado no las usa.
+ */
+export function shouldShowAreasCriticas(
+  p: ProfileType | null | undefined,
+): boolean {
+  if (!p || p === "sin_definir") return true;
+  return p === "medico_general" || p === "hospital";
+}
+
+/**
+ * Apoyo diagnóstico (Laboratorio / Radiología) — pertinente para
+ * médico general/especialista y hospital. El dentista usa imágenes
+ * dentales propias, no estos módulos.
+ */
+export function shouldShowApoyoDiagnostico(
+  p: ProfileType | null | undefined,
+): boolean {
+  if (!p || p === "sin_definir") return true;
+  return p === "medico_general" || p === "hospital";
+}
+
+/**
+ * Departamentos por especialidad médica (Cardio / Neuro / Onco /
+ * Endocrino). Solo aplican a médicos generales/especialistas y
+ * hospitales. Un dentista no los usa.
+ */
+export function shouldShowEspecialidadesMedicas(
+  p: ProfileType | null | undefined,
+): boolean {
+  if (!p || p === "sin_definir") return true;
+  return p === "medico_general" || p === "hospital";
+}

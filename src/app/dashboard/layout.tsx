@@ -10,6 +10,9 @@ import {
   shouldShowOdontograma,
   shouldShowDiferencial,
   shouldShowRcm,
+  shouldShowAreasCriticas,
+  shouldShowApoyoDiagnostico,
+  shouldShowEspecialidadesMedicas,
   type SubscriptionTier,
   type ProfileType,
 } from "@/lib/entitlements";
@@ -70,6 +73,9 @@ export default async function DashboardLayout({
     canPacientes: canUsePacientes(tier),
     showOdontograma: shouldShowOdontograma(profileType),
     showDiferencial: shouldShowDiferencial(profileType),
+    showAreasCriticas: shouldShowAreasCriticas(profileType),
+    showApoyoDiagnostico: shouldShowApoyoDiagnostico(profileType),
+    showEspecialidadesMedicas: shouldShowEspecialidadesMedicas(profileType),
   };
 
   return (
