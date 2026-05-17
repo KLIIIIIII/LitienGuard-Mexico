@@ -78,7 +78,7 @@ export default async function UciPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          Patrón Cerner CareCompass · Johns Hopkins LCICM
+          Critical Care · seguimiento longitudinal
         </p>
       </header>
 

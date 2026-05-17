@@ -78,7 +78,7 @@ export default async function QuirofanoPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          Patrón Cerner SurgiNet · Mayo OR design
+          Surgical Flow · checklist WHO + outcomes
         </p>
       </header>
 

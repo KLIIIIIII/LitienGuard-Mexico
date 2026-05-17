@@ -90,7 +90,7 @@ export default async function RadiologiaPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          Patrón Cerner RadNet · UCSF Radiologic Informatics
+          Worklist priorizada · LitienGuard Imaging
         </p>
       </header>
 

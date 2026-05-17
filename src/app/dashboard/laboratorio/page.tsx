@@ -90,7 +90,7 @@ export default async function LaboratorioPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          Patrón Cerner PathNet · Yale + Michigan Pathology Informatics
+          Lab Pathway · 8 fases verificadas
         </p>
       </header>
 

@@ -84,7 +84,7 @@ export default async function UrgenciasPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          Patrón Cerner FirstNet · refresca al recargar
+          Track ED · vista en tiempo real
         </p>
       </header>
 

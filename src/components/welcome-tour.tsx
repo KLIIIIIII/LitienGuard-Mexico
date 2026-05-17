@@ -76,7 +76,7 @@ const STEPS: TourStep[] = [
     selector: "[data-tour-sidebar]",
     icon: Siren,
     title: "Workflows hospitalarios",
-    body: "Urgencias, Quirófano, UCI, Laboratorio y Radiología — cada uno con su patrón Cerner-style. En desktop están en la barra lateral; en móvil ábrelos desde el menú.",
+    body: "Urgencias, Quirófano, UCI, Laboratorio y Radiología — cada uno con su workflow operacional. En desktop están en la barra lateral; en móvil ábrelos desde el menú.",
     placement: "right",
   },
   {

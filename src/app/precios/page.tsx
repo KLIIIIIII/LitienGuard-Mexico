@@ -20,7 +20,7 @@ type SP = Record<string, string | string[] | undefined>;
 const FAQ = [
   {
     q: "¿Por qué el cambio de precios?",
-    a: "Después de 6 meses de iteración el stack es mucho más profundo: módulos hospitalarios Cerner-style, critical alerting automático, allergy hard-stop, adaptive importer con IA, cumplimiento documentado AMIA + HIMSS + FDA CDS 2026. El médico que paga obtiene 4× más valor del que recibía al inicio. Usuarios actuales mantienen su precio v1 hasta el primer renovación del 2027 (grandfathering).",
+    a: "Después de 6 meses de iteración el stack es mucho más profundo: módulos hospitalarios operacionales completos, critical alerting automático, allergy hard-stop, adaptive importer con IA, cumplimiento documentado AMIA + HIMSS + FDA CDS 2026. El médico que paga obtiene 4× más valor del que recibía al inicio. Usuarios actuales mantienen su precio v1 hasta el primer renovación del 2027 (grandfathering).",
   },
   {
     q: "¿Los precios incluyen IVA?",
