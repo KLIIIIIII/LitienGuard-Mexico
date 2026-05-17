@@ -259,12 +259,12 @@ export default async function CrucesPage() {
 
       <section className="rounded-xl border border-line bg-surface-alt px-5 py-4">
         <p className="text-caption text-ink-muted leading-relaxed max-w-3xl">
-          <span className="font-semibold text-ink-strong">Catálogo curado.</span>{" "}
-          El motor cruza diagnósticos confirmados con un catálogo de 20
-          combinaciones clínicas ancladas a guías internacionales (AHA,
-          ESC, KDIGO, ADA, ESMO, NCCN, ACOG, AAN, Endocrine Society, GOLD,
-          AGS, SCCM, IDSA, ATA). Cada recomendación incluye su fuente.
-          El sistema no diagnostica — orquesta lo que tú ya confirmaste.
+          <span className="font-semibold text-ink-strong">
+            Motor LitienGuard · Cerebro de cruces clínicos.
+          </span>{" "}
+          El motor cruza diagnósticos confirmados con un catálogo curado
+          de combinaciones clínicas multivariable. El sistema no
+          diagnostica — orquesta lo que tú ya confirmaste.
         </p>
       </section>
     </div>

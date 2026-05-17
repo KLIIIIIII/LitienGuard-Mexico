@@ -78,7 +78,7 @@ export default async function EndocrinologiaPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          ADA Standards of Care 2024
+          Motor LitienGuard · DM Control
         </p>
       </header>
 

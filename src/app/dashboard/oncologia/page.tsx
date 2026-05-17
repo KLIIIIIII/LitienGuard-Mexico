@@ -78,7 +78,7 @@ export default async function OncologiaPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          Oken 1982 · ECOG/Karnofsky
+          Motor LitienGuard · Onco Performance
         </p>
       </header>
 

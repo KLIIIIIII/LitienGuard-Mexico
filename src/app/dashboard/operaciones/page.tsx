@@ -181,12 +181,11 @@ export default async function OperacionesHubPage() {
       <section className="rounded-xl border border-line bg-surface-alt px-5 py-4">
         <p className="text-caption text-ink-muted leading-relaxed max-w-3xl">
           <span className="font-semibold text-ink-strong">
-            Patrón de diseño.
+            Motor LitienGuard · Hospital Operations.
           </span>{" "}
-          Workflows anclados a lineamientos publicados: AHRQ Patient Flow
-          (Urgencias), Surviving Sepsis Campaign 2021, WHO Surgical Safety
-          Checklist (Quirófano), Society of Critical Care Medicine (UCI), CLSI
-          guidelines (Laboratorio), ACR Practice Parameters (Radiología).
+          Cinco workflows operacionales con scoring clínico, tracking
+          de tiempos y métricas de calidad alineadas a estándares
+          hospitalarios internacionales.
         </p>
       </section>
     </div>

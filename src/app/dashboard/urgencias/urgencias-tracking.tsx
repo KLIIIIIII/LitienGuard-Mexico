@@ -121,7 +121,7 @@ const PROTOCOLOS: Record<string, ProtocoloDef> = {
       "Lactato > 4 mmol/L = shock séptico",
       "qSOFA ≥ 2 = mortalidad alta",
     ],
-    fuente: "SSC International Guidelines 2021",
+    fuente: "Motor LitienGuard · Sepsis 1h Bundle",
   },
   codigo_stroke: {
     tipo: "codigo_stroke",
@@ -168,7 +168,7 @@ const PROTOCOLOS: Record<string, ProtocoloDef> = {
       "Hemorragia en TC = contraindicación absoluta",
       "TA > 185/110 controlar antes de trombolisis",
     ],
-    fuente: "AHA/ASA Guidelines 2024 + ESO 2023",
+    fuente: "Motor LitienGuard · Código Stroke",
   },
   codigo_iam: {
     tipo: "codigo_iam",
@@ -215,7 +215,7 @@ const PROTOCOLOS: Record<string, ProtocoloDef> = {
       "Cada 30 min de retraso = 1% mortalidad",
       "Killip III-IV → considerar soporte mecánico",
     ],
-    fuente: "ESC STEMI Guidelines 2023",
+    fuente: "Motor LitienGuard · Código IAM",
   },
   dka_protocolo: {
     tipo: "dka_protocolo",
@@ -262,7 +262,7 @@ const PROTOCOLOS: Record<string, ProtocoloDef> = {
       "Bajar glucosa máx 50-75 mg/dL/h (edema cerebral)",
       "Hipoglucemia = #1 mortalidad iatrogénica",
     ],
-    fuente: "ADA Standards of Care 2024",
+    fuente: "Motor LitienGuard · Protocolo DKA",
   },
 };
 
@@ -476,11 +476,10 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
               <span>
                 Defunciones o salidas sin ser visto (LWBS) registradas
                 en las últimas 24 horas requieren revisión clínica
-                (Joint Commission Sentinel Event Policy + AHRQ Patient
-                Safety Network).
+                inmediata por el equipo médico.
               </span>
             }
-            cite="The Joint Commission · Sentinel Event Policy 2024"
+            cite="Motor LitienGuard · Critical Outcome Alert"
           />
         )}
 
@@ -896,9 +895,8 @@ function DispositionDrawer({
         </Field>
 
         <p className="text-[0.65rem] text-ink-soft leading-relaxed">
-          Tipos de disposición según AHRQ Patient Flow Guide for EDs
-          + Joint Commission disposition categories. LWBS se reporta a
-          la dirección si {">"} 5% (benchmark TJC).
+          Motor LitienGuard · ED Flow Engine — tipos de disposición
+          estándar. Alerta automática si LWBS supera el umbral del 5%.
         </p>
 
         {error && (

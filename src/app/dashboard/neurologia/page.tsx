@@ -78,7 +78,7 @@ export default async function NeurologiaPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          NIH Stroke Scale · NINDS
+          Motor LitienGuard · Neuro Severity
         </p>
       </header>
 

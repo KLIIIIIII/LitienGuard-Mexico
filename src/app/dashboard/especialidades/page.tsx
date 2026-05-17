@@ -152,9 +152,8 @@ export default async function EspecialidadesHubPage() {
         </h1>
         <p className="mt-3 text-body text-ink-muted leading-relaxed">
           Cuatro especialidades con scores clínicos validados, registro de
-          pacientes y seguimiento longitudinal. Los módulos se construyen
-          sobre el cerebro curado de evidencia, anclados a guías
-          internacionales (AHA, ESC, ADA, NCCN, NIH NINDS).
+          pacientes y seguimiento longitudinal. Cada módulo corre sobre
+          el Motor LitienGuard · Cerebro de evidencia clínica curada.
         </p>
       </header>
 

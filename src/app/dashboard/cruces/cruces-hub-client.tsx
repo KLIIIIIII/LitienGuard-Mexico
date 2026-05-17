@@ -319,13 +319,12 @@ function CruceCard({ cruce }: { cruce: CrucePayload }) {
         </details>
       )}
 
-      {/* Fuente */}
+      {/* Fuente — branded LitienGuard (citas académicas internas) */}
       <div className="border-t border-line pt-2.5">
         <p className="flex items-start gap-1.5 text-[0.65rem] text-ink-soft leading-relaxed">
           <FlaskConical className="mt-0.5 h-3 w-3 shrink-0" strokeWidth={2} />
-          <span>
-            <span className="font-semibold text-ink-muted">Fuente:</span>{" "}
-            {cruce.source}
+          <span className="font-semibold text-ink-muted">
+            Motor LitienGuard · Cerebro de cruces clínicos curados
           </span>
         </p>
       </div>

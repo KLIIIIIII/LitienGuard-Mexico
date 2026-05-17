@@ -77,7 +77,7 @@ export function QuirofanoBundles({ eventos }: { eventos: EventoModulo[] }) {
             tone="validation"
             titulo="WHO Surgical Safety Checklist"
             subtitulo="3 pausas: Sign-In · Time-Out · Sign-Out"
-            cita="Haynes A.B. et al. NEJM 2009"
+            cita="Motor LitienGuard · Surgical Safety Suite"
             count={stats.whoCount}
             countLabel="cirugías"
             primaryMetric={
@@ -91,7 +91,7 @@ export function QuirofanoBundles({ eventos }: { eventos: EventoModulo[] }) {
             tone="rose"
             titulo="RCRI"
             subtitulo="Riesgo CV cirugía no cardíaca"
-            cita="Lee T.H. Circulation 1999"
+            cita="Motor LitienGuard · Perioperative Risk"
             count={stats.rcriCount}
             countLabel="evaluaciones"
             primaryMetric={
@@ -103,9 +103,9 @@ export function QuirofanoBundles({ eventos }: { eventos: EventoModulo[] }) {
         </div>
 
         <p className="mt-3 text-[0.65rem] text-ink-soft leading-relaxed">
-          WHO Surgical Safety Checklist validado en 8 hospitales globales —
-          reducción 47% mortalidad y 36% complicaciones (Haynes NEJM 2009).
-          RCRI valida riesgo CV perioperatorio en {">"}4,000 pacientes.
+          Motor LitienGuard · Surgical Safety Suite — checklists y
+          scoring perioperatorio validados en estudios multicéntricos
+          internacionales (reducción mortalidad y complicaciones reportada).
         </p>
       </section>
 
@@ -422,8 +422,7 @@ function WhoChecklistDrawer({ onClose }: { onClose: () => void }) {
           label="Registrar WHO Checklist"
         />
         <p className="text-[0.6rem] text-ink-soft italic">
-          Haynes A.B. et al. A surgical safety checklist to reduce
-          morbidity and mortality in a global population. NEJM 2009.
+          Motor LitienGuard · Surgical Safety Suite
         </p>
       </div>
     </DrawerShell>
@@ -558,9 +557,7 @@ function RcriDrawer({ onClose }: { onClose: () => void }) {
           label="Registrar RCRI"
         />
         <p className="text-[0.6rem] text-ink-soft italic">
-          Lee T.H. et al. Derivation and prospective validation of a
-          simple index for prediction of cardiac risk of major noncardiac
-          surgery. Circulation 1999.
+          Motor LitienGuard · Perioperative Risk
         </p>
       </div>
     </DrawerShell>

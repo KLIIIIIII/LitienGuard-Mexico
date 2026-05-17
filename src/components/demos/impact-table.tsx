@@ -28,7 +28,7 @@ const ROWS: Row[] = [
   },
   {
     metric: "Decisiones con cita verbatim",
-    context: "GPC, ESC, AHA, KDIGO con página",
+    context: "Motor LitienGuard con sección exacta",
     before: "Recordatorio de memoria",
     after: "100% recomendaciones",
     delta: "Auditable",

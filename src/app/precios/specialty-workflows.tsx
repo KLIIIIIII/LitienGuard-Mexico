@@ -53,13 +53,13 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     label: "Cardiología",
     icon: HeartPulse,
     tagline:
-      "Doce diagnósticos curados anclados a AHA/ESC + 2025 ACC ATTR-CM guidance. Trials pivotal 2018-2024 referenciados con cita verbatim.",
+      "Doce diagnósticos curados con base de evidencia validada y trials pivotal recientes referenciados internamente.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro cardiológico",
         detail:
-          "12 diagnósticos curados: HFrEF/HFpEF subtypes, SCAD, ATTR-CM, IC aguda, EA severa LFLG. Anclado en AHA/ESC y 2025 ACC concise guidance.",
+          "12 diagnósticos curados: HFrEF/HFpEF subtypes, SCAD, ATTR-CM, IC aguda, EA severa LFLG. Motor LitienGuard · Cardio Engine.",
       },
       {
         icon: Check,
@@ -115,7 +115,7 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
       },
       {
         icon: TrendingUp,
-        label: "Dashboards de compliance AHA/ESC",
+        label: "Dashboards de calidad cardiológica",
         detail:
           "% de pacientes con los cuatro pilares de IC, % anticoagulados con FA, tiempo-a-troponina.",
       },
@@ -126,13 +126,13 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     label: "Oncología",
     icon: Ribbon,
     tagline:
-      "Patrones de work-up curados anclados a NCCN. Cobertura de cánceres prevalentes en México con genómica y smart radiomics.",
+      "Patrones de work-up curados con cobertura de cánceres prevalentes en México, integración de genómica y smart radiomics.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro oncológico",
         detail:
-          "Patrones de work-up de los cánceres más prevalentes en MX, anclados en NCCN Guidelines.",
+          "Patrones de work-up de los cánceres más prevalentes en MX, Motor LitienGuard · Onco Engine.",
       },
       {
         icon: Check,
@@ -199,7 +199,7 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     label: "Gineco-oncología",
     icon: CircleDot,
     tagline:
-      "Cuatro cánceres curados (mama, cérvix, ovario, endometrio) con consejo BRCA y Lynch syndrome. Anclado en NCCN y ASCO.",
+      "Cuatro cánceres curados (mama, cérvix, ovario, endometrio) con consejo BRCA y Lynch syndrome.",
     esencial: [
       {
         icon: BookOpen,
@@ -266,17 +266,17 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     label: "Diabetes / Endocrinología",
     icon: Droplet,
     tagline:
-      "Trece diagnósticos curados anclados en ADA 2024. Cobertura completa de emergencias metabólicas y patología tiroidea.",
+      "Trece diagnósticos curados con cobertura completa de emergencias metabólicas y patología tiroidea.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro endocrinológico",
         detail:
-          "13 diagnósticos curados: DM2 ADA 2024, DM gestacional, DKA, HHS, hipotiroidismo, Cushing, suprarrenal, hiperparatiroidismo.",
+          "13 diagnósticos curados: DM2, DM gestacional, DKA, HHS, hipotiroidismo, Cushing, suprarrenal, hiperparatiroidismo.",
       },
       {
         icon: Check,
-        label: "Cuadro Básico IMSS",
+        label: "Cuadro básico del sector salud",
         detail:
           "Metformina, sulfonilureas, DPP-4, GLP-1 (semaglutida), SGLT-2 (dapa/empa), insulinas, levotiroxina.",
       },
@@ -339,7 +339,7 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     label: "Neurología",
     icon: Brain,
     tagline:
-      "Once diagnósticos curados con ventana terapéutica codificada. Anclado en AHA/ASA Stroke Guidelines y NIH-NIA criteria.",
+      "Once diagnósticos curados con ventana terapéutica codificada y criterios validados internacionalmente.",
     esencial: [
       {
         icon: BookOpen,
@@ -439,8 +439,8 @@ export function SpecialtyWorkflows() {
           diagnósticos y los protocolos críticos por especialidad. Cada
           tier expone una capa adicional de capacidades sobre la anterior.
           La cobertura de evidencia clínica se mantiene anclada a guías
-          internacionales reconocidas — AHA/ESC, NCCN, ASCO, ADA, AHA/ASA —
-          y al Cuadro Básico IMSS / CAUSES para fármacos en México.
+          internacionales reconocidas y al cuadro básico institucional
+          para fármacos en México.
         </p>
       </div>
 

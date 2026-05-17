@@ -241,7 +241,7 @@ function CruceMini({ cruce }: { cruce: CruceItem }) {
           className="mt-0.5 h-2.5 w-2.5 shrink-0"
           strokeWidth={2}
         />
-        <span>{cruce.source}</span>
+        <span>Motor LitienGuard · Cerebro de cruces</span>
       </p>
     </div>
   );

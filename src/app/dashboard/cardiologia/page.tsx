@@ -78,7 +78,7 @@ export default async function CardiologiaPage() {
           </div>
         </div>
         <p className="text-caption text-ink-soft">
-          Estratificación SCA · Backus 2013
+          Motor LitienGuard · Cardio Risk
         </p>
       </header>
 

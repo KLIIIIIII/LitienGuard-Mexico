@@ -95,11 +95,10 @@ export default async function UrgenciasPage() {
           <span className="font-semibold text-ink-strong">
             Identificación del paciente.
           </span>{" "}
-          El tracking board actual usa iniciales como proxy (1 identificador).
-          Joint Commission NPSG 01.01.01 recomienda 2 identificadores. La
-          vinculación completa al padrón de pacientes habilita
-          identificación NPSG-compliant — disponible al asociar el triage
-          a un paciente del padrón.
+          El tracking board usa iniciales como proxy. La vinculación
+          completa al padrón de pacientes habilita identificación con
+          múltiples identificadores — disponible al asociar el triage a
+          un paciente del padrón.
         </p>
       </section>
     </div>

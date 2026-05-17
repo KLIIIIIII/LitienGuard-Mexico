@@ -222,7 +222,7 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
         title: "Evidencia con",
         titleAccent: "cita verbatim.",
         description:
-          "Búsqueda en guías oficiales: IMSS, CENETEC, ESC, AHA, KDIGO, Mayo Clinic. Cada respuesta cita la página exacta del documento.",
+          "Búsqueda en el Motor LitienGuard · Cerebro de evidencia clínica curada. Cada respuesta cita la sección exacta del conocimiento.",
         bullets: [
           "178+ documentos curados, sin alucinación",
           "Diferencial bayesiano para casos complejos",
@@ -276,9 +276,9 @@ function getSlides(profileType: ProfileType, nombre: string | null): Slide[] {
       title: "Cualquier duda,",
       titleAccent: "con evidencia citada.",
       description:
-        "Búsqueda en guías oficiales mexicanas e internacionales. Cada respuesta lleva el documento fuente, página y fuerza de recomendación.",
+        "Búsqueda en el Motor LitienGuard · Cerebro curado. Cada respuesta lleva referencia interna y fuerza de recomendación.",
       bullets: [
-        "IMSS, CENETEC, KDIGO, ESC, AHA, Mayo Clinic",
+        "Motor LitienGuard · Cerebro curado",
         "Sin alucinación — solo evidencia citada",
         "Diferencial bayesiano para casos complejos",
       ],

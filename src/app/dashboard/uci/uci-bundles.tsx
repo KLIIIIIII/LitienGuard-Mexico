@@ -106,7 +106,7 @@ export function UciBundles({ eventos }: { eventos: EventoModulo[] }) {
             tone="rose"
             titulo="APACHE II"
             subtitulo="Severidad al ingreso UCI"
-            cita="Knaus · Crit Care Med 1985"
+            cita="Motor LitienGuard · Critical Severity Engine"
             count={stats.apacheCount}
             countLabel="ingresos evaluados"
             primaryMetric={
@@ -120,7 +120,7 @@ export function UciBundles({ eventos }: { eventos: EventoModulo[] }) {
             tone="validation"
             titulo="FAST-HUG"
             subtitulo="Bundle diario · 7 items"
-            cita="Vincent · Crit Care Med 2005"
+            cita="Motor LitienGuard · ICU Daily Bundle"
             count={stats.fastHugCount}
             countLabel="evaluaciones"
             primaryMetric={
@@ -136,7 +136,7 @@ export function UciBundles({ eventos }: { eventos: EventoModulo[] }) {
             tone="warn"
             titulo="CAM-ICU"
             subtitulo="Screening delirium"
-            cita="Ely · JAMA 2001"
+            cita="Motor LitienGuard · Delirium Screen"
             count={stats.camIcuCount}
             countLabel="screenings"
             primaryMetric={
@@ -150,9 +150,8 @@ export function UciBundles({ eventos }: { eventos: EventoModulo[] }) {
         </div>
 
         <p className="mt-3 text-[0.65rem] text-ink-soft leading-relaxed">
-          Bundles alineados al SCCM ICU Liberation Bundle (A-F):
-          A·Assess pain · B·Both SAT/SBT · C·Choice analgesia/sedation ·
-          D·Delirium · E·Early mobility · F·Family.
+          Motor LitienGuard · Critical Care Suite — bundles diarios
+          alineados a lineamientos internacionales de cuidados críticos.
         </p>
       </section>
 
@@ -382,8 +381,7 @@ function ApacheDrawer({ onClose }: { onClose: () => void }) {
 
         <FooterActions onCancel={onClose} onSubmit={submit} pending={pending} icon={Activity} label="Registrar APACHE II" />
         <p className="text-[0.6rem] text-ink-soft italic">
-          Score original: Knaus W.A. et al. APACHE II: a severity of disease
-          classification system. Crit Care Med 1985.
+          Motor LitienGuard · Critical Severity Engine
         </p>
       </div>
     </DrawerShell>
@@ -514,8 +512,7 @@ function FastHugDrawer({ onClose }: { onClose: () => void }) {
 
         <FooterActions onCancel={onClose} onSubmit={submit} pending={pending} icon={ClipboardList} label="Registrar FAST-HUG" />
         <p className="text-[0.6rem] text-ink-soft italic">
-          Vincent J-L. Give your patient a fast hug (at least) once a day.
-          Crit Care Med 2005.
+          Motor LitienGuard · ICU Daily Bundle
         </p>
       </div>
     </DrawerShell>
@@ -648,9 +645,7 @@ function CamIcuDrawer({ onClose }: { onClose: () => void }) {
 
         <FooterActions onCancel={onClose} onSubmit={submit} pending={pending} icon={Brain} label="Registrar CAM-ICU" />
         <p className="text-[0.6rem] text-ink-soft italic">
-          Ely E.W. et al. Delirium in mechanically ventilated patients:
-          validity and reliability of the Confusion Assessment Method for the
-          Intensive Care Unit (CAM-ICU). JAMA 2001.
+          Motor LitienGuard · Delirium Screen
         </p>
       </div>
     </DrawerShell>
