@@ -5,6 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
+import { decryptField } from "@/lib/encryption";
+import { recordBulkDecryption } from "@/lib/decrypt-monitor";
 import { HistorialList } from "../historial-list";
 
 export const metadata: Metadata = {
@@ -29,13 +31,36 @@ export default async function DiferencialHistorialPage() {
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
   if (!canUseCerebro(tier)) redirect("/dashboard/diferencial");
 
-  const { data: sessions } = await supa
+  const { data: sessionsRaw } = await supa
     .from("diferencial_sessions")
     .select(
-      "id, paciente_iniciales, paciente_edad, contexto_clinico, top_diagnoses, medico_diagnostico_principal, outcome_confirmado, created_at",
+      "id, medico_id, paciente_iniciales, paciente_edad, contexto_clinico, top_diagnoses, medico_diagnostico_principal, outcome_confirmado, created_at",
     )
     .order("created_at", { ascending: false })
     .limit(200);
+
+  // Fase D — descifrar contexto_clinico y medico_diagnostico_principal.
+  // AAD = medico_id de la fila (anclaje anti-rebind).
+  const sessions = sessionsRaw
+    ? await Promise.all(
+        sessionsRaw.map(async (s) => {
+          const aad = s.medico_id;
+          const [ctx, dx] = await Promise.all([
+            decryptField(s.contexto_clinico, aad),
+            decryptField(s.medico_diagnostico_principal, aad),
+          ]);
+          return {
+            ...s,
+            contexto_clinico: ctx,
+            medico_diagnostico_principal: dx,
+          };
+        }),
+      )
+    : [];
+
+  if (sessions.length > 0) {
+    void recordBulkDecryption(user.id, "diferencial.historial", sessions.length);
+  }
 
   return (
     <div className="space-y-6">

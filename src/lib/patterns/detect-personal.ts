@@ -121,7 +121,22 @@ export async function detectPersonalPatterns(
       .limit(2000),
   ]);
 
-  const difs = (difsRaw ?? []) as DiferencialRow[];
+  // Fase D — descifrar campos texto de diferenciales. AAD = medicoId
+  // (filtro .eq("medico_id", medicoId) arriba garantiza ownership).
+  const difsRows = (difsRaw ?? []) as DiferencialRow[];
+  const difs: DiferencialRow[] = await Promise.all(
+    difsRows.map(async (d) => ({
+      ...d,
+      medico_diagnostico_principal: await decryptField(
+        d.medico_diagnostico_principal,
+        medicoId,
+      ),
+      override_razonamiento: await decryptField(
+        d.override_razonamiento,
+        medicoId,
+      ),
+    })),
+  );
 
   // Descifrar `diagnostico` de cada receta. AAD = medicoId (las filas
   // se filtraron por .eq("medico_id", medicoId) arriba). Legacy/v1/v2

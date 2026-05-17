@@ -16,6 +16,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { FINDINGS } from "@/lib/inference/knowledge-base";
+import { decryptField } from "@/lib/encryption";
 
 export const metadata: Metadata = {
   title: "Mi calidad — Diferencial",
@@ -53,7 +54,7 @@ export default async function CalidadPage() {
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
   if (!canUseCerebro(tier)) redirect("/dashboard/diferencial");
 
-  const { data: sesiones } = await supa
+  const { data: sesionesRaw } = await supa
     .from("diferencial_sessions")
     .select(
       "id, findings_observed, top_diagnoses, medico_diagnostico_principal, override_razonamiento, outcome_confirmado",
@@ -61,7 +62,24 @@ export default async function CalidadPage() {
     .eq("medico_id", user.id)
     .limit(2000);
 
-  const rows = (sesiones ?? []) as SesionRow[];
+  // Fase D — descifrar dx + override. AAD = user.id (RLS + .eq medico_id
+  // garantizan que todas las filas son del usuario autenticado).
+  const aad = user.id;
+  const rows: SesionRow[] = sesionesRaw
+    ? await Promise.all(
+        sesionesRaw.map(async (s) => ({
+          ...s,
+          medico_diagnostico_principal: await decryptField(
+            s.medico_diagnostico_principal,
+            aad,
+          ),
+          override_razonamiento: await decryptField(
+            s.override_razonamiento,
+            aad,
+          ),
+        })),
+      )
+    : [];
   const total = rows.length;
 
   // -------- Outcome distribution --------

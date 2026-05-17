@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { recordAudit } from "@/lib/audit";
+import { encryptField } from "@/lib/encryption";
 
 const outcomeSchema = z.object({
   id: z.string().uuid(),
@@ -44,8 +45,10 @@ export async function setOutcome(
       outcome === "pendiente" ? null : new Date().toISOString(),
   };
   // outcome_notes guarda lo que pasó realmente — separado de medico_notas
-  // que es del momento de consulta.
-  updates.outcome_notes = parsed.data.notas ? parsed.data.notas : null;
+  // que es del momento de consulta. Fase D: cifrar con AAD = medico_id.
+  updates.outcome_notes = parsed.data.notas
+    ? await encryptField(parsed.data.notas, user.id)
+    : null;
 
   const { error } = await supa
     .from("diferencial_sessions")

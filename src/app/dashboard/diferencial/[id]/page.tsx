@@ -12,6 +12,7 @@ import {
 } from "@/lib/inference/red-flags";
 import { OutcomePanel } from "./outcome-panel";
 import { RedFlagsPanelStatic } from "./red-flags-panel-static";
+import { decryptField } from "@/lib/encryption";
 
 export const metadata: Metadata = {
   title: "Detalle del caso — LitienGuard",
@@ -60,12 +61,37 @@ export default async function DiferencialDetailPage({
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
   if (!canUseCerebro(tier)) redirect("/dashboard/diferencial");
 
-  const { data: session } = await supa
+  const { data: sessionRaw } = await supa
     .from("diferencial_sessions")
     .select("*")
     .eq("id", id)
     .single();
-  if (!session) notFound();
+  if (!sessionRaw) notFound();
+
+  // Fase D — descifrar 5 campos texto. AAD = medico_id de la fila.
+  // decryptField maneja v1/v2/legacy automáticamente.
+  const aad = sessionRaw.medico_id;
+  const [
+    contextoClinico,
+    medicoDxPrincipal,
+    medicoNotas,
+    overrideRazonamiento,
+    outcomeNotes,
+  ] = await Promise.all([
+    decryptField(sessionRaw.contexto_clinico, aad),
+    decryptField(sessionRaw.medico_diagnostico_principal, aad),
+    decryptField(sessionRaw.medico_notas, aad),
+    decryptField(sessionRaw.override_razonamiento, aad),
+    decryptField(sessionRaw.outcome_notes, aad),
+  ]);
+  const session = {
+    ...sessionRaw,
+    contexto_clinico: contextoClinico,
+    medico_diagnostico_principal: medicoDxPrincipal,
+    medico_notas: medicoNotas,
+    override_razonamiento: overrideRazonamiento,
+    outcome_notes: outcomeNotes,
+  };
 
   const fecha = new Date(session.created_at);
   const findingsObs = (session.findings_observed ?? []) as FindingObs[];

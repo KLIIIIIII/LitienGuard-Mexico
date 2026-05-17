@@ -106,12 +106,12 @@ export default async function DiferencialPage({
     );
   }
 
-  const [{ data: recentSessions, count: totalCount }, { data: pendientesRaw }] =
+  const [{ data: recentSessionsRaw, count: totalCount }, { data: pendientesRaw }] =
     await Promise.all([
       supa
         .from("diferencial_sessions")
         .select(
-          "id, paciente_iniciales, paciente_edad, contexto_clinico, top_diagnoses, medico_diagnostico_principal, outcome_confirmado, created_at",
+          "id, medico_id, paciente_iniciales, paciente_edad, contexto_clinico, top_diagnoses, medico_diagnostico_principal, outcome_confirmado, created_at",
           { count: "exact" },
         )
         .order("created_at", { ascending: false })
@@ -119,23 +119,47 @@ export default async function DiferencialPage({
       supa
         .from("diferencial_pendientes_outcome")
         .select(
-          "id, paciente_iniciales, medico_diagnostico_principal, created_at",
+          "id, medico_id, paciente_iniciales, medico_diagnostico_principal, created_at",
         )
         .eq("medico_id", user.id)
         .order("created_at", { ascending: true }),
     ]);
 
+  // Fase D — descifrar contexto y dx. AAD = medico_id de la fila.
+  const recentSessions = recentSessionsRaw
+    ? await Promise.all(
+        recentSessionsRaw.map(async (s) => {
+          const aad = s.medico_id;
+          const [ctx, dx] = await Promise.all([
+            decryptField(s.contexto_clinico, aad),
+            decryptField(s.medico_diagnostico_principal, aad),
+          ]);
+          return {
+            ...s,
+            contexto_clinico: ctx,
+            medico_diagnostico_principal: dx,
+          };
+        }),
+      )
+    : null;
+
   const ahora = Date.now();
-  const pendientes = (pendientesRaw ?? []).map((p) => ({
-    id: p.id as string,
-    paciente_iniciales: p.paciente_iniciales as string | null,
-    medico_diagnostico_principal:
-      p.medico_diagnostico_principal as string | null,
-    antiguedad_dias: Math.floor(
-      (ahora - new Date(p.created_at as string).getTime()) /
-        (1000 * 60 * 60 * 24),
-    ),
-  }));
+  // El view diferencial_pendientes_outcome devuelve dx cifrado (lo
+  // hereda de la tabla base). Descifrar con AAD = medico_id de la fila.
+  const pendientes = await Promise.all(
+    (pendientesRaw ?? []).map(async (p) => ({
+      id: p.id as string,
+      paciente_iniciales: p.paciente_iniciales as string | null,
+      medico_diagnostico_principal: await decryptField(
+        p.medico_diagnostico_principal as string | null,
+        p.medico_id as string,
+      ),
+      antiguedad_dias: Math.floor(
+        (ahora - new Date(p.created_at as string).getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    })),
+  );
 
   return (
     <div className="space-y-6">

@@ -34,6 +34,7 @@ import {
 import type { InferenceResult } from "@/lib/inference/types";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { persistEmbedding } from "@/lib/patient-memory";
+import { encryptField } from "@/lib/encryption";
 
 const saveSchema = z.object({
   paciente_iniciales: z.string().trim().max(10).optional().or(z.literal("")),
@@ -94,6 +95,25 @@ export async function saveDiferencialSession(
 
   const d = parsed.data;
 
+  // Fase D — cifrar 4 campos clínicos texto antes de persistir. AAD =
+  // medico_id ancla el ciphertext al doctor dueño (anti-rebind).
+  // paciente_iniciales queda plano (3 chars, no PHI identificable;
+  // además el trigger RWD en 0038 lo lee para calcular pii_safe).
+  // findings_observed y top_diagnoses (jsonb) quedan en plano por
+  // ahora — su cifrado requiere refactor (Fase D.2 / E).
+  const aad = user.id;
+  const [
+    contextoEnc,
+    medicoDxEnc,
+    medicoNotasEnc,
+    overrideEnc,
+  ] = await Promise.all([
+    encryptField(d.contexto_clinico || null, aad),
+    encryptField(d.medico_diagnostico_principal || null, aad),
+    encryptField(d.medico_notas || null, aad),
+    encryptField(d.override_razonamiento || null, aad),
+  ]);
+
   const { data, error } = await supa
     .from("diferencial_sessions")
     .insert({
@@ -101,12 +121,12 @@ export async function saveDiferencialSession(
       paciente_iniciales: d.paciente_iniciales || null,
       paciente_edad: d.paciente_edad ?? null,
       paciente_sexo: d.paciente_sexo ?? null,
-      contexto_clinico: d.contexto_clinico || null,
+      contexto_clinico: contextoEnc,
       findings_observed: d.findings_observed,
       top_diagnoses: d.top_diagnoses,
-      medico_diagnostico_principal: d.medico_diagnostico_principal || null,
-      medico_notas: d.medico_notas || null,
-      override_razonamiento: d.override_razonamiento || null,
+      medico_diagnostico_principal: medicoDxEnc,
+      medico_notas: medicoNotasEnc,
+      override_razonamiento: overrideEnc,
       consulta_id: d.consulta_id ?? null,
     })
     .select("id")

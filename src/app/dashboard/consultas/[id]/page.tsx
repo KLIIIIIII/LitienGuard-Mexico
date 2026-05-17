@@ -100,10 +100,25 @@ export default async function ConsultaDetallePage({
       supa
         .from("diferencial_sessions")
         .select(
-          "id, paciente_iniciales, medico_diagnostico_principal, outcome_confirmado, created_at",
+          "id, medico_id, paciente_iniciales, medico_diagnostico_principal, outcome_confirmado, created_at",
         )
         .eq("consulta_id", id)
-        .order("created_at", { ascending: false }),
+        .order("created_at", { ascending: false })
+        .then(async ({ data, error }) => {
+          if (error || !data) return { data, error };
+          // Fase D — descifrar medico_diagnostico_principal con AAD =
+          // medico_id de la fila (anclaje anti-rebind).
+          const decrypted = await Promise.all(
+            data.map(async (d) => ({
+              ...d,
+              medico_diagnostico_principal: await decryptField(
+                d.medico_diagnostico_principal,
+                d.medico_id,
+              ),
+            })),
+          );
+          return { data: decrypted, error: null };
+        }),
     ]);
 
   // Descifrar el snippet de SOAP de cada nota (Fase B)

@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { recordAudit } from "@/lib/audit";
+import { decryptField } from "@/lib/encryption";
 import {
   DiferencialPdf,
   type DiferencialPdfData,
@@ -49,17 +50,28 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
 
+  // Fase D — descifrar 4 campos texto antes de renderizar PDF. AAD =
+  // medico_id de la fila (anclaje anti-rebind).
+  const aad = sesion.medico_id;
+  const [contextoClinico, medicoDx, medicoNotas, overrideRaz] =
+    await Promise.all([
+      decryptField(sesion.contexto_clinico, aad),
+      decryptField(sesion.medico_diagnostico_principal, aad),
+      decryptField(sesion.medico_notas, aad),
+      decryptField(sesion.override_razonamiento, aad),
+    ]);
+
   const data: DiferencialPdfData = {
     id: sesion.id,
     paciente_iniciales: sesion.paciente_iniciales,
     paciente_edad: sesion.paciente_edad,
     paciente_sexo: sesion.paciente_sexo as "M" | "F" | "O" | null,
-    contexto_clinico: sesion.contexto_clinico,
+    contexto_clinico: contextoClinico,
     findings_observed: sesion.findings_observed ?? [],
     top_diagnoses: sesion.top_diagnoses ?? [],
-    medico_diagnostico_principal: sesion.medico_diagnostico_principal,
-    medico_notas: sesion.medico_notas,
-    override_razonamiento: sesion.override_razonamiento,
+    medico_diagnostico_principal: medicoDx,
+    medico_notas: medicoNotas,
+    override_razonamiento: overrideRaz,
     outcome_confirmado: sesion.outcome_confirmado,
     outcome_confirmado_at: sesion.outcome_confirmado_at,
     created_at: sesion.created_at,
