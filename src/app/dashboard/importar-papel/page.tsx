@@ -76,6 +76,37 @@ export default async function ImportarPapelPage() {
 
       <ImportarCliente />
 
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/dashboard/importar-hl7"
+          className="rounded-lg border border-line bg-surface p-4 hover:bg-surface-alt transition-colors"
+        >
+          <p className="text-caption uppercase tracking-eyebrow text-validation font-semibold">
+            ¿Tienes archivo HL7 v2?
+          </p>
+          <p className="mt-1 text-body-sm text-ink-strong font-semibold">
+            Importar HL7 →
+          </p>
+          <p className="mt-0.5 text-caption text-ink-muted">
+            Migración masiva desde SaludTotal y sistemas hospitalarios.
+          </p>
+        </Link>
+        <Link
+          href="/dashboard/importar-cda"
+          className="rounded-lg border border-line bg-surface p-4 hover:bg-surface-alt transition-colors"
+        >
+          <p className="text-caption uppercase tracking-eyebrow text-validation font-semibold">
+            ¿Tienes archivo CDA?
+          </p>
+          <p className="mt-1 text-body-sm text-ink-strong font-semibold">
+            Importar CDA →
+          </p>
+          <p className="mt-0.5 text-caption text-ink-muted">
+            Documentos clínicos estructurados desde MediSel y otros EHRs.
+          </p>
+        </Link>
+      </div>
+
       <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
         <strong>Privacidad:</strong> las imágenes que subes se procesan en
         memoria y se descartan inmediatamente — no se almacenan en
