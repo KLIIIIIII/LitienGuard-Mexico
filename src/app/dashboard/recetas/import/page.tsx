@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, Sparkles, Pill } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import {
-  canUsePacientes,
+  canUseRecetas,
   type SubscriptionTier,
 } from "@/lib/entitlements";
 import { AdaptiveImporter } from "@/components/adaptive-importer";
 
 export const metadata: Metadata = {
-  title: "Importar pacientes — LitienGuard",
+  title: "Importar recetas — LitienGuard",
   robots: { index: false, follow: false },
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function ImportPacientesPage() {
+export default async function ImportRecetasPage() {
   const supa = await createSupabaseServer();
   const {
     data: { user },
@@ -30,36 +30,35 @@ export default async function ImportPacientesPage() {
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
-  if (!canUsePacientes(tier)) {
-    redirect("/dashboard/pacientes");
+  if (!canUseRecetas(tier)) {
+    redirect("/dashboard/recetas");
   }
 
   return (
     <div className="space-y-6">
       <Link
-        href="/dashboard/pacientes"
+        href="/dashboard/recetas"
         className="inline-flex items-center gap-1 text-caption text-ink-muted hover:text-ink-strong"
       >
         <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
-        Volver al padrón
+        Volver a recetas
       </Link>
 
       <header>
         <div className="flex items-center gap-2">
-          <div className="rounded-lg bg-validation-soft p-1.5 text-validation">
-            <Users className="h-5 w-5" strokeWidth={2} />
+          <div className="rounded-lg bg-accent-soft p-1.5 text-accent">
+            <Pill className="h-5 w-5" strokeWidth={2} />
           </div>
-          <Eyebrow tone="accent">Importar pacientes</Eyebrow>
+          <Eyebrow tone="accent">Importar recetas</Eyebrow>
         </div>
         <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          Sube tu padrón en cualquier formato
+          Histórico de recetas en cualquier formato
         </h1>
         <p className="mt-2 max-w-prose text-body-sm text-ink-muted leading-relaxed">
-          El asistente IA analiza tu CSV (columnas en cualquier orden, en
-          español o inglés, con cualquier nomenclatura) y propone cómo mapear
-          cada columna a nuestro schema. Tú revisas, ajustas si quieres, y
-          confirmas. Funciona con archivos exportados de Excel, Google
-          Sheets, otros EHRs o tu libreta digital.
+          Sube tu histórico de prescripciones. El asistente IA detecta
+          paciente, diagnóstico, medicamento, dosis, frecuencia y duración
+          en cualquier estructura. Las recetas se importan como borradores
+          — tú decides cuáles firmar después.
         </p>
       </header>
 
@@ -74,28 +73,25 @@ export default async function ImportPacientesPage() {
               Qué reconocemos automáticamente
             </p>
             <p className="mt-1 text-caption text-ink-muted leading-relaxed">
-              Nombre completo o separado en partes · edad o fecha de
-              nacimiento · sexo en cualquier formato (M/F/Masculino/Hombre)
-              · alergias como lista o texto · email · teléfono · etiquetas
-              separadas por coma · diagnósticos asociados · tratamientos
-              previos · estudios solicitados · estatura · peso · visitas
-              previas · y más. El asistente decide qué se ignora.
+              Paciente (nombre/edad/sexo) · diagnóstico libre o CIE-10 ·
+              medicamento (genérico o comercial) · presentación · dosis ·
+              frecuencia (c/8h, BID, etc.) · duración · vía de
+              administración (VO/IM/IV) · indicaciones específicas e
+              indicaciones generales · fecha de emisión.
             </p>
           </div>
         </div>
       </div>
 
-      <AdaptiveImporter entity="pacientes" />
+      <AdaptiveImporter entity="recetas" />
 
       <div className="rounded-lg bg-surface-alt/30 p-4">
         <p className="text-caption text-ink-muted leading-relaxed">
-          <strong className="text-ink-strong">
-            Privacidad LFPDPPP:
-          </strong>{" "}
-          Los datos del padrón viajan cifrados y solo tú puedes leerlos.
-          Cada paciente importado debe haber dado consentimiento de
-          tratamiento de datos. Eres responsable de respetar bajas a
-          solicitud del paciente.
+          <strong className="text-ink-strong">Nota clínica:</strong> las
+          recetas importadas entran como{" "}
+          <code className="font-mono">status: borrador</code>. NO sustituyen
+          una receta original firmada con cédula profesional. Sirven como
+          registro histórico — revisa cada una antes de re-emitir.
         </p>
       </div>
     </div>
