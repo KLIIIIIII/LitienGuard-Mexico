@@ -5,6 +5,7 @@ import { PageHero } from "@/components/page-hero";
 import { Eyebrow } from "@/components/eyebrow";
 import { isBillingConfigured } from "@/lib/stripe";
 import { PricingMatrix } from "./pricing-matrix";
+import { SpecialtyWorkflows } from "./specialty-workflows";
 
 export const metadata: Metadata = {
   title: "Planes y precios — LitienGuard",
@@ -116,6 +117,13 @@ export default async function PreciosPage({
           )}
 
           <PricingMatrix billingEnabled={billingEnabled} />
+        </div>
+      </section>
+
+      {/* Specialty workflows */}
+      <section className="border-b border-line bg-surface py-16">
+        <div className="lg-shell">
+          <SpecialtyWorkflows />
         </div>
       </section>
 

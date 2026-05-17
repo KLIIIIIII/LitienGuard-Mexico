@@ -25,7 +25,15 @@ export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? "";
    Decisión Carlos 2026-05-17. Doc: litienguard_av_pricing_v2.md
    ============================================================ */
 
-export type Specialty = "general" | "especialista" | "dentista";
+export type Specialty =
+  | "general"
+  | "cardiologia"
+  | "oncologia"
+  | "gineco_oncologia"
+  | "diabetes_endo"
+  | "neurologia"
+  | "otra_especialidad"
+  | "dentista";
 export type Segment = "solo" | "equipo" | "clinica";
 export type FunctionalTier = "esencial" | "profesional";
 export type BillingCycle = "mensual" | "anual";
@@ -33,10 +41,18 @@ export type BillingCycle = "mensual" | "anual";
 /** Tier interno que controla acceso a features (entitlements). */
 export type AccessTier = "pilot" | "pro" | "enterprise";
 
-/* Multiplicadores por especialidad (sobre base Médico General) */
+/* Multiplicadores por especialidad (sobre base Médico General).
+   Las 5 core de LitienGuard (cardio/onco/gineco-onco/diabetes/neuro)
+   son las que más aprovechan el cerebro especializado + motor de
+   patrones, por eso comparten multiplicador 1.3. */
 const SPECIALTY_MULT: Record<Specialty, { esencial: number; profesional: number }> = {
   general: { esencial: 1.0, profesional: 1.0 },
-  especialista: { esencial: 1.3, profesional: 1.3 },
+  cardiologia: { esencial: 1.3, profesional: 1.3 },
+  oncologia: { esencial: 1.3, profesional: 1.3 },
+  gineco_oncologia: { esencial: 1.3, profesional: 1.3 },
+  diabetes_endo: { esencial: 1.3, profesional: 1.3 },
+  neurologia: { esencial: 1.3, profesional: 1.3 },
+  otra_especialidad: { esencial: 1.3, profesional: 1.3 },
   dentista: { esencial: 0.9, profesional: 1.0 },
 };
 
@@ -124,12 +140,7 @@ export function quotePrice(
       : segment === "equipo"
         ? "Equipo"
         : "Clínica";
-  const labelSpec =
-    specialty === "general"
-      ? "Médico General"
-      : specialty === "especialista"
-        ? "Especialista"
-        : "Dentista";
+  const labelSpec = specialtyLabel(specialty);
   const labelTier = tier === "esencial" ? "Esencial" : "Profesional";
 
   return {
@@ -241,3 +252,16 @@ export function isBillingConfigured(): boolean {
    ============================================================ */
 
 export const HOSPITAL_ENTERPRISE_MIN_MXN = 49_999;
+
+export function specialtyLabel(s: Specialty): string {
+  switch (s) {
+    case "general": return "Médico General";
+    case "cardiologia": return "Cardiología";
+    case "oncologia": return "Oncología";
+    case "gineco_oncologia": return "Gineco-oncología";
+    case "diabetes_endo": return "Diabetes / Endocrinología";
+    case "neurologia": return "Neurología";
+    case "otra_especialidad": return "Otra especialidad";
+    case "dentista": return "Dentista";
+  }
+}
