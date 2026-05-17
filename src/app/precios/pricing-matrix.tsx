@@ -11,13 +11,9 @@ import {
   Building2,
   Hospital,
   Stethoscope,
-  HeartPulse,
   Smile,
   Activity,
-  Brain,
-  Droplet,
-  Ribbon,
-  CircleDot,
+  HeartPulse,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -124,67 +120,38 @@ const SEGMENTS: Array<{
 ];
 
 /**
- * 8 especialidades. Las 5 primeras son las CORE de LitienGuard donde el
- * cerebro y el motor están más curados.
+ * 4 perfiles. "Core" engloba las 5 especialidades de cerebro curado
+ * (cardio/onco/gineco-onco/diabetes/neuro). El detalle por especialidad
+ * se expone en la sección "Workflows por especialidad" más abajo.
  */
 const SPECIALTIES: Array<{
   key: Specialty;
   label: string;
   desc: string;
   icon: LucideIcon;
-  core?: boolean;
 }> = [
   {
-    key: "cardiologia",
-    label: "Cardiología",
-    desc: "12 dx · ATTR-CM · SCAD · HFrEF · trials",
+    key: "core",
+    label: "Especialidad Core",
+    desc: "Cardiología, oncología, gineco-oncología, diabetes/endocrinología o neurología.",
     icon: HeartPulse,
-    core: true,
-  },
-  {
-    key: "oncologia",
-    label: "Oncología",
-    desc: "Work-up + BRCA + smart radiomics",
-    icon: Ribbon,
-    core: true,
-  },
-  {
-    key: "gineco_oncologia",
-    label: "Gineco-oncología",
-    desc: "Mama · cervix · ovario · endometrio",
-    icon: CircleDot,
-    core: true,
-  },
-  {
-    key: "diabetes_endo",
-    label: "Diabetes / Endo",
-    desc: "ADA 2024 · DKA · DM gestacional · tiroides",
-    icon: Droplet,
-    core: true,
-  },
-  {
-    key: "neurologia",
-    label: "Neurología",
-    desc: "EVC · cefalea · epilepsia · demencia",
-    icon: Brain,
-    core: true,
   },
   {
     key: "general",
     label: "Médico General",
-    desc: "Familiar, internista, urgenciólogo",
+    desc: "Medicina familiar, internista, urgenciólogo.",
     icon: Stethoscope,
   },
   {
     key: "otra_especialidad",
     label: "Otra especialidad",
-    desc: "Reumato, nefro, infecto, otras",
+    desc: "Reumatología, nefrología, infectología u otras especialidades.",
     icon: Activity,
   },
   {
     key: "dentista",
     label: "Dentista",
-    desc: "Odontología general y especializada",
+    desc: "Odontología general y especializada.",
     icon: Smile,
   },
 ];
@@ -195,7 +162,7 @@ export function PricingMatrix({
   billingEnabled: boolean;
 }) {
   const [segment, setSegment] = useState<Segment>("solo");
-  const [specialty, setSpecialty] = useState<Specialty>("cardiologia");
+  const [specialty, setSpecialty] = useState<Specialty>("core");
   const [cycle, setCycle] = useState<BillingCycle>("mensual");
 
   const quoteEsencial = useMemo(
@@ -249,18 +216,12 @@ export function PricingMatrix({
         </div>
       </div>
 
-      {/* Selector — Especialidad */}
+      {/* Selector — Perfil profesional */}
       <div>
-        <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
-          <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
-            2. Especialidad del médico {segment === "clinica" ? "(promedio del equipo)" : ""}
-          </p>
-          <p className="text-caption text-validation">
-            <Sparkles className="inline h-3 w-3 mr-1" strokeWidth={2.4} />
-            Especialidades core con cerebro y patrones curados
-          </p>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold mb-3">
+          2. Perfil profesional {segment === "clinica" ? "(promedio del equipo)" : ""}
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {SPECIALTIES.map((s) => {
             const Icon = s.icon;
             const active = specialty === s.key;
@@ -269,33 +230,38 @@ export function PricingMatrix({
                 key={s.key}
                 type="button"
                 onClick={() => setSpecialty(s.key)}
-                className={`rounded-xl border p-3 text-left transition-all relative ${
+                className={`rounded-xl border p-4 text-left transition-all ${
                   active
-                    ? "border-validation bg-validation-soft/30 shadow-lift"
+                    ? "border-accent bg-accent-soft/40"
                     : "border-line bg-surface hover:border-line-strong"
                 }`}
               >
-                {s.core && (
-                  <span className="absolute top-1.5 right-2 text-[0.6rem] font-bold uppercase tracking-eyebrow text-validation">
-                    Core
-                  </span>
-                )}
                 <div className="flex items-center gap-2">
                   <Icon
-                    className={`h-4 w-4 ${active ? "text-validation" : s.core ? "text-validation/80" : "text-ink-strong"}`}
-                    strokeWidth={2.2}
+                    className={`h-4 w-4 ${active ? "text-accent" : "text-ink-strong"}`}
+                    strokeWidth={2}
                   />
                   <p
-                    className={`text-body-sm font-semibold ${active ? "text-validation" : "text-ink-strong"}`}
+                    className={`text-body-sm font-semibold ${active ? "text-accent" : "text-ink-strong"}`}
                   >
                     {s.label}
                   </p>
                 </div>
-                <p className="mt-1 text-caption text-ink-muted line-clamp-2">{s.desc}</p>
+                <p className="mt-2 text-caption text-ink-muted leading-relaxed">
+                  {s.desc}
+                </p>
               </button>
             );
           })}
         </div>
+        {specialty === "core" && (
+          <p className="mt-3 text-caption text-ink-soft leading-relaxed">
+            Las 5 especialidades core comparten precio y acceso. El detalle
+            curado por cada una se muestra en la sección{" "}
+            <em className="text-ink-muted">Workflows por especialidad</em>{" "}
+            más abajo.
+          </p>
+        )}
       </div>
 
       {/* Cycle toggle */}
@@ -468,11 +434,7 @@ export function PricingMatrix({
 function shortSpecialty(s: Specialty): string {
   switch (s) {
     case "general": return "MG";
-    case "cardiologia": return "Cardio";
-    case "oncologia": return "Onco";
-    case "gineco_oncologia": return "Gineco-onco";
-    case "diabetes_endo": return "Endo";
-    case "neurologia": return "Neuro";
+    case "core": return "Core";
     case "otra_especialidad": return "Esp";
     case "dentista": return "Dent";
   }

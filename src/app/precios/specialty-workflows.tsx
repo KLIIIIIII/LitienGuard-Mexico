@@ -13,7 +13,6 @@ import {
   FlaskConical,
   ScanLine,
   BookOpen,
-  Sparkles,
   TrendingUp,
   Network,
   Mic,
@@ -39,14 +38,13 @@ type SpecialtyWorkflow = {
   label: string;
   icon: LucideIcon;
   tagline: string;
-  color: string;
   esencial: Feature[];
   profesional: Feature[];
   hospital: Feature[];
 };
 
 /* ============================================================
-   Datos curados por especialidad
+   Datos curados por especialidad — anclados a guías clínicas
    ============================================================ */
 
 const WORKFLOWS: SpecialtyWorkflow[] = [
@@ -54,62 +52,72 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     key: "cardiologia",
     label: "Cardiología",
     icon: HeartPulse,
-    tagline: "12 diagnósticos curados · trials pivotal 2018-2024 · 4 pilares HFrEF",
-    color: "rose",
+    tagline:
+      "Doce diagnósticos curados anclados a AHA/ESC + 2025 ACC ATTR-CM guidance. Trials pivotal 2018-2024 referenciados con cita verbatim.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro cardiológico",
-        detail: "12 dx curados: HFrEF/HFpEF subtypes, SCAD, ATTR-CM, IC aguda, EA severa LFLG. AHA/ESC + 2025 ACC ATTR-CM guidance.",
+        detail:
+          "12 diagnósticos curados: HFrEF/HFpEF subtypes, SCAD, ATTR-CM, IC aguda, EA severa LFLG. Anclado en AHA/ESC y 2025 ACC concise guidance.",
       },
       {
-        icon: Sparkles,
-        label: "Fármacos Cuadro Básico cardio",
-        detail: "Los 4 pilares HFrEF (IECA/ARNI, BB, ARM, SGLT2). Anticoagulantes, antiagregantes, estatinas IMSS.",
+        icon: Check,
+        label: "Cuadro Básico cardio",
+        detail:
+          "Los cuatro pilares HFrEF (IECA/ARNI, BB, ARM, SGLT2). Anticoagulantes, antiagregantes y estatinas IMSS.",
       },
       {
         icon: Check,
         label: "Recetas con allergy hard-stop",
-        detail: "Cross-check sintáctico contra alergias documentadas antes de firmar.",
+        detail:
+          "Cross-check sintáctico contra alergias documentadas del paciente antes de firmar.",
       },
     ],
     profesional: [
       {
-        icon: Sparkles,
+        icon: Network,
         label: "Diferencial bayesiano cardio",
-        detail: "Multi-señal con anti-anclaje, posteriors por hipótesis con cita verbatim.",
+        detail:
+          "Multi-señal con anti-anclaje. Posteriors por hipótesis con cita verbatim a la fuente.",
       },
       {
         icon: FlaskConical,
         label: "Motor de estudios cardio",
-        detail: "EKG, eco con strain, troponina, NT-proBNP, gammagrafía PYP, angio-TC, RM cardíaca, FLC.",
+        detail:
+          "EKG, ecocardiograma con strain, troponina, NT-proBNP, gammagrafía PYP, angio-TC, RM cardíaca y cadenas ligeras libres.",
       },
       {
-        icon: Network,
-        label: "Patrones canónicos curados",
-        detail: "SCAD en mujer joven, EA severa LFLG, ATTR-CM diagnóstico no-invasivo, IC aguda fenotipos.",
+        icon: BookOpen,
+        label: "Patrones canónicos",
+        detail:
+          "SCAD en mujer joven, EA severa LFLG, ATTR-CM diagnóstico no invasivo, fenotipos de IC aguda.",
       },
       {
         icon: Siren,
         label: "Urgencias · Código IAM (STEMI)",
-        detail: "Protocolo puerta-balón ≤90 min con checklist + timer en vivo + alertas de tiempo.",
+        detail:
+          "Protocolo puerta-balón ≤90 min con checklist secuencial, timer en vivo y alertas por desviación de tiempo.",
       },
       {
         icon: Mic,
-        label: "Scribe español MX cardio",
-        detail: "Captura terminología cardiológica MX, genera SOAP estructurado con citas a guías.",
+        label: "Scribe español MX",
+        detail:
+          "Captura terminología cardiológica y genera SOAP estructurado con citas a guías.",
       },
     ],
     hospital: [
       {
         icon: ClipboardCheck,
         label: "UCI con vasoactivos y SOFA",
-        detail: "Calculadora SOFA + dosis vasoactivos por peso + bundle FAST-HUG.",
+        detail:
+          "Calculadora SOFA, dosis vasoactivos por peso y bundle FAST-HUG integrados.",
       },
       {
         icon: TrendingUp,
-        label: "Dashboards compliance AHA/ESC",
-        detail: "% pacientes con los 4 pilares, % anticoagulados con FA, time-to-troponina.",
+        label: "Dashboards de compliance AHA/ESC",
+        detail:
+          "% de pacientes con los cuatro pilares de IC, % anticoagulados con FA, tiempo-a-troponina.",
       },
     ],
   },
@@ -117,62 +125,72 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     key: "oncologia",
     label: "Oncología",
     icon: Ribbon,
-    tagline: "Work-up curado · BRCA · smart radiomics · tumor board",
-    color: "accent",
+    tagline:
+      "Patrones de work-up curados anclados a NCCN. Cobertura de cánceres prevalentes en México con genómica y smart radiomics.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro oncológico",
-        detail: "Patrones de work-up de los cánceres más prevalentes en MX. NCCN guidelines como anclaje.",
+        detail:
+          "Patrones de work-up de los cánceres más prevalentes en MX, anclados en NCCN Guidelines.",
       },
       {
-        icon: Sparkles,
-        label: "Fármacos quimioterapia básica",
-        detail: "Cuadro Básico CAUSES + esquemas estándar primera línea. Soporte cuidados.",
+        icon: Check,
+        label: "Quimioterapia base CAUSES",
+        detail:
+          "Cuadro Básico CAUSES con esquemas estándar de primera línea y soporte de cuidados.",
       },
       {
         icon: Check,
         label: "Recetas con allergy hard-stop",
-        detail: "Cross-check contra alergias + interacciones críticas de quimioterapia.",
+        detail:
+          "Cross-check contra alergias documentadas más alertas críticas de interacción de quimioterapia.",
       },
     ],
     profesional: [
       {
-        icon: Sparkles,
+        icon: Network,
         label: "Diferencial oncológico multi-señal",
-        detail: "Combinación de marcadores tumorales, imagen, biopsia y genómica con LRs ponderados.",
+        detail:
+          "Combina marcadores tumorales, imagen, biopsia y genómica con LRs ponderados por evidencia.",
       },
       {
         icon: FlaskConical,
         label: "Motor de estudios oncológicos",
-        detail: "TAC, RM, PET, biopsia con IHC, marcadores tumorales, BRCA, paneles moleculares Foundation/Tempus.",
+        detail:
+          "TAC, RM, PET, biopsia con IHC, marcadores tumorales, BRCA y paneles moleculares.",
       },
       {
-        icon: Network,
+        icon: BookOpen,
         label: "Patrones canónicos",
-        detail: "Work-up de cánceres top en MX: pulmón, próstata, colon, hígado. Decisiones primera línea.",
+        detail:
+          "Work-up de cánceres top en MX (pulmón, próstata, colon, hígado) con decisiones de primera línea.",
       },
       {
         icon: ScanLine,
-        label: "Smart radiomics — lectura asistida",
-        detail: "Análisis cuantitativo de imagen con AI assist (siguiendo modelo Mayo/MD Anderson).",
+        label: "Smart radiomics",
+        detail:
+          "Análisis cuantitativo de imagen con AI assist, modelo Mayo / MD Anderson.",
       },
       {
         icon: Mic,
-        label: "Scribe español MX oncológico",
-        detail: "Captura notas con terminología NCCN traducida, esquemas de quimioterapia estructurados.",
+        label: "Scribe español MX",
+        detail:
+          "Captura notas con terminología NCCN traducida y esquemas de quimioterapia estructurados.",
       },
     ],
     hospital: [
       {
         icon: ClipboardCheck,
         label: "Workflow multidisciplinario",
-        detail: "Tumor board coordination, integración con patología y radiología, decisiones colegiadas.",
+        detail:
+          "Coordinación de tumor board, integración con patología y radiología, decisiones colegiadas.",
       },
       {
         icon: TrendingUp,
-        label: "Dashboards adherencia NCCN",
-        detail: "% pacientes con tratamiento estándar, time-to-treatment, outcome a 1-2-5 años.",
+        label: "Dashboards de adherencia NCCN",
+        detail:
+          "% pacientes con tratamiento estándar, time-to-treatment, outcome a 1-2-5 años.",
       },
     ],
   },
@@ -180,120 +198,139 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     key: "gineco_oncologia",
     label: "Gineco-oncología",
     icon: CircleDot,
-    tagline: "4 cánceres curados · mama · cérvix · ovario · endometrio · BRCA + Lynch",
-    color: "validation",
+    tagline:
+      "Cuatro cánceres curados (mama, cérvix, ovario, endometrio) con consejo BRCA y Lynch syndrome. Anclado en NCCN y ASCO.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro gineco-oncológico",
-        detail: "4 cánceres curados: mama (ER/PR/HER2), cérvix (FIGO), ovario (BRCA), endometrio (Lynch). NCCN + ASCO.",
+        detail:
+          "Cuatro cánceres curados: mama (ER/PR/HER2), cérvix (FIGO), ovario (BRCA), endometrio (Lynch).",
       },
       {
-        icon: Sparkles,
-        label: "Fármacos hormonoterapia + quimio",
-        detail: "Tamoxifeno, IA, trastuzumab, T-DM1, PARPi (olaparib, niraparib). Cuadro CAUSES.",
+        icon: Check,
+        label: "Hormonoterapia y quimio",
+        detail:
+          "Tamoxifeno, IA, trastuzumab, T-DM1, PARPi (olaparib, niraparib) — Cuadro CAUSES.",
       },
       {
         icon: Check,
         label: "Recetas con allergy hard-stop",
-        detail: "Cross-check + alertas de toxicidad cumulativa.",
+        detail:
+          "Cross-check con alertas de toxicidad cumulativa.",
       },
     ],
     profesional: [
       {
-        icon: Sparkles,
-        label: "Diferencial multi-señal gineco-onco",
-        detail: "Combina genómica BRCA/Lynch, biopsia, imagen multi-modal, marcadores CA-125, HE4.",
+        icon: Network,
+        label: "Diferencial multi-señal",
+        detail:
+          "Combina genómica BRCA/Lynch, biopsia, imagen multi-modal, marcadores CA-125 y HE4.",
       },
       {
         icon: FlaskConical,
-        label: "Motor de estudios gineco-onco",
-        detail: "Mamografía + USG + RM, citología cervical + VPH, USG transvaginal + biopsia endometrio, panel BRCA1/2, Lynch syndrome.",
+        label: "Motor de estudios",
+        detail:
+          "Mamografía + USG + RM, citología cervical + VPH, USG transvaginal + biopsia endometrio, panel BRCA1/2, Lynch syndrome.",
       },
       {
-        icon: Network,
+        icon: BookOpen,
         label: "Patrones canónicos",
-        detail: "BRCA mutation work-up, Lynch screening, mama triple negativo, ovario seroso de alto grado.",
+        detail:
+          "BRCA mutation work-up, Lynch screening, mama triple negativo, ovario seroso de alto grado.",
       },
       {
         icon: Mic,
-        label: "Scribe español MX gineco",
-        detail: "Captura estadificación FIGO, estadísticas TNM, perfil molecular tumor.",
+        label: "Scribe español MX",
+        detail:
+          "Captura estadificación FIGO, TNM y perfil molecular tumoral.",
       },
     ],
     hospital: [
       {
         icon: ClipboardCheck,
         label: "Workflow oncoginecológico",
-        detail: "Cirugía + quimio + radio coordinados. Trazabilidad de estadificación FIGO.",
+        detail:
+          "Coordinación de cirugía, quimioterapia y radioterapia con trazabilidad de estadificación FIGO.",
       },
       {
         icon: TrendingUp,
         label: "Consejo genético BRCA/Lynch",
-        detail: "Trazabilidad de testing genético, recomendaciones cascada familiar.",
+        detail:
+          "Trazabilidad de testing genético y recomendaciones de cascada familiar.",
       },
     ],
   },
   {
     key: "diabetes_endo",
-    label: "Diabetes / Endo",
+    label: "Diabetes / Endocrinología",
     icon: Droplet,
-    tagline: "13 diagnósticos · ADA 2024 · DKA + HHS · gestacional · tiroides",
-    color: "accent",
+    tagline:
+      "Trece diagnósticos curados anclados en ADA 2024. Cobertura completa de emergencias metabólicas y patología tiroidea.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro endocrinológico",
-        detail: "13 dx: DM2 ADA 2024, DM gestacional, DKA, HHS, hipotiroidismo, Cushing, suprarrenal, hiperparatiroidismo.",
-      },
-      {
-        icon: Sparkles,
-        label: "Fármacos Cuadro Básico IMSS",
-        detail: "Metformina, sulfonilureas, DPP4, GLP-1 (semaglutida), SGLT2 (dapa/empa), insulinas, levotiroxina.",
+        detail:
+          "13 diagnósticos curados: DM2 ADA 2024, DM gestacional, DKA, HHS, hipotiroidismo, Cushing, suprarrenal, hiperparatiroidismo.",
       },
       {
         icon: Check,
-        label: "Recetas con allergy hard-stop sulfas",
-        detail: "Detecta alergia a sulfamidas → bloquea glibenclamida y tiazidas.",
+        label: "Cuadro Básico IMSS",
+        detail:
+          "Metformina, sulfonilureas, DPP-4, GLP-1 (semaglutida), SGLT-2 (dapa/empa), insulinas, levotiroxina.",
+      },
+      {
+        icon: Check,
+        label: "Allergy hard-stop sulfas",
+        detail:
+          "Detecta alergia a sulfamidas y bloquea glibenclamida y tiazidas en prescripción.",
       },
     ],
     profesional: [
       {
-        icon: Sparkles,
-        label: "Diferencial endo multi-señal",
-        detail: "DKA vs HHS, sospecha de feocromocitoma vs incidentaloma, hiper/hipotiroidismo subclínico.",
+        icon: Network,
+        label: "Diferencial endocrinológico",
+        detail:
+          "DKA vs HHS, sospecha de feocromocitoma vs incidentaloma, hiper/hipotiroidismo subclínico.",
       },
       {
         icon: FlaskConical,
-        label: "Motor de estudios endo",
-        detail: "HbA1c, glucosa ayuno/postprandial, perfil tiroideo, anti-GAD, péptido C, ITT, cortisol AM, aldosterona, PTH.",
+        label: "Motor de estudios",
+        detail:
+          "HbA1c, glucosa ayuno/postprandial, perfil tiroideo, anti-GAD, péptido C, cortisol AM, aldosterona, PTH.",
       },
       {
-        icon: Network,
+        icon: BookOpen,
         label: "Patrones canónicos",
-        detail: "DKA criterios completos, sospecha LADA, fenotipos DM2, retinopatía diabética estratificación.",
+        detail:
+          "DKA criterios completos, sospecha de LADA, fenotipos de DM2, retinopatía diabética estratificación.",
       },
       {
         icon: Siren,
         label: "Urgencias · Protocolo DKA",
-        detail: "Bundle de manejo: NaCl 0.9%, insulina IV titulada, K reposición, alerta edema cerebral en pediatría.",
+        detail:
+          "Bundle de manejo: NaCl 0.9%, insulina IV titulada, reposición de K y alerta edema cerebral en pediatría.",
       },
       {
         icon: Mic,
-        label: "Scribe español MX endocrinología",
-        detail: "Captura ADA targets, ajustes insulínicos, escalamiento terapéutico ADA.",
+        label: "Scribe español MX",
+        detail:
+          "Captura targets ADA, ajustes insulínicos y escalamiento terapéutico.",
       },
     ],
     hospital: [
       {
         icon: ClipboardCheck,
-        label: "UCI con bomba insulina",
-        detail: "Control glicémico continuo, protocolo Yale en perioperatorio.",
+        label: "UCI con bomba de insulina",
+        detail:
+          "Control glicémico continuo con protocolo Yale en perioperatorio.",
       },
       {
         icon: TrendingUp,
         label: "Dashboards quality DM",
-        detail: "% pacientes con HbA1c <7%, retinopatía screening anual, microalbuminuria seguimiento.",
+        detail:
+          "% pacientes con HbA1c <7%, screening anual de retinopatía, seguimiento de microalbuminuria.",
       },
     ],
   },
@@ -301,100 +338,117 @@ const WORKFLOWS: SpecialtyWorkflow[] = [
     key: "neurologia",
     label: "Neurología",
     icon: Brain,
-    tagline: "11 diagnósticos · EVC + cefalea + epilepsia + demencia · ventana terapéutica",
-    color: "warn",
+    tagline:
+      "Once diagnósticos curados con ventana terapéutica codificada. Anclado en AHA/ASA Stroke Guidelines y NIH-NIA criteria.",
     esencial: [
       {
         icon: BookOpen,
         label: "Cerebro neurológico",
-        detail: "11 dx: EVC isquémico/hemorrágico, cefalea (migrañas/tensional), epilepsia, demencia (Alzheimer/vascular), neuropatías.",
+        detail:
+          "11 diagnósticos curados: EVC isquémico/hemorrágico, cefalea (migraña, tensional), epilepsia, demencia (Alzheimer, vascular), neuropatías.",
       },
       {
-        icon: Sparkles,
-        label: "Fármacos Cuadro Básico neuro",
-        detail: "Anticonvulsivantes (valproato, levetiracetam, fenitoína), antimigrañosos (triptanes, CGRP), L-DOPA, donepezilo.",
+        icon: Check,
+        label: "Cuadro Básico neuro",
+        detail:
+          "Anticonvulsivantes (valproato, levetiracetam, fenitoína), antimigrañosos (triptanes, CGRP), L-DOPA, donepezilo.",
       },
       {
         icon: Check,
         label: "Recetas con allergy hard-stop",
-        detail: "Cross-check + alertas de interacciones AED-AED, monitoreo niveles séricos.",
+        detail:
+          "Cross-check con alertas de interacciones AED-AED y monitoreo de niveles séricos.",
       },
     ],
     profesional: [
       {
-        icon: Sparkles,
+        icon: Network,
         label: "Diferencial neurológico multi-señal",
-        detail: "EVC isq vs hem, cefalea primaria vs secundaria, demencia subtypes con biomarcadores.",
+        detail:
+          "EVC isquémico vs hemorrágico, cefalea primaria vs secundaria, subtipos de demencia con biomarcadores.",
       },
       {
         icon: FlaskConical,
-        label: "Motor de estudios neuro",
-        detail: "TAC craneal, RM cerebro multi-secuencia, EEG, EMG, LCR, biomarcadores Alzheimer (Aβ42, p-tau), NIHSS calculator.",
+        label: "Motor de estudios",
+        detail:
+          "TAC craneal, RM cerebro multi-secuencia, EEG, EMG, LCR, biomarcadores Alzheimer (Aβ42, p-tau), calculadora NIHSS.",
       },
       {
-        icon: Network,
+        icon: BookOpen,
         label: "Patrones canónicos",
-        detail: "EVC ventana terapéutica (≤4.5h trombolisis), HSA work-up, status epiléptico, encefalopatía urémica.",
+        detail:
+          "EVC ventana terapéutica ≤4.5h, HSA work-up, status epiléptico, encefalopatía urémica.",
       },
       {
         icon: Siren,
         label: "Urgencias · Código Stroke",
-        detail: "Protocolo puerta-aguja ≤60 min con NIHSS + TC craneal + decisión alteplasa/trombectomía. Timer en vivo.",
+        detail:
+          "Protocolo puerta-aguja ≤60 min con NIHSS, TC craneal y decisión alteplasa/trombectomía. Timer en vivo.",
       },
       {
         icon: Mic,
-        label: "Scribe español MX neuro",
-        detail: "Captura NIHSS, mMRC, escalas neurocognitivas (MoCA, MMSE), Glasgow.",
+        label: "Scribe español MX",
+        detail:
+          "Captura NIHSS, mMRC, escalas neurocognitivas (MoCA, MMSE) y Glasgow.",
       },
     ],
     hospital: [
       {
         icon: ClipboardCheck,
         label: "UCI neurológica",
-        detail: "Monitoreo PIC, doppler transcraneal, sedación protocolizada para status epiléptico.",
+        detail:
+          "Monitoreo PIC, doppler transcraneal y sedación protocolizada para status epiléptico.",
       },
       {
         icon: TrendingUp,
-        label: "Workflow trombectomía mecánica",
-        detail: "Coordinación con hemodinamia, ventana 6-24h, ASPECTS automático, dashboards puerta-recanalización.",
+        label: "Trombectomía mecánica",
+        detail:
+          "Coordinación con hemodinamia, ventana 6-24h, ASPECTS automático, dashboards puerta-recanalización.",
       },
     ],
   },
 ];
 
-const TIER_LABEL: Record<TierKey, { name: string; price: string }> = {
-  esencial: { name: "Esencial", price: "desde $1,209/mes" },
-  profesional: { name: "Profesional", price: "desde $2,429/mes" },
-  hospital: { name: "Hospital", price: "custom" },
+const TIER_LABEL: Record<TierKey, { name: string; pricing: string }> = {
+  esencial: { name: "Esencial", pricing: "$1,209 MXN/mes" },
+  profesional: { name: "Profesional", pricing: "$2,429 MXN/mes" },
+  hospital: { name: "Hospital", pricing: "Custom" },
 };
 
 /* ============================================================
-   Componente principal
+   Componente principal — estilo Oracle Health enterprise
    ============================================================ */
 export function SpecialtyWorkflows() {
-  const [active, setActive] = useState<SpecialtyWorkflow["key"]>("cardiologia");
+  const [active, setActive] =
+    useState<SpecialtyWorkflow["key"]>("cardiologia");
   const current = WORKFLOWS.find((w) => w.key === active)!;
   const Icon = current.icon;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center max-w-2xl mx-auto">
-        <p className="text-caption uppercase tracking-eyebrow text-validation font-semibold">
+    <div className="space-y-12">
+      {/* Section header — Oracle/Cerner style */}
+      <div className="border-b border-line pb-8">
+        <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
           Workflows por especialidad
         </p>
-        <h2 className="mt-2 text-h1 font-semibold tracking-tight text-ink-strong">
-          Exactamente qué hace LitienGuard para ti.
+        <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong max-w-3xl">
+          Capacidades clínicas por área de especialidad.
         </h2>
-        <p className="mt-3 text-body-sm text-ink-muted leading-relaxed">
-          5 especialidades core con cerebro curado, motor de patrones, motor
-          de estudios diagnósticos y protocolos críticos integrados. Cada
-          tier añade capa de profundidad.
+        <p className="mt-4 max-w-3xl text-body text-ink-muted leading-relaxed">
+          LitienGuard organiza el cerebro curado, el motor de estudios
+          diagnósticos y los protocolos críticos por especialidad. Cada
+          tier expone una capa adicional de capacidades sobre la anterior.
+          La cobertura de evidencia clínica se mantiene anclada a guías
+          internacionales reconocidas — AHA/ESC, NCCN, ASCO, ADA, AHA/ASA —
+          y al Cuadro Básico IMSS / CAUSES para fármacos en México.
         </p>
       </div>
 
-      {/* Specialty tabs */}
-      <div role="tablist" className="flex flex-wrap items-center justify-center gap-2">
+      {/* Specialty nav — underline tabs (Oracle/Cerner sobrio) */}
+      <nav
+        role="tablist"
+        className="flex flex-wrap items-center border-b border-line gap-x-1 gap-y-2"
+      >
         {WORKFLOWS.map((w) => {
           const WIcon = w.icon;
           const isActive = active === w.key;
@@ -405,71 +459,75 @@ export function SpecialtyWorkflows() {
               role="tab"
               aria-selected={isActive}
               onClick={() => setActive(w.key)}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 transition-all ${
+              className={`inline-flex items-center gap-2 px-4 py-3 -mb-px transition-colors border-b-2 ${
                 isActive
-                  ? "border-validation bg-validation text-canvas shadow-lift"
-                  : "border-line bg-surface text-ink-strong hover:border-line-strong"
+                  ? "border-accent text-accent"
+                  : "border-transparent text-ink-muted hover:text-ink-strong"
               }`}
             >
-              <WIcon className="h-4 w-4" strokeWidth={2.2} />
+              <WIcon className="h-4 w-4" strokeWidth={2} />
               <span className="text-body-sm font-semibold">{w.label}</span>
             </button>
           );
         })}
-      </div>
+      </nav>
 
       {/* Active panel */}
       <AnimatePresence mode="wait">
         <motion.div
           key={current.key}
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-5"
+          exit={{ opacity: 0, y: -3 }}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="space-y-10"
         >
-          {/* Tagline */}
-          <div className="rounded-2xl border-2 border-validation/30 bg-validation-soft/20 p-6 text-center">
-            <div className="inline-flex items-center justify-center rounded-full bg-validation text-canvas p-2.5 mb-3">
+          {/* Specialty heading */}
+          <div className="flex items-start gap-5 max-w-4xl">
+            <div className="rounded-lg bg-accent-soft p-3 text-accent shrink-0">
               <Icon className="h-6 w-6" strokeWidth={2} />
             </div>
-            <h3 className="text-h2 font-bold tracking-tight text-ink-strong">
-              {current.label}
-            </h3>
-            <p className="mt-2 text-body-sm text-ink-muted italic max-w-prose mx-auto">
-              {current.tagline}
-            </p>
+            <div>
+              <h3 className="text-h2 font-semibold tracking-tight text-ink-strong">
+                {current.label}
+              </h3>
+              <p className="mt-2 text-body-sm text-ink-muted leading-relaxed">
+                {current.tagline}
+              </p>
+            </div>
           </div>
 
-          {/* 3 tier columns */}
-          <div className="grid gap-4 lg:grid-cols-3">
+          {/* Three tier columns — Oracle table-style */}
+          <div className="grid gap-px bg-line lg:grid-cols-3 rounded-lg overflow-hidden border border-line">
             <TierColumn
-              tier="esencial"
+              tierKey="esencial"
+              label={TIER_LABEL.esencial.name}
+              pricing={TIER_LABEL.esencial.pricing}
               features={current.esencial}
-              tierLabel="Esencial"
-              tierPrice={TIER_LABEL.esencial.price}
             />
             <TierColumn
-              tier="profesional"
+              tierKey="profesional"
+              label={TIER_LABEL.profesional.name}
+              pricing={TIER_LABEL.profesional.pricing}
               features={current.profesional}
-              tierLabel="Profesional"
-              tierPrice={TIER_LABEL.profesional.price}
-              highlight
+              recommended
             />
             <TierColumn
-              tier="hospital"
+              tierKey="hospital"
+              label={TIER_LABEL.hospital.name}
+              pricing={TIER_LABEL.hospital.pricing}
               features={current.hospital}
-              tierLabel="Hospital"
-              tierPrice={TIER_LABEL.hospital.price}
             />
           </div>
 
           {/* Footer note */}
-          <p className="text-caption text-ink-soft italic text-center max-w-prose mx-auto leading-relaxed">
-            Todos los features superiores incluyen lo del tier anterior.
-            Esencial es la base · Profesional añade diferencial bayesiano +
-            módulos hospitalarios + scribe · Hospital añade UCI + dashboards
-            agregados + integraciones enterprise.
+          <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
+            Cada tier superior incluye todas las capacidades del tier
+            anterior. Profesional añade el motor de diferencial bayesiano,
+            los módulos hospitalarios y el scribe ambient en español MX.
+            Hospital añade UCI con scores SOFA / APACHE II, dashboards
+            agregados y las integraciones enterprise (SMART on FHIR,
+            HL7 v2 ORM, DICOM lite).
           </p>
         </motion.div>
       </AnimatePresence>
@@ -478,59 +536,64 @@ export function SpecialtyWorkflows() {
 }
 
 /* ============================================================
-   TierColumn
+   TierColumn — estilo Oracle table-cell
    ============================================================ */
 function TierColumn({
-  tier,
-  tierLabel,
-  tierPrice,
+  tierKey,
+  label,
+  pricing,
   features,
-  highlight,
+  recommended,
 }: {
-  tier: TierKey;
-  tierLabel: string;
-  tierPrice: string;
+  tierKey: TierKey;
+  label: string;
+  pricing: string;
   features: Feature[];
-  highlight?: boolean;
+  recommended?: boolean;
 }) {
-  const ringClass = highlight
-    ? "border-validation shadow-lift"
-    : "border-line";
-
   return (
     <div
-      className={`flex flex-col rounded-2xl border bg-surface p-5 ${ringClass}`}
+      className={`bg-surface p-6 flex flex-col ${recommended ? "ring-1 ring-inset ring-accent/40" : ""}`}
     >
-      <div className="flex items-baseline justify-between gap-2 pb-3 border-b border-line">
-        <div>
+      {/* Header */}
+      <div className="pb-4 border-b border-line">
+        <div className="flex items-baseline justify-between gap-2">
           <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
             Plan
           </p>
-          <p className="text-h3 font-bold text-ink-strong">{tierLabel}</p>
+          {recommended && (
+            <span className="text-caption text-accent font-semibold uppercase tracking-eyebrow">
+              Recomendado
+            </span>
+          )}
         </div>
-        <p className="text-caption text-ink-muted text-right">{tierPrice}</p>
+        <p className="mt-1 text-h3 font-semibold text-ink-strong">{label}</p>
+        <p className="mt-0.5 text-caption text-ink-muted tabular-nums">
+          {pricing}
+        </p>
       </div>
 
-      <ul className="mt-4 space-y-3 flex-1">
+      {/* Features */}
+      <ul className="mt-5 space-y-4 flex-1">
         {features.length === 0 ? (
           <li className="text-caption text-ink-quiet italic">
-            Sin features adicionales para esta especialidad en este tier.
+            Sin capacidades adicionales para esta especialidad en este tier.
           </li>
         ) : (
           features.map((f, i) => {
             const FIcon = f.icon;
             return (
-              <li key={i} className="flex items-start gap-2.5">
-                <div
-                  className={`rounded-lg p-1.5 shrink-0 ${highlight ? "bg-validation-soft text-validation" : "bg-surface-alt text-ink-strong"}`}
-                >
-                  <FIcon className="h-3.5 w-3.5" strokeWidth={2.2} />
-                </div>
+              <li key={i} className="flex items-start gap-3">
+                <FIcon
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
                 <div className="min-w-0">
                   <p className="text-body-sm font-semibold text-ink-strong">
                     {f.label}
                   </p>
-                  <p className="mt-0.5 text-caption text-ink-muted leading-relaxed">
+                  <p className="mt-1 text-caption text-ink-muted leading-relaxed">
                     {f.detail}
                   </p>
                 </div>
@@ -540,9 +603,9 @@ function TierColumn({
         )}
       </ul>
 
-      {tier === "hospital" && features.length > 0 && (
-        <p className="mt-4 text-caption text-ink-soft italic">
-          Solo en Hospital Enterprise · contacto comercial
+      {tierKey === "hospital" && features.length > 0 && (
+        <p className="mt-6 pt-4 border-t border-line text-caption text-ink-soft">
+          Disponible en Hospital Enterprise — contacto comercial.
         </p>
       )}
     </div>
