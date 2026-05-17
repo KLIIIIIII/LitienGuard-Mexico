@@ -233,6 +233,13 @@ export function DashboardSidebar({
               } satisfies NavItem,
             ]
           : []),
+        {
+          href: "/dashboard/cruces",
+          label: "Cruces clínicos",
+          icon: Network,
+          match: (p) => p.startsWith("/dashboard/cruces"),
+          locked: !canCerebro,
+        },
       ],
     },
     ...(showAreasCriticas
