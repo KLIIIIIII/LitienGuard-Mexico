@@ -351,16 +351,15 @@ export default async function DashboardPage() {
       )}
 
       {/* ============================================================
-          Tour interactivo opcional
+          Tour interactivo — siempre presente
+          · Si nunca completó + total=0: auto-arranca con delay
+          · Si nunca completó + total>0: muestra CTA "Empezar tour"
+          · Si ya completó: muestra CTA "Repetir tour"
       ============================================================ */}
-      {!tourCompleted && total > 0 && (
-        <WelcomeTour autoStart={false} />
-      )}
-      {/* Auto-start tour solo si nunca lo completó Y aún no tiene notas: la
-          mejor primera experiencia incluye walkthrough antes de empezar. */}
-      {!tourCompleted && total === 0 && (
-        <WelcomeTour autoStart={true} />
-      )}
+      <WelcomeTour
+        autoStart={!tourCompleted && total === 0}
+        tourCompleted={tourCompleted}
+      />
     </div>
   );
 }
