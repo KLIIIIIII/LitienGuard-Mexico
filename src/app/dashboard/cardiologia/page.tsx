@@ -6,6 +6,8 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
+import { loadBoardData } from "@/lib/encounters/board-data";
+import { EncounterBoard } from "@/components/encounters";
 import { CardiologiaBoard } from "./cardiologia-board";
 
 export const metadata: Metadata = {
@@ -43,6 +45,12 @@ export default async function CardiologiaPage() {
     );
   }
 
+  const board = await loadBoardData(supa, {
+    userId: user.id,
+    modulo: ["cardiologia", "ambulatorio"],
+    historicoLimit: 80,
+  });
+
   const desdeIso = new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
@@ -56,7 +64,7 @@ export default async function CardiologiaPage() {
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -71,18 +79,45 @@ export default async function CardiologiaPage() {
             <Heart className="h-5 w-5" strokeWidth={2} />
           </div>
           <div>
-            <Eyebrow tone="validation">Cardiología</Eyebrow>
-            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-              Pacientes cardiológicos · HEART score
+            <Eyebrow tone="rose">Cardiología</Eyebrow>
+            <h1 className="mt-1 text-h1 font-semibold tracking-tight text-ink-strong">
+              Service Line Cardiology
             </h1>
+            <p className="mt-1 text-caption text-ink-muted">
+              Pacientes hospitalizados con descompensación cardíaca · alta
+              reciente en seguimiento outcome 30 días · histórico ambulatorio
+              de consultas y HEART scores.
+            </p>
           </div>
         </div>
-        <p className="text-caption text-ink-soft">
-          Motor LitienGuard · Cardio Risk
-        </p>
       </header>
 
-      <CardiologiaBoard eventos={eventos} />
+      <EncounterBoard
+        activos={board.activos}
+        altaReciente={board.altaReciente}
+        historico={board.historico}
+        throughput={board.throughput}
+        avgLOSminutes={board.avgLOSminutes}
+        admissions24h={board.admissions24h}
+        discharges24h={board.discharges24h}
+      />
+
+      {eventos.length > 0 && (
+        <section className="space-y-3">
+          <header>
+            <Eyebrow tone="accent">Workflow Cardiología · últimos 90 días</Eyebrow>
+            <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+              HEART score + estratificación de riesgo
+            </h2>
+            <p className="mt-1 text-caption text-ink-muted">
+              Detalle de pacientes evaluados con HEART score, GRACE y
+              CHA₂DS₂-VASc para decisión de manejo de dolor torácico,
+              SCA y anticoagulación.
+            </p>
+          </header>
+          <CardiologiaBoard eventos={eventos} />
+        </section>
+      )}
     </div>
   );
 }

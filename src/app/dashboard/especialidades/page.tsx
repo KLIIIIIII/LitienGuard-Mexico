@@ -129,18 +129,12 @@ export default async function EspecialidadesHubPage() {
     );
   }
 
-  // Conteo de eventos por especialidad (últimos 30 días)
-  const desdeIso = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
-  const { data: conteos } = await supa
-    .from("eventos_modulos")
-    .select("modulo")
-    .eq("user_id", user.id)
-    .gte("created_at", desdeIso);
-
-  const conteoPorModulo = new Map<string, number>();
-  for (const e of conteos ?? []) {
-    const m = e.modulo as string;
-    conteoPorModulo.set(m, (conteoPorModulo.get(m) ?? 0) + 1);
+  // Census real desde encounters (activos + alta últimos 15d por especialidad)
+  const { getEncounterCensus } = await import("@/lib/encounters/queries");
+  const census = await getEncounterCensus(supa, { userId: user.id });
+  const conteoPorModulo = new Map<string, { activos: number; altaReciente: number }>();
+  for (const [m, c] of Object.entries(census.porModulo)) {
+    if (c) conteoPorModulo.set(m, c);
   }
 
   return (
@@ -160,7 +154,10 @@ export default async function EspecialidadesHubPage() {
       <section className="grid gap-3 sm:grid-cols-2">
         {MODULES.map((m) => {
           const Icon = m.icon;
-          const count = conteoPorModulo.get(m.modulo) ?? 0;
+          const entry = conteoPorModulo.get(m.modulo) ?? {
+            activos: 0,
+            altaReciente: 0,
+          };
           return (
             <Link
               key={m.modulo}
@@ -173,11 +170,22 @@ export default async function EspecialidadesHubPage() {
                 >
                   <Icon className="h-5 w-5" strokeWidth={2} />
                 </div>
-                {count > 0 && (
-                  <span className="inline-flex items-center rounded-full bg-validation-soft px-2 py-0.5 text-caption font-semibold text-validation">
-                    {count} en 30 d
-                  </span>
-                )}
+                <div className="flex flex-col items-end gap-1">
+                  {entry.activos > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-code-red-bg/40 px-2 py-0.5 text-caption font-semibold text-code-red">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-code-red opacity-60" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-code-red" />
+                      </span>
+                      {entry.activos}
+                    </span>
+                  )}
+                  {entry.altaReciente > 0 && (
+                    <span className="inline-flex items-center rounded-full bg-validation-soft px-2 py-0.5 text-caption font-semibold text-validation">
+                      {entry.altaReciente} en 15 d
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="mt-4">
                 <h2 className="text-h3 font-semibold tracking-tight text-ink-strong">

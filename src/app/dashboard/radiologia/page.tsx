@@ -7,6 +7,8 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
 import type { EventoModulo } from "@/lib/modulos-eventos";
+import { loadBoardData } from "@/lib/encounters/board-data";
+import { EncounterBoard } from "@/components/encounters";
 import { RadiologiaBoard } from "./radiologia-board";
 
 export const metadata: Metadata = {
@@ -44,6 +46,12 @@ export default async function RadiologiaPage() {
     );
   }
 
+  const board = await loadBoardData(supa, {
+    userId: user.id,
+    modulo: "radiologia",
+    historicoLimit: 80,
+  });
+
   const desdeIso = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
@@ -68,7 +76,7 @@ export default async function RadiologiaPage() {
   }));
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -84,17 +92,44 @@ export default async function RadiologiaPage() {
           </div>
           <div>
             <Eyebrow tone="validation">Radiología</Eyebrow>
-            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-              Worklist · {estudiosImg.length} estudios catalogados
+            <h1 className="mt-1 text-h1 font-semibold tracking-tight text-ink-strong">
+              Reading Queue + Critical Findings
             </h1>
+            <p className="mt-1 text-caption text-ink-muted">
+              Estudios pendientes de lectura priorizados por urgencia clínica ·
+              hallazgos críticos con callback obligatorio · {estudiosImg.length}{" "}
+              estudios en catálogo.
+            </p>
           </div>
         </div>
-        <p className="text-caption text-ink-soft">
-          Worklist priorizada · LitienGuard Imaging
-        </p>
       </header>
 
-      <RadiologiaBoard estudios={estudiosImg} eventos={eventos} />
+      <EncounterBoard
+        activos={board.activos}
+        altaReciente={board.altaReciente}
+        historico={board.historico}
+        throughput={board.throughput}
+        avgLOSminutes={board.avgLOSminutes}
+        admissions24h={board.admissions24h}
+        discharges24h={board.discharges24h}
+      />
+
+      {eventos.length > 0 && (
+        <section className="space-y-3">
+          <header>
+            <Eyebrow tone="accent">Workflow Radiología · últimos 30 días</Eyebrow>
+            <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+              Worklist por modalidad + reporte estructurado
+            </h2>
+            <p className="mt-1 text-caption text-ink-muted">
+              Lista de trabajo priorizada por modalidad (CT, RM, US, Rx) con
+              plantillas de reporte estructurado y comparación con estudios
+              previos del mismo paciente.
+            </p>
+          </header>
+          <RadiologiaBoard estudios={estudiosImg} eventos={eventos} />
+        </section>
+      )}
     </div>
   );
 }

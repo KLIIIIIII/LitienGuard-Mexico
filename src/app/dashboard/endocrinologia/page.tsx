@@ -6,6 +6,8 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
+import { loadBoardData } from "@/lib/encounters/board-data";
+import { EncounterBoard } from "@/components/encounters";
 import { EndocrinologiaBoard } from "./endocrinologia-board";
 
 export const metadata: Metadata = {
@@ -43,6 +45,12 @@ export default async function EndocrinologiaPage() {
     );
   }
 
+  const board = await loadBoardData(supa, {
+    userId: user.id,
+    modulo: ["endocrinologia", "ambulatorio"],
+    historicoLimit: 80,
+  });
+
   const desdeIso = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
@@ -56,7 +64,7 @@ export default async function EndocrinologiaPage() {
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -72,17 +80,44 @@ export default async function EndocrinologiaPage() {
           </div>
           <div>
             <Eyebrow tone="validation">Endocrinología</Eyebrow>
-            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-              Control de diabetes · HbA1c
+            <h1 className="mt-1 text-h1 font-semibold tracking-tight text-ink-strong">
+              Diabetes Care Center
             </h1>
+            <p className="mt-1 text-caption text-ink-muted">
+              Pacientes en cetoacidosis o emergencia hipoglucémica · alta
+              reciente en seguimiento HbA1c · histórico ambulatorio de
+              control glucémico anual.
+            </p>
           </div>
         </div>
-        <p className="text-caption text-ink-soft">
-          Motor LitienGuard · DM Control
-        </p>
       </header>
 
-      <EndocrinologiaBoard eventos={eventos} />
+      <EncounterBoard
+        activos={board.activos}
+        altaReciente={board.altaReciente}
+        historico={board.historico}
+        throughput={board.throughput}
+        avgLOSminutes={board.avgLOSminutes}
+        admissions24h={board.admissions24h}
+        discharges24h={board.discharges24h}
+      />
+
+      {eventos.length > 0 && (
+        <section className="space-y-3">
+          <header>
+            <Eyebrow tone="accent">Workflow Endocrinología · último año</Eyebrow>
+            <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+              HbA1c control + ajuste terapéutico
+            </h2>
+            <p className="mt-1 text-caption text-ink-muted">
+              Detalle longitudinal de control glucémico con HbA1c, glucosa
+              media estimada y plan terapéutico según metas individualizadas
+              ADA.
+            </p>
+          </header>
+          <EndocrinologiaBoard eventos={eventos} />
+        </section>
+      )}
     </div>
   );
 }

@@ -8,11 +8,18 @@ import {
   FlaskConical,
   ScanLine,
   ChevronRight,
+  Users,
+  CheckCircle2,
+  Archive,
+  Bed,
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
+import { ClinicalMetric } from "@/components/clinical/clinical-metric";
+import { getEncounterCensus } from "@/lib/encounters/queries";
 import type { LucideIcon } from "lucide-react";
+import type { EncounterModulo } from "@/lib/encounters/types";
 
 export const metadata: Metadata = {
   title: "Operaciones hospitalarias — LitienGuard",
@@ -26,7 +33,7 @@ interface OpModule {
   label: string;
   description: string;
   icon: LucideIcon;
-  modulo: string;
+  modulo: EncounterModulo;
   tone: string;
 }
 
@@ -35,7 +42,7 @@ const MODULES: OpModule[] = [
     href: "/dashboard/urgencias",
     label: "Urgencias",
     description:
-      "Tracking board en tiempo real + protocolos críticos (sepsis 1h, código stroke, código IAM, DKA).",
+      "Patient Tracking Board en tiempo real + protocolos críticos (sepsis 1h, código stroke, código IAM, DKA).",
     icon: Siren,
     modulo: "urgencias",
     tone: "border-rose/30 bg-rose-soft/30 text-rose",
@@ -44,7 +51,7 @@ const MODULES: OpModule[] = [
     href: "/dashboard/uci",
     label: "UCI",
     description:
-      "Critical care con SOFA seguimiento + scores pronósticos + monitoreo longitudinal.",
+      "Census board con SOFA evolución + bundle compliance (APACHE II, FAST-HUG, CAM-ICU).",
     icon: HeartPulse,
     modulo: "uci",
     tone: "border-warn/30 bg-warn-soft/30 text-warn",
@@ -53,7 +60,7 @@ const MODULES: OpModule[] = [
     href: "/dashboard/quirofano",
     label: "Quirófano",
     description:
-      "Surgical flow con checklist WHO + outcomes 30 días + risk scoring perioperatorio.",
+      "OR schedule + PACU con WHO Safety Checklist 3 pausas + RCRI perioperatorio.",
     icon: ClipboardCheck,
     modulo: "quirofano",
     tone: "border-accent/30 bg-accent-soft/30 text-accent",
@@ -62,7 +69,7 @@ const MODULES: OpModule[] = [
     href: "/dashboard/laboratorio",
     label: "Laboratorio",
     description:
-      "Lab pathway 8 fases con catálogo MX, peticiones, resultados y critical value alerting.",
+      "Critical values worklist + reflex testing + delta check con catálogo MX.",
     icon: FlaskConical,
     modulo: "laboratorio",
     tone: "border-validation/30 bg-validation-soft/30 text-validation",
@@ -71,7 +78,7 @@ const MODULES: OpModule[] = [
     href: "/dashboard/radiologia",
     label: "Radiología",
     description:
-      "Worklist priorizada con catálogo de estudios, templates estructurados y critical findings.",
+      "Reading queue priorizada por urgencia + critical findings con callback + comparación previa.",
     icon: ScanLine,
     modulo: "radiologia",
     tone: "border-ink/20 bg-surface-alt text-ink-strong",
@@ -106,45 +113,54 @@ export default async function OperacionesHubPage() {
     );
   }
 
-  // Conteo de eventos activos por módulo (últimas 24h)
-  const desdeIso = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-  const { data: conteos } = await supa
-    .from("eventos_modulos")
-    .select("modulo")
-    .eq("user_id", user.id)
-    .gte("created_at", desdeIso);
-
-  const conteoPorModulo = new Map<string, number>();
-  for (const e of conteos ?? []) {
-    const m = e.modulo as string;
-    conteoPorModulo.set(m, (conteoPorModulo.get(m) ?? 0) + 1);
-  }
-
-  const totalActivos = (conteos ?? []).length;
+  const census = await getEncounterCensus(supa, { userId: user.id });
 
   return (
     <div className="space-y-6">
       <header className="max-w-3xl">
         <Eyebrow tone="validation">Operaciones hospitalarias</Eyebrow>
         <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          Workflows operacionales del hospital
+          Hospital Operating System
         </h1>
         <p className="mt-3 text-body text-ink-muted leading-relaxed">
-          Cinco áreas de operación hospitalaria — cuidados críticos (Urgencias,
-          UCI, Quirófano) y apoyo diagnóstico (Laboratorio, Radiología) — cada
-          una con su workflow operativo. {totalActivos > 0 && (
-            <span className="text-ink-strong font-semibold">
-              {totalActivos} evento{totalActivos === 1 ? "" : "s"} registrado
-              {totalActivos === 1 ? "" : "s"} en las últimas 24 h.
-            </span>
-          )}
+          Census global del hospital · pacientes activos en este momento,
+          egresos en seguimiento outcome 15 días, y archivo histórico para
+          auditoría operacional.
         </p>
       </header>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        <ClinicalMetric
+          label="Census hospitalario"
+          value={census.activos}
+          unit={census.activos === 1 ? "paciente" : "pacientes"}
+          icon={Users}
+          critical={census.activos > 0}
+          caption="en este momento"
+        />
+        <ClinicalMetric
+          label="Alta últimos 15 días"
+          value={census.altaReciente}
+          unit="pacientes"
+          icon={CheckCircle2}
+          caption="ventana outcome inmediato"
+        />
+        <ClinicalMetric
+          label="Histórico"
+          value={census.historico}
+          unit="encounters"
+          icon={Archive}
+          caption="archivo + analytics"
+        />
+      </section>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {MODULES.map((m) => {
           const Icon = m.icon;
-          const count = conteoPorModulo.get(m.modulo) ?? 0;
+          const entry = census.porModulo[m.modulo] ?? {
+            activos: 0,
+            altaReciente: 0,
+          };
           return (
             <Link
               key={m.modulo}
@@ -157,11 +173,22 @@ export default async function OperacionesHubPage() {
                 >
                   <Icon className="h-5 w-5" strokeWidth={2} />
                 </div>
-                {count > 0 && (
-                  <span className="inline-flex items-center rounded-full bg-validation-soft px-2 py-0.5 text-caption font-semibold text-validation">
-                    {count} en 24 h
-                  </span>
-                )}
+                <div className="flex flex-col items-end gap-1">
+                  {entry.activos > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-code-red-bg/40 px-2 py-0.5 text-caption font-semibold text-code-red">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-code-red opacity-60" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-code-red" />
+                      </span>
+                      {entry.activos} activo{entry.activos === 1 ? "" : "s"}
+                    </span>
+                  )}
+                  {entry.altaReciente > 0 && (
+                    <span className="inline-flex items-center rounded-full bg-validation-soft px-2 py-0.5 text-caption font-semibold text-validation">
+                      {entry.altaReciente} en 15 d
+                    </span>
+                  )}
+                </div>
               </div>
               <h2 className="mt-4 text-h3 font-semibold tracking-tight text-ink-strong">
                 {m.label}
@@ -170,7 +197,7 @@ export default async function OperacionesHubPage() {
                 {m.description}
               </p>
               <span className="mt-4 inline-flex items-center gap-1 text-caption font-semibold text-validation group-hover:gap-2 transition-all">
-                Abrir workflow
+                Abrir departamento
                 <ChevronRight className="h-3 w-3" strokeWidth={2.4} />
               </span>
             </Link>
@@ -179,14 +206,17 @@ export default async function OperacionesHubPage() {
       </section>
 
       <section className="rounded-xl border border-line bg-surface-alt px-5 py-4">
-        <p className="text-caption text-ink-muted leading-relaxed max-w-3xl">
-          <span className="font-semibold text-ink-strong">
-            Motor LitienGuard · Hospital Operations.
-          </span>{" "}
-          Cinco workflows operacionales con scoring clínico, tracking
-          de tiempos y métricas de calidad alineadas a estándares
-          hospitalarios internacionales.
-        </p>
+        <div className="flex items-start gap-3">
+          <Bed className="mt-0.5 h-4 w-4 shrink-0 text-ink-quiet" strokeWidth={2} />
+          <p className="text-caption text-ink-muted leading-relaxed max-w-3xl">
+            <span className="font-semibold text-ink-strong">
+              Motor LitienGuard · Hospital OS.
+            </span>{" "}
+            Cada departamento opera con su workflow nativo y reporta al
+            census global. La ventana de 15 días post-alta permite cerrar
+            el outcome loop antes de archivar al histórico.
+          </p>
+        </div>
       </section>
     </div>
   );

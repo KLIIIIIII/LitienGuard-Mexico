@@ -6,6 +6,8 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
+import { loadBoardData } from "@/lib/encounters/board-data";
+import { EncounterBoard } from "@/components/encounters";
 import { NeurologiaBoard } from "./neurologia-board";
 
 export const metadata: Metadata = {
@@ -43,6 +45,12 @@ export default async function NeurologiaPage() {
     );
   }
 
+  const board = await loadBoardData(supa, {
+    userId: user.id,
+    modulo: ["neurologia", "ambulatorio"],
+    historicoLimit: 80,
+  });
+
   const desdeIso = new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
@@ -56,7 +64,7 @@ export default async function NeurologiaPage() {
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -71,18 +79,45 @@ export default async function NeurologiaPage() {
             <Brain className="h-5 w-5" strokeWidth={2} />
           </div>
           <div>
-            <Eyebrow tone="validation">Neurología</Eyebrow>
-            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-              Pacientes neurológicos · NIHSS
+            <Eyebrow tone="accent">Neurología</Eyebrow>
+            <h1 className="mt-1 text-h1 font-semibold tracking-tight text-ink-strong">
+              Stroke Unit + Neuro Service Line
             </h1>
+            <p className="mt-1 text-caption text-ink-muted">
+              Pacientes con EVC agudo en ventana terapéutica · alta reciente
+              en seguimiento NIHSS · histórico ambulatorio de consultas
+              neurológicas.
+            </p>
           </div>
         </div>
-        <p className="text-caption text-ink-soft">
-          Motor LitienGuard · Neuro Severity
-        </p>
       </header>
 
-      <NeurologiaBoard eventos={eventos} />
+      <EncounterBoard
+        activos={board.activos}
+        altaReciente={board.altaReciente}
+        historico={board.historico}
+        throughput={board.throughput}
+        avgLOSminutes={board.avgLOSminutes}
+        admissions24h={board.admissions24h}
+        discharges24h={board.discharges24h}
+      />
+
+      {eventos.length > 0 && (
+        <section className="space-y-3">
+          <header>
+            <Eyebrow tone="accent">Workflow Neurología · últimos 90 días</Eyebrow>
+            <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+              NIHSS + ventana terapéutica
+            </h2>
+            <p className="mt-1 text-caption text-ink-muted">
+              Detalle de pacientes evaluados con NIHSS, Glasgow y Mini-Mental
+              para estratificación de EVC, trauma craneoencefálico y deterioro
+              cognitivo.
+            </p>
+          </header>
+          <NeurologiaBoard eventos={eventos} />
+        </section>
+      )}
     </div>
   );
 }
