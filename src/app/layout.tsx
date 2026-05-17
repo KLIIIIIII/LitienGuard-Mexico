@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
+import Script from "next/script";
 import { manrope, sourceSerif } from "@/lib/fonts";
 import { SITE_URL } from "@/lib/utils";
 import { TopBar } from "@/components/top-bar";
@@ -93,12 +94,12 @@ export default function RootLayout({
       className={`${manrope.variable} ${sourceSerif.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <script
+      <body className="flex min-h-screen flex-col bg-canvas text-ink antialiased">
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
-      </head>
-      <body className="flex min-h-screen flex-col bg-canvas text-ink antialiased">
         <ThemeProvider>
           <TopBar />
           <main className="flex-1 pt-[72px]">{children}</main>
