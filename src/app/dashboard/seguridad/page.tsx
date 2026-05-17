@@ -55,11 +55,11 @@ export default async function SeguridadPage() {
           </div>
           <div>
             <p className="text-body-sm font-semibold text-ink-strong">
-              Cifrado del expediente
+              Protección de datos clínicos
             </p>
             <p className="mt-0.5 text-caption text-ink-muted leading-snug max-w-prose">
-              Qué se cifra hoy, cómo funciona el envelope encryption con
-              Google Cloud KMS y el roadmap de las capas que faltan.
+              Cómo protegemos la información de tus pacientes y qué
+              cubre la plataforma hoy.
             </p>
           </div>
         </div>
