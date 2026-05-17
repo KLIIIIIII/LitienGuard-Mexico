@@ -1,0 +1,174 @@
+"use server";
+
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { createSupabaseServer } from "@/lib/supabase-server";
+import { recordAudit } from "@/lib/audit";
+import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
+import { RADIOLOGIA_TIPOS } from "@/lib/modulos-eventos";
+import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
+
+const peticionSchema = z.object({
+  pacienteIniciales: z.string().max(8).optional(),
+  pacienteEdad: z.number().int().min(0).max(120).optional(),
+  pacienteSexo: z.enum(["M", "F", "X"]).optional(),
+  estudiosIds: z.array(z.string()).min(1).max(10),
+  indicacionClinica: z.string().min(2).max(500),
+  urgencia: z.enum(["rutina", "urgente", "stat"]),
+  notas: z.string().max(500).optional(),
+});
+
+export type ActionResult =
+  | { status: "ok"; eventoId: string }
+  | { status: "error"; message: string };
+
+export async function crearPeticionImagen(
+  input: z.infer<typeof peticionSchema>,
+): Promise<ActionResult> {
+  const parsed = peticionSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+    };
+  }
+
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado." };
+
+  const { data: profile } = await supa
+    .from("profiles")
+    .select("subscription_tier")
+    .eq("id", user.id)
+    .single();
+  const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  if (!canUseCerebro(tier)) {
+    return { status: "error", message: "Requiere plan Profesional o superior." };
+  }
+
+  const estudios = ESTUDIOS_DIAGNOSTICOS.filter(
+    (e) =>
+      parsed.data.estudiosIds.includes(e.id) && e.categoria === "imagenologia",
+  );
+  if (estudios.length === 0) {
+    return {
+      status: "error",
+      message: "Selecciona al menos un estudio de imagen.",
+    };
+  }
+
+  const { data, error } = await supa
+    .from("eventos_modulos")
+    .insert({
+      user_id: user.id,
+      modulo: "radiologia",
+      tipo: RADIOLOGIA_TIPOS.peticion,
+      datos: {
+        paciente_iniciales: parsed.data.pacienteIniciales ?? null,
+        paciente_edad: parsed.data.pacienteEdad ?? null,
+        paciente_sexo: parsed.data.pacienteSexo ?? null,
+        estudios: estudios.map((e) => ({
+          id: e.id,
+          nombre: e.nombre,
+          disponibilidad: e.disponibilidadIMSS,
+          costo_mxn: e.costoPrivadoMxn ?? null,
+        })),
+        indicacion_clinica: parsed.data.indicacionClinica,
+        urgencia: parsed.data.urgencia,
+      },
+      status: "activo",
+      notas: parsed.data.notas ?? null,
+      metricas: {
+        n_estudios: estudios.length,
+        urgencia: parsed.data.urgencia,
+      },
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    return { status: "error", message: "No se pudo crear la petición." };
+  }
+
+  void recordAudit({
+    userId: user.id,
+    action: "radiologia.peticion",
+    metadata: {
+      n_estudios: estudios.length,
+      urgencia: parsed.data.urgencia,
+    },
+  });
+
+  revalidatePath("/dashboard/radiologia");
+  return { status: "ok", eventoId: data.id };
+}
+
+const reporteSchema = z.object({
+  eventoId: z.string().uuid(),
+  reporte: z.string().min(10).max(3000),
+  hallazgosPositivos: z.array(z.string()).max(20).optional(),
+});
+
+export async function adjuntarReporte(
+  input: z.infer<typeof reporteSchema>,
+): Promise<ActionResult> {
+  const parsed = reporteSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+    };
+  }
+
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado." };
+
+  const { data: existing } = await supa
+    .from("eventos_modulos")
+    .select("id, datos")
+    .eq("id", parsed.data.eventoId)
+    .eq("user_id", user.id)
+    .single();
+  if (!existing) {
+    return { status: "error", message: "Petición no encontrada." };
+  }
+
+  const datos = {
+    ...(existing.datos as Record<string, unknown>),
+    reporte: parsed.data.reporte,
+    hallazgos_positivos: parsed.data.hallazgosPositivos ?? [],
+    reportado_at: new Date().toISOString(),
+  };
+
+  const { error } = await supa
+    .from("eventos_modulos")
+    .update({
+      status: "completado",
+      completed_at: new Date().toISOString(),
+      datos,
+    })
+    .eq("id", parsed.data.eventoId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { status: "error", message: "No se pudo actualizar." };
+  }
+
+  void recordAudit({
+    userId: user.id,
+    action: "radiologia.reporte_adjuntado",
+    metadata: {
+      evento_id: parsed.data.eventoId,
+      hallazgos: parsed.data.hallazgosPositivos?.length ?? 0,
+    },
+  });
+
+  revalidatePath("/dashboard/radiologia");
+  return { status: "ok", eventoId: parsed.data.eventoId };
+}

@@ -21,6 +21,10 @@ import {
   MessageCircle,
   Megaphone,
   FlaskConical,
+  Siren,
+  ClipboardCheck,
+  HeartPulse,
+  ScanLine,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
@@ -409,6 +413,62 @@ export default async function DashboardPage() {
       </section>
 
       {/* ============================================================
+          SECCIÓN 3.5 — Workflows hospitalarios (módulos enterprise)
+      ============================================================ */}
+      <section>
+        <Eyebrow tone="warn">Workflows hospitalarios</Eyebrow>
+        <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+          Módulos operacionales por departamento
+        </h2>
+        <p className="mt-1 text-caption text-ink-muted max-w-prose">
+          Triage, protocolos críticos de urgencias, time-out quirúrgico,
+          calculadora SOFA y peticiones de laboratorio / imagen.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <ModuloCard
+            icon={Siren}
+            title="Urgencias"
+            subtitle="Triage + protocolos críticos"
+            href="/dashboard/urgencias"
+            locked={!cerebroUnlocked}
+            tone="rose"
+          />
+          <ModuloCard
+            icon={ClipboardCheck}
+            title="Quirófano"
+            subtitle="WHO time-out checklist"
+            href="/dashboard/quirofano"
+            locked={!cerebroUnlocked}
+            tone="validation"
+          />
+          <ModuloCard
+            icon={HeartPulse}
+            title="UCI"
+            subtitle="SOFA · seguimiento"
+            href="/dashboard/uci"
+            locked={!cerebroUnlocked}
+            tone="rose"
+          />
+          <ModuloCard
+            icon={FlaskConical}
+            title="Laboratorio"
+            subtitle="Peticiones + resultados"
+            href="/dashboard/laboratorio"
+            locked={!cerebroUnlocked}
+            tone="validation"
+          />
+          <ModuloCard
+            icon={ScanLine}
+            title="Radiología"
+            subtitle="Imagen + reportes"
+            href="/dashboard/radiologia"
+            locked={!cerebroUnlocked}
+            tone="accent"
+          />
+        </div>
+      </section>
+
+      {/* ============================================================
           SECCIÓN 4 — Avanzado / cuenta
       ============================================================ */}
       <section>
@@ -647,6 +707,64 @@ function ToolCard({
           </p>
         </div>
       </div>
+    </Link>
+  );
+}
+
+function ModuloCard({
+  icon: Icon,
+  title,
+  subtitle,
+  href,
+  locked,
+  tone,
+}: {
+  icon: LucideIcon;
+  title: string;
+  subtitle: string;
+  href: string;
+  locked?: boolean;
+  tone: "rose" | "validation" | "warn" | "accent";
+}) {
+  const toneClasses: Record<
+    "rose" | "validation" | "warn" | "accent",
+    { text: string; bg: string }
+  > = {
+    rose: { text: "text-rose", bg: "bg-rose-soft" },
+    validation: { text: "text-validation", bg: "bg-validation-soft" },
+    warn: { text: "text-warn", bg: "bg-warn-soft" },
+    accent: { text: "text-accent", bg: "bg-accent-soft" },
+  };
+  const c = toneClasses[tone];
+
+  if (locked) {
+    return (
+      <div className="lg-card opacity-60">
+        <div className="flex items-center gap-2 text-ink-quiet">
+          <Lock className="h-4 w-4" strokeWidth={2} />
+          <p className="text-body-sm font-semibold">{title}</p>
+        </div>
+        <p className="mt-1 text-caption text-ink-muted">{subtitle}</p>
+        <Link
+          href="/precios"
+          className="mt-2 inline-flex items-center gap-1 text-caption font-semibold text-warn hover:underline"
+        >
+          Plan requerido →
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className="lg-card group transition-all hover:border-line-strong hover:shadow-lift"
+    >
+      <div className={`inline-flex rounded-lg ${c.bg} p-2 ${c.text}`}>
+        <Icon className="h-5 w-5" strokeWidth={2} />
+      </div>
+      <p className="mt-2 text-body-sm font-semibold text-ink-strong">{title}</p>
+      <p className="mt-0.5 text-caption text-ink-muted">{subtitle}</p>
     </Link>
   );
 }
