@@ -75,8 +75,8 @@ const STEPS: TourStep[] = [
   {
     selector: "[data-tour-sidebar]",
     icon: Siren,
-    title: "Barra lateral · Workflows",
-    body: "Aquí están los módulos hospitalarios: Urgencias, Quirófano, UCI, Laboratorio, Radiología. Cada uno con su patrón Cerner-style.",
+    title: "Workflows hospitalarios",
+    body: "Urgencias, Quirófano, UCI, Laboratorio y Radiología — cada uno con su patrón Cerner-style. En desktop están en la barra lateral; en móvil ábrelos desde el menú.",
     placement: "right",
   },
   {
@@ -123,18 +123,19 @@ export function WelcomeTour({
       return;
     }
     const tryFind = () => {
-      const el = document.querySelector(step.selector!);
-      if (!el) {
-        setTargetRect(null);
-        return;
+      // querySelectorAll so we can pick the first VISIBLE match. The same
+      // data attribute is used on both the desktop sidebar (display:none
+      // on mobile) and the mobile menu button (display:none on desktop).
+      const els = document.querySelectorAll(step.selector!);
+      let visibleRect: DOMRect | null = null;
+      for (const el of Array.from(els)) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) {
+          visibleRect = r;
+          break;
+        }
       }
-      const rect = el.getBoundingClientRect();
-      // Element exists but is hidden (display:none on mobile sidebar, etc.)
-      if (rect.width === 0 || rect.height === 0) {
-        setTargetRect(null);
-        return;
-      }
-      setTargetRect(rect);
+      setTargetRect(visibleRect);
     };
     tryFind();
     const onResize = () => tryFind();
