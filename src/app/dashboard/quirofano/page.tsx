@@ -7,6 +7,7 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
 import { QuirofanoBoard } from "./quirofano-board";
+import { QuirofanoBundles } from "./quirofano-bundles";
 
 export const metadata: Metadata = {
   title: "Quirófano — LitienGuard",
@@ -83,6 +84,8 @@ export default async function QuirofanoPage() {
       </header>
 
       <QuirofanoBoard eventos={eventos} />
+
+      <QuirofanoBundles eventos={eventos} />
     </div>
   );
 }
