@@ -6,7 +6,7 @@ import type {
   EncounterRow,
 } from "./types";
 
-type AnySupabase = SupabaseClient<any, any, any>;
+type AnySupabase = SupabaseClient;
 
 interface EncounterWithPatient extends EncounterRow {
   paciente?: {

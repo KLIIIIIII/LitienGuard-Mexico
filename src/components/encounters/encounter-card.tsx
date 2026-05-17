@@ -1,6 +1,5 @@
 import {
   Bed,
-  Clock,
   AlertTriangle,
   CheckCircle2,
   Skull,

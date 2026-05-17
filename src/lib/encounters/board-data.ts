@@ -7,7 +7,7 @@ import {
 } from "./queries";
 import type { EncounterModulo } from "./types";
 
-type AnySupabase = SupabaseClient<any, any, any>;
+type AnySupabase = SupabaseClient;
 
 export interface BoardData {
   activos: Awaited<ReturnType<typeof getActiveEncounters>>;

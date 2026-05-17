@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import {
-  Activity,
   Users,
   TrendingUp,
   Clock,
@@ -12,7 +11,6 @@ import {
   Archive,
 } from "lucide-react";
 import { ClinicalMetric } from "@/components/clinical/clinical-metric";
-import { TrendChart } from "@/components/clinical/trend-chart";
 import {
   EncounterCardActive,
   EncounterCardDischarged,
