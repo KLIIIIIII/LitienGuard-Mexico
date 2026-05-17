@@ -25,6 +25,9 @@ import {
 import { ConsultaActions } from "./consulta-actions";
 import { ConsultaNotesForm } from "./consulta-notes-form";
 import { decryptField } from "@/lib/encryption";
+import { detectarCrucesActivos } from "@/lib/inference/cruces-detector";
+import type { DiseaseId } from "@/lib/inference/types";
+import { CrucesActivosBanner } from "./cruces-activos-banner";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -183,6 +186,72 @@ export default async function ConsultaDetallePage({
     alergiasPaciente = pac?.alergias && pac.alergias.length > 0 ? pac.alergias : null;
   }
 
+  // Cruces clínicos multivariable — Sprint Z-ε
+  // Buscar dx confirmados del mismo paciente (proxy: iniciales + edad)
+  // en diferencial_sessions del médico, y correr el detector.
+  type CrucePayload = {
+    id: string;
+    nombre: string;
+    descripcion: string;
+    severidad: "critica" | "importante" | "informativa";
+    recomendacion: string;
+    source: string;
+    farmacos: {
+      obligatorios?: string[];
+      contraindicados?: string[];
+    } | null;
+    motivos: string[];
+  };
+  let crucesPayload: CrucePayload[] = [];
+  if (
+    canUseCerebro(tier) &&
+    consulta.paciente_iniciales &&
+    consulta.paciente_iniciales.trim().length > 0
+  ) {
+    const { data: sesionesPaciente } = await supa
+      .from("diferencial_sessions")
+      .select(
+        "id, medico_id, top_diagnoses, contexto_clinico, medico_diagnostico_principal, outcome_confirmado, created_at",
+      )
+      .eq("medico_id", user.id)
+      .eq("paciente_iniciales", consulta.paciente_iniciales)
+      .eq("paciente_edad", consulta.paciente_edad ?? null)
+      .in("outcome_confirmado", ["confirmado", "parcial"])
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (sesionesPaciente && sesionesPaciente.length > 0) {
+      const diseaseIds: DiseaseId[] = [];
+      const findingsLibres: string[] = [];
+      for (const s of sesionesPaciente) {
+        const topDxs = (s.top_diagnoses as Array<{ disease?: string }> | null) ?? [];
+        const topId = topDxs[0]?.disease;
+        if (topId && !diseaseIds.includes(topId)) diseaseIds.push(topId);
+        const [ctx, dx] = await Promise.all([
+          decryptField(s.contexto_clinico, s.medico_id),
+          decryptField(s.medico_diagnostico_principal, s.medico_id),
+        ]);
+        if (ctx && ctx.trim().length > 0) findingsLibres.push(ctx);
+        if (dx && dx.trim().length > 0) findingsLibres.push(dx);
+      }
+
+      const detectados = detectarCrucesActivos(diseaseIds, {
+        edad: consulta.paciente_edad ?? undefined,
+        findingsLibres,
+      });
+      crucesPayload = detectados.map((d) => ({
+        id: d.cruce.id,
+        nombre: d.cruce.nombre,
+        descripcion: d.cruce.descripcion,
+        severidad: d.cruce.severidad,
+        recomendacion: d.cruce.recomendacion,
+        source: d.cruce.source,
+        farmacos: d.cruce.farmacos ?? null,
+        motivos: d.motivosMatch,
+      }));
+    }
+  }
+
   return (
     <>
       <PatientHeader
@@ -204,6 +273,12 @@ export default async function ConsultaDetallePage({
         alergias={alergiasPaciente}
         compact
       />
+
+      {crucesPayload.length > 0 && (
+        <div className="pt-2">
+          <CrucesActivosBanner cruces={crucesPayload} />
+        </div>
+      )}
 
       <div className="pt-2">
       <Link
