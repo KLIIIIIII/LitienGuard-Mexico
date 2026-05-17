@@ -11,7 +11,17 @@ import {
   Sparkles,
   ArrowRight,
   TrendingUp,
+  Brain,
+  Upload,
+  Network,
+  Settings,
+  CreditCard,
+  Users,
+  BarChart3,
+  MessageCircle,
+  Megaphone,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
@@ -22,7 +32,6 @@ import {
   canUseCerebro,
   scribeMonthlyLimit,
   TIER_LABELS,
-  TIER_DESCRIPTIONS,
   tierBadgeClass,
   type SubscriptionTier,
 } from "@/lib/entitlements";
@@ -56,13 +65,14 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("nombre, role, hospital, especialidad, subscription_tier")
+    .select("nombre, role, hospital, subscription_tier")
     .eq("id", user.id)
     .single();
 
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
   const scribeUnlocked = canUseScribe(tier);
   const cerebroUnlocked = canUseCerebro(tier);
+  const isAdmin = profile?.role === "admin";
 
   const startOfMonth = new Date();
   startOfMonth.setUTCDate(1);
@@ -105,7 +115,6 @@ export default async function DashboardPage() {
       .eq("user_id", user.id),
   ]);
 
-  // Filtrar anuncios: que apliquen al tier del médico y no estén descartados
   const dismissedIds = new Set(
     (anunciosVistosRaw ?? [])
       .filter((v) => v.descartado_at !== null)
@@ -117,12 +126,11 @@ export default async function DashboardPage() {
     .filter((a) => !dismissedIds.has(a.id))
     .filter((a) => {
       if (a.audiencia === "todos") return true;
-      if (a.audiencia === "admin") return profile?.role === "admin";
+      if (a.audiencia === "admin") return isAdmin;
       return a.audiencia === tier;
     })
     .slice(0, 3);
 
-  // Descifrar el snippet de SOAP de las notas recientes (Fase B)
   const recentRows = (
     await Promise.all(
       ((recent as RecentNota[] | null) ?? []).map(async (n) => ({
@@ -136,406 +144,529 @@ export default async function DashboardPage() {
   const signed = firmadas ?? 0;
   const usedThisMonth = notasMes ?? 0;
   const limit = scribeMonthlyLimit(tier);
-  const usagePct = Number.isFinite(limit) && limit > 0
-    ? Math.min(100, Math.round((usedThisMonth / limit) * 100))
-    : 0;
+  const usagePct =
+    Number.isFinite(limit) && limit > 0
+      ? Math.min(100, Math.round((usedThisMonth / limit) * 100))
+      : 0;
+
+  // CTA primario depende del tier y estado del usuario
+  const primaryCta = scribeUnlocked
+    ? { href: "/dashboard/scribe", label: "Nueva nota", icon: Plus }
+    : tier === "free"
+      ? { href: "/precios", label: "Subir de plan", icon: Lock }
+      : { href: "/dashboard/notas", label: "Nueva nota", icon: Plus };
 
   return (
-    <div>
-      <AnunciosBanner anuncios={anuncios} />
-      <div className={anuncios.length > 0 ? "mt-6" : ""}>
-        <div className="flex flex-wrap items-start justify-between gap-6">
-          <div>
-            <Eyebrow tone="validation">
-              {profile?.role === "admin" ? "Panel admin" : "Panel del médico"}
-            </Eyebrow>
-            <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink">
-              Hola
-              {profile?.nombre ? `, ${profile.nombre.split(" ")[0]}` : ""}.
-            </h1>
-            <p className="mt-2 max-w-prose text-body text-ink-muted">
-              {user.email}
-              {profile?.hospital ? ` · ${profile.hospital}` : ""}
-            </p>
-          </div>
-          {scribeUnlocked ? (
-            <Link href="/dashboard/scribe" className="lg-cta-primary">
-              <Plus className="h-4 w-4" />
-              Nueva nota
-            </Link>
-          ) : tier === "free" ? (
-            <Link href="/precios" className="lg-cta-ghost">
-              <Lock className="h-4 w-4" />
-              Subir de plan
-            </Link>
-          ) : (
-            <Link href="/dashboard/notas" className="lg-cta-primary">
-              <Plus className="h-4 w-4" />
-              Nueva nota
-            </Link>
-          )}
-        </div>
+    <div className="space-y-8">
+      {anuncios.length > 0 && <AnunciosBanner anuncios={anuncios} />}
 
-        {/* First-time push — solo si el médico nunca ha hecho una nota y
-            tiene scribe desbloqueado. Lo lleva al "wow" en 30 segundos. */}
-        {total === 0 && scribeUnlocked && (
-          <section className="mt-10 overflow-hidden rounded-2xl border border-validation bg-gradient-to-br from-validation-soft via-surface to-canvas">
-            <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
-                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
-                  Tu primer SOAP en 30 segundos
-                </div>
-                <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-                  Empieza por la nota.
-                </h2>
-                <p className="mt-3 max-w-prose text-body text-ink-muted">
-                  Graba 30 segundos de una consulta — real o de práctica — y
-                  obtén la nota SOAP estructurada con cita verbatim. El cerebro
-                  y el diferencial se desbloquean cuando ya entendiste el flujo.
-                </p>
-                <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <Link
-                    href="/dashboard/scribe"
-                    className="lg-cta-primary group"
-                  >
-                    <Mic className="h-4 w-4" strokeWidth={2.2} />
-                    Grabar mi primera consulta
-                    <ArrowRight
-                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                      strokeWidth={2.2}
-                    />
-                  </Link>
-                  <span className="inline-flex items-center gap-1.5 text-caption text-ink-soft">
-                    <Clock className="h-3.5 w-3.5" strokeWidth={2.2} />
-                    Transcribe + estructura en ~13 segundos
-                  </span>
-                </div>
-              </div>
-              <div className="hidden lg:block">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-validation text-canvas shadow-lift">
-                  <Mic className="h-10 w-10" strokeWidth={2} />
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Stats */}
-        <section className="mt-10 grid gap-4 sm:grid-cols-3">
-          <div className="lg-card">
-            <p className="text-caption text-ink-muted">Notas en total</p>
-            <p className="mt-1 text-h1 font-semibold text-ink-strong">{total}</p>
-          </div>
-          <div className="lg-card">
-            <p className="text-caption text-ink-muted">Firmadas</p>
-            <p className="mt-1 text-h1 font-semibold text-validation">
-              {signed}
-            </p>
-          </div>
-          <div className="lg-card">
-            <div className="flex items-baseline justify-between">
-              <p className="text-caption text-ink-muted">Uso este mes</p>
-              <span
-                className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium ${tierBadgeClass(
-                  tier,
-                )}`}
-              >
-                {TIER_LABELS[tier]}
-              </span>
-            </div>
-            <p className="mt-1 text-h1 font-semibold text-ink-strong">
-              {usedThisMonth}
-              <span className="ml-1 text-body-sm font-normal text-ink-muted">
-                / {Number.isFinite(limit) ? limit : "∞"}
-              </span>
-            </p>
-            {Number.isFinite(limit) && limit > 0 && (
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-alt">
-                <div
-                  className="h-full rounded-full bg-validation transition-all"
-                  style={{ width: `${usagePct}%` }}
-                />
-              </div>
+      {/* ============================================================
+          Header
+      ============================================================ */}
+      <header className="flex flex-wrap items-start justify-between gap-6">
+        <div>
+          <Eyebrow tone="validation">
+            {isAdmin ? "Panel admin" : "Panel del médico"}
+          </Eyebrow>
+          <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+            Hola{profile?.nombre ? `, ${profile.nombre.split(" ")[0]}` : ""}.
+          </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-body-sm text-ink-muted">
+            <span>{user.email}</span>
+            {profile?.hospital && (
+              <>
+                <span className="text-ink-quiet">·</span>
+                <span>{profile.hospital}</span>
+              </>
             )}
-            <p className="mt-2 text-caption text-ink-soft">
-              {TIER_DESCRIPTIONS[tier]}
-            </p>
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium ${tierBadgeClass(tier)}`}
+            >
+              {TIER_LABELS[tier]}
+            </span>
+          </div>
+        </div>
+        <Link href={primaryCta.href} className="lg-cta-primary shrink-0">
+          <primaryCta.icon className="h-4 w-4" />
+          {primaryCta.label}
+        </Link>
+      </header>
+
+      {/* ============================================================
+          First-time push — solo si nunca ha hecho nota y tiene scribe
+      ============================================================ */}
+      {total === 0 && scribeUnlocked && (
+        <section className="overflow-hidden rounded-2xl border border-validation bg-gradient-to-br from-validation-soft via-surface to-canvas">
+          <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
+                Tu primer SOAP en 30 segundos
+              </div>
+              <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+                Empieza por la nota.
+              </h2>
+              <p className="mt-3 max-w-prose text-body text-ink-muted">
+                Graba 30 segundos de una consulta — real o de práctica — y
+                obtén la nota SOAP estructurada con cita verbatim. El resto
+                del cerebro se desbloquea cuando ya entendiste el flujo.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <Link href="/dashboard/scribe" className="lg-cta-primary group">
+                  <Mic className="h-4 w-4" strokeWidth={2.2} />
+                  Grabar mi primera consulta
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={2.2}
+                  />
+                </Link>
+                <span className="inline-flex items-center gap-1.5 text-caption text-ink-soft">
+                  <Clock className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  Transcribe + estructura en ~13 segundos
+                </span>
+              </div>
+            </div>
+            <div className="hidden lg:block">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-validation text-canvas shadow-lift">
+                <Mic className="h-10 w-10" strokeWidth={2} />
+              </div>
+            </div>
           </div>
         </section>
+      )}
 
-        {/* Tools */}
-        <section className="mt-10 grid gap-4 lg:grid-cols-2">
-          {scribeUnlocked ? (
-            <Link
-              href="/dashboard/scribe"
-              className="lg-card group transition-all hover:border-validation hover:shadow-lift"
-            >
-              <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-validation-soft p-2 text-validation">
-                  <Mic className="h-5 w-5" />
-                </div>
-                <div>
-                  <Eyebrow tone="validation">Scribe</Eyebrow>
-                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                    Notas SOAP automáticas
-                  </h2>
-                </div>
-              </div>
-              <p className="mt-3 text-body-sm text-ink-muted">
-                Graba o sube el audio de la consulta. Se transcribe en español
-                y se estructura automáticamente en formato SOAP. Tú firmas la
-                versión final.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
-                Disponible · Plan {TIER_LABELS[tier]}
-              </span>
-            </Link>
-          ) : (
-            <div className="lg-card opacity-80">
-              <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-surface-alt p-2 text-ink-quiet">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <div>
-                  <Eyebrow tone="validation">Scribe</Eyebrow>
-                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                    Notas SOAP automáticas
-                  </h2>
-                </div>
-              </div>
-              <p className="mt-3 text-body-sm text-ink-muted">
-                {tier === "free"
-                  ? "Función de suscripción. Solicita acceso al piloto o suscríbete al plan Pro para grabar consultas y obtener notas SOAP estructuradas en segundos."
-                  : "Tu plan Esencial incluye notas manuales. Para grabar la consulta y obtener SOAP automático en 13 segundos, sube a plan Profesional."}
-              </p>
-              <Link
-                href={tier === "free" ? "/contacto" : "/precios"}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-warn hover:bg-warn-soft/80"
-              >
-                {tier === "free" ? "Solicitar acceso" : "Ver plan Profesional"} →
-              </Link>
-            </div>
-          )}
+      {/* ============================================================
+          Stats compactos — barra horizontal con dividers
+      ============================================================ */}
+      <section className="grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-surface">
+        <StatInline label="Notas totales" value={total.toLocaleString("es-MX")} />
+        <StatInline
+          label="Firmadas"
+          value={signed.toLocaleString("es-MX")}
+          tone="validation"
+        />
+        <StatInline
+          label="Este mes"
+          value={
+            Number.isFinite(limit)
+              ? `${usedThisMonth} / ${limit}`
+              : `${usedThisMonth}`
+          }
+          progressPct={Number.isFinite(limit) && limit > 0 ? usagePct : null}
+        />
+      </section>
 
-          <Link
+      {/* ============================================================
+          SECCIÓN 1 — Tu día (quick actions)
+      ============================================================ */}
+      <section>
+        <Eyebrow>Tu día</Eyebrow>
+        <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+          ¿Qué necesitas ahora?
+        </h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <QuickAction
+            icon={Mic}
+            title="Nueva nota"
+            description="Graba consulta · SOAP en segundos"
+            href={scribeUnlocked ? "/dashboard/scribe" : "/dashboard/notas"}
+            primary={scribeUnlocked}
+            locked={!scribeUnlocked}
+          />
+          <QuickAction
+            icon={Sparkles}
+            title="Pegar nota clínica"
+            description="Analiza una nota de otro sistema"
+            href="/dashboard/cerebro/analizar"
+            locked={!cerebroUnlocked}
+          />
+          <QuickAction
+            icon={Brain}
+            title="Diferencial diagnóstico"
+            description="Confronta tu hipótesis con el motor"
+            href="/dashboard/diferencial"
+            locked={!cerebroUnlocked}
+          />
+          <QuickAction
+            icon={FileText}
+            title="Mis notas"
+            description={`${total} ${total === 1 ? "nota" : "notas"} · historial completo`}
             href="/dashboard/notas"
-            className="lg-card group transition-all hover:border-accent hover:shadow-lift"
-          >
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-accent-soft p-2 text-accent">
-                <FileText className="h-5 w-5" />
-              </div>
-              <div>
-                <Eyebrow tone="accent">Mis notas</Eyebrow>
-                <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                  Historial y borradores
-                </h2>
-              </div>
-            </div>
-            <p className="mt-3 text-body-sm text-ink-muted">
-              Revisa, edita y firma tus notas. Cada nota guarda transcripción y
-              versión SOAP para que puedas auditar el trabajo de la IA.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-caption text-accent">
-              {total} {total === 1 ? "nota" : "notas"}
-            </span>
-          </Link>
+          />
+        </div>
+      </section>
 
-          {cerebroUnlocked ? (
-            <div className="lg-card group">
-              <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-accent-soft p-2 text-accent">
-                  <BookOpen className="h-5 w-5" />
-                </div>
-                <div>
-                  <Eyebrow tone="accent">Cerebro</Eyebrow>
-                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                    Búsqueda con evidencia
-                  </h2>
-                </div>
-              </div>
-              <p className="mt-3 text-body-sm text-ink-muted">
-                Consulta el cerebro curado en español con citas verbatim a guías
-                clínicas oficiales mexicanas y literatura peer-reviewed.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  href="/dashboard/cerebro"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-caption font-semibold text-ink-strong hover:bg-surface-alt"
-                >
-                  <BookOpen className="h-3.5 w-3.5" strokeWidth={2.2} />
-                  Buscar en guías
-                </Link>
-                <Link
-                  href="/dashboard/cerebro/analizar"
-                  className="inline-flex items-center gap-1.5 rounded-lg border-2 border-validation bg-validation-soft px-3 py-1.5 text-caption font-semibold text-validation hover:bg-validation hover:text-canvas transition-colors"
-                >
-                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2.4} />
-                  Pegar nota de otro EHR
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="lg-card opacity-80">
-              <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-surface-alt p-2 text-ink-quiet">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <div>
-                  <Eyebrow tone="accent">Cerebro</Eyebrow>
-                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                    Búsqueda con evidencia
-                  </h2>
-                </div>
-              </div>
-              <p className="mt-3 text-body-sm text-ink-muted">
-                Consulta el cerebro clínico curado en español con citas
-                verbatim a guías oficiales y literatura peer-reviewed.
-              </p>
-              <Link
-                href="/contacto"
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-warn hover:bg-warn-soft/80"
-              >
-                Plan Pro o superior →
-              </Link>
-            </div>
-          )}
-
-          <Link
-            href="/dashboard/importar-papel"
-            className="lg-card group transition-all hover:border-validation hover:shadow-lift"
-          >
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-validation-soft p-2 text-validation">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div>
-                <Eyebrow tone="validation">Importar desde papel</Eyebrow>
-                <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                  Foto a tu agenda o receta
-                </h2>
-              </div>
-            </div>
-            <p className="mt-3 text-body-sm text-ink-muted">
-              Sube fotos de agendas físicas, recetas, fichas de paciente o
-              notas SOAP. El cerebro extrae la información estructurada en
-              segundos — sin teclear caso por caso.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
-              Nuevo →
-            </span>
-          </Link>
-
-          <Link
-            href="/dashboard/mi-impacto"
-            className="lg-card group transition-all hover:border-validation hover:shadow-lift"
-          >
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-validation-soft p-2 text-validation">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <div>
-                <Eyebrow tone="validation">Mi impacto</Eyebrow>
-                <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                  Tu contribución al cerebro
-                </h2>
-              </div>
-            </div>
-            <p className="mt-3 text-body-sm text-ink-muted">
-              Mira cuántos casos tuyos calibran el motor LATAM. Activa el
-              consentimiento agregado para Fase 3 (modelo Tempus-LATAM).
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
-              Nuevo →
-            </span>
-          </Link>
-
-          {profile?.role === "admin" && (
+      {/* ============================================================
+          SECCIÓN 2 — Últimas notas (subió de posición)
+      ============================================================ */}
+      {recentRows.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between">
+            <Eyebrow>Actividad reciente</Eyebrow>
             <Link
-              href="/admin/invitaciones"
-              className="lg-card group transition-all hover:border-line-strong hover:shadow-lift"
+              href="/dashboard/notas"
+              className="text-caption font-medium text-ink-muted hover:text-ink-strong"
             >
-              <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-warn-soft p-2 text-warn">
-                  <ShieldCheck className="h-5 w-5" />
-                </div>
-                <div>
-                  <Eyebrow tone="accent">Admin</Eyebrow>
-                  <h2 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
-                    Invitaciones al piloto
-                  </h2>
-                </div>
-              </div>
-              <p className="mt-3 text-body-sm text-ink-muted">
-                Agrega los correos de los médicos que pueden entrar al piloto y
-                revoca acceso cuando lo necesites.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-3 py-1 text-caption text-warn">
-                Acceso administrativo
-              </span>
+              Ver todas →
             </Link>
-          )}
-        </section>
-
-        {recentRows.length > 0 && (
-          <section className="mt-12">
-            <div className="flex items-center justify-between">
-              <h2 className="text-h2 font-semibold tracking-tight text-ink-strong">
-                Últimas notas
-              </h2>
-              <Link
-                href="/dashboard/notas"
-                className="text-caption font-medium text-ink-muted hover:text-ink-strong"
-              >
-                Ver todas →
-              </Link>
-            </div>
-            <div className="mt-5 space-y-3">
-              {recentRows.map((n) => {
-                const fullName = [n.paciente_nombre, n.paciente_apellido_paterno]
-                  .filter((v): v is string => Boolean(v && v.trim()))
-                  .join(" ");
-                const identifier =
-                  fullName || n.paciente_iniciales || "Sin nombre";
-                const ctx = [
-                  identifier,
-                  n.paciente_edad != null ? `${n.paciente_edad}a` : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ");
-                return (
-                  <Link
-                    key={n.id}
-                    href={`/dashboard/notas/${n.id}`}
-                    className="block rounded-xl border border-line bg-surface px-5 py-4 transition-all hover:border-line-strong hover:shadow-soft"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-body-sm font-semibold text-ink-strong">
-                            {ctx || "Sin contexto"}
-                          </span>
-                          <NoteStatusBadge status={n.status} />
-                        </div>
-                        <p className="mt-1.5 text-body-sm text-ink-muted">
-                          {snippet(n.soap_analisis || n.soap_subjetivo)}
-                        </p>
+          </div>
+          <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+            Últimas notas
+          </h2>
+          <div className="mt-4 space-y-2">
+            {recentRows.map((n) => {
+              const fullName = [n.paciente_nombre, n.paciente_apellido_paterno]
+                .filter((v): v is string => Boolean(v && v.trim()))
+                .join(" ");
+              const identifier =
+                fullName || n.paciente_iniciales || "Sin nombre";
+              const ctx = [
+                identifier,
+                n.paciente_edad != null ? `${n.paciente_edad}a` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ");
+              return (
+                <Link
+                  key={n.id}
+                  href={`/dashboard/notas/${n.id}`}
+                  className="block rounded-xl border border-line bg-surface px-5 py-4 transition-all hover:border-line-strong hover:shadow-soft"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-body-sm font-semibold text-ink-strong">
+                          {ctx || "Sin contexto"}
+                        </span>
+                        <NoteStatusBadge status={n.status} />
                       </div>
-                      <span className="shrink-0 text-caption text-ink-soft">
-                        {new Date(n.created_at).toLocaleDateString("es-MX", {
-                          day: "2-digit",
-                          month: "short",
-                        })}
-                      </span>
+                      <p className="mt-1.5 text-body-sm text-ink-muted">
+                        {snippet(n.soap_analisis || n.soap_subjetivo)}
+                      </p>
                     </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        )}
-      </div>
+                    <span className="shrink-0 text-caption text-ink-soft">
+                      {new Date(n.created_at).toLocaleDateString("es-MX", {
+                        day: "2-digit",
+                        month: "short",
+                      })}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================
+          SECCIÓN 3 — Herramientas del cerebro
+      ============================================================ */}
+      <section>
+        <Eyebrow tone="validation">Cerebro clínico</Eyebrow>
+        <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
+          Lo que el cerebro puede hacer
+        </h2>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <ToolCard
+            icon={BookOpen}
+            title="Buscar en guías"
+            description="Consulta el cerebro clínico curado con cita verbatim a la fuente original."
+            href="/dashboard/cerebro"
+            locked={!cerebroUnlocked}
+          />
+          <ToolCard
+            icon={Network}
+            title="Patrones clínicos"
+            description="Patrones detectados desde tu propia práctica y referencia académica curada."
+            href="/dashboard/diferencial/patrones"
+            locked={!cerebroUnlocked}
+            badge="Nuevo"
+          />
+          <ToolCard
+            icon={Upload}
+            title="Importar desde papel u otro EHR"
+            description="Fotos, archivos HL7 v2 o CDA XML. El cerebro extrae estructura clínica."
+            href="/dashboard/importar-papel"
+            locked={!scribeUnlocked}
+            badge="Nuevo"
+          />
+          <ToolCard
+            icon={TrendingUp}
+            title="Mi calidad"
+            description="PPV personal, override patterns y calibración de tu práctica."
+            href="/dashboard/diferencial/calidad"
+            locked={!cerebroUnlocked}
+          />
+        </div>
+      </section>
+
+      {/* ============================================================
+          SECCIÓN 4 — Avanzado / cuenta
+      ============================================================ */}
+      <section>
+        <Eyebrow>Cuenta y opciones</Eyebrow>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <CompactCard
+            icon={TrendingUp}
+            title="Mi impacto"
+            description="Tu contribución al cerebro colectivo"
+            href="/dashboard/mi-impacto"
+          />
+          <CompactCard
+            icon={Settings}
+            title="Configuración"
+            description="Perfil, consultorio y preferencias"
+            href="/dashboard/configuracion"
+          />
+          <CompactCard
+            icon={CreditCard}
+            title="Mi plan"
+            description={`${TIER_LABELS[tier]} · cambiar suscripción`}
+            href="/dashboard/mi-plan"
+          />
+        </div>
+      </section>
+
+      {/* ============================================================
+          SECCIÓN 5 — Admin (solo admin)
+      ============================================================ */}
+      {isAdmin && (
+        <section>
+          <Eyebrow tone="warn">Administración</Eyebrow>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <CompactCard
+              icon={Users}
+              title="Invitaciones"
+              description="Pilote control"
+              href="/admin/invitaciones"
+            />
+            <CompactCard
+              icon={BarChart3}
+              title="Uso plataforma"
+              description="Métricas de doctores activos"
+              href="/admin/uso"
+            />
+            <CompactCard
+              icon={MessageCircle}
+              title="Feedback"
+              description="Bugs y sugerencias"
+              href="/admin/feedback"
+            />
+            <CompactCard
+              icon={Megaphone}
+              title="Anuncios"
+              description="Comunicar novedades"
+              href="/admin/anuncios"
+            />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <CompactCard
+              icon={ShieldCheck}
+              title="Validación cerebro"
+              description="Benchmarks técnicos"
+              href="/admin/validacion"
+            />
+            <CompactCard
+              icon={BookOpen}
+              title="Curar cerebro"
+              description="Editar fragmentos curados"
+              href="/admin/cerebro"
+            />
+          </div>
+        </section>
+      )}
     </div>
+  );
+}
+
+// =====================================================================
+// Subcomponents
+// =====================================================================
+
+function StatInline({
+  label,
+  value,
+  tone,
+  progressPct,
+}: {
+  label: string;
+  value: string;
+  tone?: "validation";
+  progressPct?: number | null;
+}) {
+  const valueClass =
+    tone === "validation" ? "text-validation" : "text-ink-strong";
+  return (
+    <div className="px-4 py-3 sm:px-5 sm:py-4">
+      <p className="text-caption text-ink-muted">{label}</p>
+      <p className={`mt-1 text-h2 font-semibold tabular-nums ${valueClass}`}>
+        {value}
+      </p>
+      {progressPct !== null && progressPct !== undefined && (
+        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-surface-alt">
+          <div
+            className="h-full rounded-full bg-validation transition-all"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function QuickAction({
+  icon: Icon,
+  title,
+  description,
+  href,
+  primary,
+  locked,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  href: string;
+  primary?: boolean;
+  locked?: boolean;
+}) {
+  if (locked) {
+    return (
+      <div className="lg-card opacity-60">
+        <div className="flex items-center gap-2 text-ink-quiet">
+          <Lock className="h-4 w-4" strokeWidth={2} />
+          <p className="text-body-sm font-semibold">{title}</p>
+        </div>
+        <p className="mt-1 text-caption text-ink-muted leading-snug">
+          {description}
+        </p>
+        <Link
+          href="/precios"
+          className="mt-2 inline-flex items-center gap-1 text-caption font-semibold text-warn hover:underline"
+        >
+          Plan requerido →
+        </Link>
+      </div>
+    );
+  }
+
+  const classes = primary
+    ? "lg-card border-validation bg-validation-soft/30 hover:border-validation hover:shadow-lift transition-all"
+    : "lg-card hover:border-line-strong hover:shadow-soft transition-all";
+
+  return (
+    <Link href={href} className={classes}>
+      <div className="flex items-center gap-2">
+        <Icon
+          className={`h-4 w-4 ${primary ? "text-validation" : "text-ink-strong"}`}
+          strokeWidth={2.2}
+        />
+        <p
+          className={`text-body-sm font-semibold ${primary ? "text-validation" : "text-ink-strong"}`}
+        >
+          {title}
+        </p>
+      </div>
+      <p className="mt-1 text-caption text-ink-muted leading-snug">
+        {description}
+      </p>
+    </Link>
+  );
+}
+
+function ToolCard({
+  icon: Icon,
+  title,
+  description,
+  href,
+  locked,
+  badge,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  href: string;
+  locked?: boolean;
+  badge?: string;
+}) {
+  if (locked) {
+    return (
+      <div className="lg-card opacity-70">
+        <div className="flex items-start gap-3">
+          <div className="rounded-lg bg-surface-alt p-2 text-ink-quiet">
+            <Lock className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-h3 font-semibold tracking-tight text-ink-strong">
+              {title}
+            </h3>
+            <p className="mt-1 text-body-sm text-ink-muted leading-relaxed">
+              {description}
+            </p>
+            <Link
+              href="/precios"
+              className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-warn hover:underline"
+            >
+              Plan requerido →
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className="lg-card group transition-all hover:border-validation hover:shadow-lift"
+    >
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg bg-validation-soft p-2 text-validation">
+          <Icon className="h-5 w-5" strokeWidth={2} />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="text-h3 font-semibold tracking-tight text-ink-strong">
+              {title}
+            </h3>
+            {badge && (
+              <span className="inline-flex items-center rounded-full bg-validation-soft px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-eyebrow text-validation">
+                {badge}
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-body-sm text-ink-muted leading-relaxed">
+            {description}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function CompactCard({
+  icon: Icon,
+  title,
+  description,
+  href,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  href: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-start gap-3 rounded-lg border border-line bg-surface px-4 py-3 transition-colors hover:border-line-strong hover:bg-surface-alt"
+    >
+      <Icon
+        className="mt-0.5 h-4 w-4 shrink-0 text-ink-quiet group-hover:text-ink-strong"
+        strokeWidth={2}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="text-body-sm font-semibold text-ink-strong">{title}</p>
+        <p className="text-caption text-ink-muted truncate">{description}</p>
+      </div>
+    </Link>
   );
 }
