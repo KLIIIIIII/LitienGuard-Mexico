@@ -13,10 +13,15 @@ import {
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
 import { PatientHeader } from "@/components/clinical";
+import { PatientEncountersPanel } from "@/components/encounters";
 import {
   canUsePacientes,
   type SubscriptionTier,
 } from "@/lib/entitlements";
+import { decryptField } from "@/lib/encryption";
+import { detectarCrucesActivos } from "@/lib/inference/cruces-detector";
+import type { DiseaseId } from "@/lib/inference/types";
+import type { EncounterRow } from "@/lib/encounters/types";
 import { RecallTrigger } from "./recall-trigger";
 import { AlergiasEditor } from "./alergias-editor";
 
@@ -87,6 +92,61 @@ export default async function PacienteDetailPage({
     .eq("paciente_id", paciente.id)
     .order("fecha_inicio", { ascending: false })
     .limit(10);
+
+  // Cargar encounters del paciente
+  const { data: encountersRaw } = await supa
+    .from("encounters")
+    .select(
+      "id, user_id, paciente_id, modulo, tipo, status, severidad, admitted_at, discharged_at, disposition, motivo_admision, bed_label, attending_doctor, los_minutes, datos, created_at, updated_at",
+    )
+    .eq("paciente_id", paciente.id)
+    .eq("user_id", user.id)
+    .order("admitted_at", { ascending: false })
+    .limit(40);
+  const encounters = (encountersRaw ?? []) as EncounterRow[];
+
+  // Cargar diferenciales confirmados del paciente para correr el detector de cruces
+  // El paciente proxy es por iniciales+edad+sexo, así que filtramos por esos
+  const iniciales = `${paciente.nombre[0] ?? ""}.${paciente.apellido_paterno[0] ?? ""}`;
+  const edadAprox = paciente.fecha_nacimiento
+    ? Math.floor(
+        (Date.now() - new Date(paciente.fecha_nacimiento).getTime()) /
+          (365.25 * 24 * 3600 * 1000),
+      )
+    : null;
+  const { data: difsRaw } = await supa
+    .from("diferencial_sessions")
+    .select(
+      "id, medico_id, paciente_iniciales, paciente_edad, paciente_sexo, contexto_clinico, top_diagnoses, outcome_confirmado",
+    )
+    .eq("medico_id", user.id)
+    .in("outcome_confirmado", ["confirmado", "parcial"])
+    .eq("paciente_iniciales", iniciales)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const diseaseIdsSet = new Set<DiseaseId>();
+  const findingsLibres: string[] = [];
+  for (const d of difsRaw ?? []) {
+    if (d.paciente_edad !== edadAprox) continue;
+    if (d.paciente_sexo !== paciente.sexo) continue;
+    const top = (d.top_diagnoses as Array<{ disease?: string }> | null) ?? [];
+    const id = top[0]?.disease;
+    if (id) diseaseIdsSet.add(id as DiseaseId);
+    const ctx = await decryptField(d.contexto_clinico, user.id);
+    if (ctx && ctx.trim()) findingsLibres.push(ctx);
+  }
+  const crucesDetectados = detectarCrucesActivos(
+    Array.from(diseaseIdsSet),
+    {
+      edad: edadAprox ?? undefined,
+      findingsLibres,
+    },
+  );
+  const crucesParaPanel = crucesDetectados.map((c) => ({
+    id: c.cruce.id,
+    nombre: c.cruce.nombre,
+    severidad: c.cruce.severidad,
+  }));
 
   const meses = mesesDesde(paciente.ultima_consulta_at);
   const inactivo = meses !== null && meses >= 6;
@@ -189,6 +249,11 @@ export default async function PacienteDetailPage({
       <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,360px)]">
         {/* Columna izquierda: datos */}
         <div className="space-y-6">
+          <PatientEncountersPanel
+            encounters={encounters}
+            cruces={crucesParaPanel}
+          />
+
           <section className="rounded-2xl border border-line bg-surface p-6">
             <h2 className="text-h3 font-semibold text-ink-strong">Datos</h2>
             <dl className="mt-4 grid gap-4 sm:grid-cols-2">

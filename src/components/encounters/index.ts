@@ -6,3 +6,4 @@ export {
   EncounterRowHistorico,
   EmptyStateCard,
 } from "./encounter-card";
+export { PatientEncountersPanel } from "./patient-encounters-panel";
