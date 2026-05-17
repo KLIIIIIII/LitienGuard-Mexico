@@ -302,7 +302,8 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
   >(null);
 
   /* --------- Procesar eventos a filas + protocolos activos --------- */
-  const { triageRows, protocolosActivos, metricas } = useMemo(() => {
+  const { triageRows, protocolosActivos, criticasRecientes, metricas } =
+    useMemo(() => {
     // Solo triages activos en el tracking board (los con disposition ya
     // cerraron como status="completado" — desaparecen automáticamente)
     const triages = eventos.filter(
@@ -399,10 +400,21 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
         ? Math.round((lwbsCount / dispositions.length) * 100)
         : null;
 
+    // Dispositions críticas en últimas 24h (Joint Commission alerta)
+    const ahora24h = Date.now() - 24 * 3600 * 1000;
+    const criticasRecientes = dispositions.filter((d) => {
+      const m = (d.metricas ?? {}) as { disposition?: string };
+      const isCritica = m.disposition === "morgue" || m.disposition === "lwbs";
+      if (!isCritica) return false;
+      const t = d.completed_at ?? d.created_at;
+      return new Date(t).getTime() >= ahora24h;
+    });
+
     return {
       triageRows: rows,
       protocolosActivos: activos,
       dispositions,
+      criticasRecientes,
       metricas: {
         enTriage,
         conProtocoloActivo,
@@ -453,6 +465,25 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
       )}
 
       <div className="space-y-5">
+        {/* ============ Alerta dispositions críticas 24h (Joint Commission) ============ */}
+        {criticasRecientes.length > 0 && (
+          <ClinicalAlert
+            severity="critical"
+            title={`${criticasRecientes.length} disposición${
+              criticasRecientes.length === 1 ? "" : "es"
+            } crítica${criticasRecientes.length === 1 ? "" : "s"} en últimas 24h`}
+            description={
+              <span>
+                Defunciones o salidas sin ser visto (LWBS) registradas
+                en las últimas 24 horas requieren revisión clínica
+                (Joint Commission Sentinel Event Policy + AHRQ Patient
+                Safety Network).
+              </span>
+            }
+            cite="The Joint Commission · Sentinel Event Policy 2024"
+          />
+        )}
+
         {/* ============ KPIs / métricas ============ */}
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <ClinicalMetric
@@ -863,6 +894,12 @@ function DispositionDrawer({
             className="lg-input min-h-[72px] resize-y"
           />
         </Field>
+
+        <p className="text-[0.65rem] text-ink-soft leading-relaxed">
+          Tipos de disposición según AHRQ Patient Flow Guide for EDs
+          + Joint Commission disposition categories. LWBS se reporta a
+          la dirección si {">"} 5% (benchmark TJC).
+        </p>
 
         {error && (
           <ClinicalAlert

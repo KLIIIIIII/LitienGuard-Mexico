@@ -89,6 +89,19 @@ export default async function UrgenciasPage() {
       </header>
 
       <UrgenciasTracking eventos={eventos} />
+
+      <section className="rounded-xl border border-line bg-surface-alt px-5 py-4">
+        <p className="text-caption text-ink-muted leading-relaxed max-w-3xl">
+          <span className="font-semibold text-ink-strong">
+            Identificación del paciente.
+          </span>{" "}
+          El tracking board actual usa iniciales como proxy (1 identificador).
+          Joint Commission NPSG 01.01.01 recomienda 2 identificadores. La
+          vinculación completa al padrón de pacientes habilita
+          identificación NPSG-compliant — disponible al asociar el triage
+          a un paciente del padrón.
+        </p>
+      </section>
     </div>
   );
 }
