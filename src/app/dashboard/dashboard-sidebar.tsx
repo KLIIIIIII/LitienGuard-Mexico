@@ -30,6 +30,7 @@ import {
   Brain,
   Activity,
   Droplet,
+  LayoutGrid,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -242,64 +243,83 @@ export function DashboardSidebar({
         },
       ],
     },
-    ...(showAreasCriticas
+    // Hub Operaciones — fusión de áreas críticas + apoyo diagnóstico
+    ...(showAreasCriticas || showApoyoDiagnostico
       ? [
           {
-            title: "Áreas críticas",
+            title: "Operaciones",
             items: [
               {
-                href: "/dashboard/urgencias",
-                label: "Urgencias",
-                icon: Siren,
-                match: (p: string) => p.startsWith("/dashboard/urgencias"),
+                href: "/dashboard/operaciones",
+                label: "Vista general",
+                icon: LayoutGrid,
+                match: (p: string) => p === "/dashboard/operaciones",
                 locked: !canCerebro,
               },
-              {
-                href: "/dashboard/uci",
-                label: "UCI",
-                icon: HeartPulse,
-                match: (p: string) => p.startsWith("/dashboard/uci"),
-                locked: !canCerebro,
-              },
-              {
-                href: "/dashboard/quirofano",
-                label: "Quirófano",
-                icon: ClipboardCheck,
-                match: (p: string) => p.startsWith("/dashboard/quirofano"),
-                locked: !canCerebro,
-              },
+              ...(showAreasCriticas
+                ? ([
+                    {
+                      href: "/dashboard/urgencias",
+                      label: "Urgencias",
+                      icon: Siren,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/urgencias"),
+                      locked: !canCerebro,
+                    },
+                    {
+                      href: "/dashboard/uci",
+                      label: "UCI",
+                      icon: HeartPulse,
+                      match: (p: string) => p.startsWith("/dashboard/uci"),
+                      locked: !canCerebro,
+                    },
+                    {
+                      href: "/dashboard/quirofano",
+                      label: "Quirófano",
+                      icon: ClipboardCheck,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/quirofano"),
+                      locked: !canCerebro,
+                    },
+                  ] satisfies NavItem[])
+                : []),
+              ...(showApoyoDiagnostico
+                ? ([
+                    {
+                      href: "/dashboard/laboratorio",
+                      label: "Laboratorio",
+                      icon: FlaskConical,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/laboratorio"),
+                      locked: !canCerebro,
+                    },
+                    {
+                      href: "/dashboard/radiologia",
+                      label: "Radiología",
+                      icon: ScanLine,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/radiologia"),
+                      locked: !canCerebro,
+                    },
+                  ] satisfies NavItem[])
+                : []),
             ],
           } satisfies NavGroup,
         ]
       : []),
-    ...(showApoyoDiagnostico
-      ? [
-          {
-            title: "Apoyo diagnóstico",
-            items: [
-              {
-                href: "/dashboard/laboratorio",
-                label: "Laboratorio",
-                icon: FlaskConical,
-                match: (p: string) => p.startsWith("/dashboard/laboratorio"),
-                locked: !canCerebro,
-              },
-              {
-                href: "/dashboard/radiologia",
-                label: "Radiología",
-                icon: ScanLine,
-                match: (p: string) => p.startsWith("/dashboard/radiologia"),
-                locked: !canCerebro,
-              },
-            ],
-          } satisfies NavGroup,
-        ]
-      : []),
+    // Hub Especialidades
     ...(showEspecialidadesMedicas
       ? [
           {
             title: "Especialidades",
             items: [
+              {
+                href: "/dashboard/especialidades",
+                label: "Vista general",
+                icon: LayoutGrid,
+                match: (p: string) => p === "/dashboard/especialidades",
+                locked: !canCerebro,
+              },
               {
                 href: "/dashboard/cardiologia",
                 label: "Cardiología",
@@ -325,7 +345,8 @@ export function DashboardSidebar({
                 href: "/dashboard/endocrinologia",
                 label: "Endocrinología",
                 icon: Droplet,
-                match: (p: string) => p.startsWith("/dashboard/endocrinologia"),
+                match: (p: string) =>
+                  p.startsWith("/dashboard/endocrinologia"),
                 locked: !canCerebro,
               },
             ],
