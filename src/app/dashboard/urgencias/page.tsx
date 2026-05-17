@@ -6,7 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
-import { UrgenciasCliente } from "./urgencias-cliente";
+import { UrgenciasTracking } from "./urgencias-tracking";
 
 export const metadata: Metadata = {
   title: "Urgencias — LitienGuard",
@@ -31,70 +31,64 @@ export default async function UrgenciasPage() {
 
   if (!canUseCerebro(tier)) {
     return (
-      <div>
+      <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+        <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
           Módulo de Urgencias — Plan Profesional o superior
         </h1>
-        <p className="mt-3 max-w-prose text-body text-ink-muted">
-          El módulo de urgencias con triage Manchester y protocolos críticos
-          (sepsis bundle, código stroke, código IAM, DKA) está incluido en
-          planes Profesional y Clínica.
+        <p className="max-w-prose text-body text-ink-muted">
+          Triage Manchester y protocolos críticos (sepsis bundle, código
+          stroke, código IAM, DKA). Incluido en planes Profesional y Clínica.
         </p>
-        <Link href="/precios" className="lg-cta-primary mt-6 inline-flex">
+        <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes
         </Link>
       </div>
     );
   }
 
-  const desde = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+  const desdeIso = new Date(Date.now() - 8 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
     .select(
       "id, user_id, paciente_id, modulo, tipo, datos, status, metricas, notas, created_at, completed_at",
     )
     .eq("modulo", "urgencias")
-    .gte("created_at", desde)
+    .gte("created_at", desdeIso)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(80);
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   return (
-    <div className="space-y-6">
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
-        Volver al dashboard
-      </Link>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
+          Volver al dashboard
+        </Link>
+      </div>
 
-      <header>
-        <div className="flex items-center gap-2">
-          <Siren className="h-5 w-5 text-rose" strokeWidth={2} />
-          <Eyebrow tone="warn">Urgencias</Eyebrow>
+      <header className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-lg bg-code-red-bg/60 p-1.5 text-code-red">
+            <Siren className="h-5 w-5" strokeWidth={2} />
+          </div>
+          <div>
+            <Eyebrow tone="warn">Urgencias</Eyebrow>
+            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+              Tracking board · últimas 8 horas
+            </h1>
+          </div>
         </div>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          Triage rápido + protocolos críticos
-        </h1>
-        <p className="mt-2 max-w-prose text-body-sm text-ink-muted leading-relaxed">
-          Triage Manchester en menos de 5 minutos. Protocolos sepsis bundle
-          1-hora, código stroke, código IAM y DKA pre-cargados con literatura
-          clínica curada. Las activaciones quedan registradas para audit y
-          métricas de calidad.
+        <p className="text-caption text-ink-soft">
+          Patrón Cerner FirstNet · refresca al recargar
         </p>
       </header>
 
-      <UrgenciasCliente eventos={eventos} />
-
-      <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
-        Los protocolos NO sustituyen el juicio clínico. Cada paso debe
-        adaptarse al contexto del paciente. La activación rápida del bundle
-        sepsis &lt; 1 h y la trombolisis &lt; 60 min puerta-aguja en stroke
-        son las dos métricas con mayor impacto en mortalidad — el módulo
-        las registra automáticamente.
-      </p>
+      <UrgenciasTracking eventos={eventos} />
     </div>
   );
 }
