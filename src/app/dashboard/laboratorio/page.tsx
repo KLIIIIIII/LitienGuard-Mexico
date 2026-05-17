@@ -8,6 +8,7 @@ import { Eyebrow } from "@/components/eyebrow";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
 import type { EventoModulo } from "@/lib/modulos-eventos";
 import { LaboratorioBoard } from "./laboratorio-board";
+import { LaboratorioBundles } from "./laboratorio-bundles";
 
 export const metadata: Metadata = {
   title: "Laboratorio — LitienGuard",
@@ -95,6 +96,8 @@ export default async function LaboratorioPage() {
       </header>
 
       <LaboratorioBoard estudios={estudiosLab} eventos={eventos} />
+
+      <LaboratorioBundles eventos={eventos} />
     </div>
   );
 }

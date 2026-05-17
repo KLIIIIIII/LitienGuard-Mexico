@@ -11,6 +11,13 @@ import {
   detectCriticalValues,
   summarizeSeverity,
 } from "@/lib/clinical-safety";
+import {
+  interpretarLab,
+  detectarReflexTests,
+  detectarDeltaCheck,
+  type LabResultInput,
+  type LabTest,
+} from "@/lib/scores-lab";
 
 const peticionSchema = z.object({
   pacienteIniciales: z.string().max(8).optional(),
@@ -196,4 +203,142 @@ export async function marcarRecibido(
   revalidatePath("/dashboard/laboratorio");
   revalidatePath("/dashboard");
   return { status: "ok", eventoId };
+}
+
+// ===================================================================
+// Motor LitienGuard · Lab Pathway — registrar valor numérico individual
+// con auto-detección de critical values + reflex + delta check
+// ===================================================================
+
+const valorLabSchema = z.object({
+  pacienteIniciales: z.string().max(8).optional(),
+  pacienteEdad: z.number().int().min(0).max(120).optional(),
+  pacienteSexo: z.enum(["M", "F", "X"]).optional(),
+  test: z.enum([
+    "glucosa",
+    "potasio",
+    "sodio",
+    "calcio",
+    "creatinina",
+    "hemoglobina",
+    "plaquetas",
+    "leucocitos",
+    "inr",
+    "troponina",
+    "lactato",
+    "ph_arterial",
+    "pco2",
+    "po2",
+    "tsh",
+    "hba1c",
+  ]),
+  valor: z.number(),
+  valorPrevio: z.number().optional(),
+  diasEntre: z.number().int().min(0).max(365).optional(),
+  notas: z.string().max(500).optional(),
+});
+
+export async function registrarValorLab(
+  input: z.infer<typeof valorLabSchema>,
+): Promise<ActionResult> {
+  const parsed = valorLabSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+    };
+  }
+
+  const supa = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (!user) return { status: "error", message: "No autenticado." };
+
+  const { data: profile } = await supa
+    .from("profiles")
+    .select("subscription_tier")
+    .eq("id", user.id)
+    .single();
+  const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  if (!canUseCerebro(tier)) {
+    return { status: "error", message: "Requiere plan Profesional o superior." };
+  }
+
+  const interpretation = interpretarLab({
+    test: parsed.data.test as LabTest,
+    valor: parsed.data.valor,
+    edad: parsed.data.pacienteEdad,
+    sexo:
+      parsed.data.pacienteSexo === "X"
+        ? "O"
+        : (parsed.data.pacienteSexo as "M" | "F" | undefined),
+  } satisfies LabResultInput);
+
+  const reflexTests = detectarReflexTests(interpretation);
+
+  let deltaResult = null;
+  if (
+    parsed.data.valorPrevio !== undefined &&
+    parsed.data.diasEntre !== undefined
+  ) {
+    deltaResult = detectarDeltaCheck({
+      test: parsed.data.test as LabTest,
+      valorActual: parsed.data.valor,
+      valorPrevio: parsed.data.valorPrevio,
+      diasEntre: parsed.data.diasEntre,
+    });
+  }
+
+  const esCritico =
+    interpretation.severidad === "critico_bajo" ||
+    interpretation.severidad === "critico_alto";
+
+  const { data, error } = await supa
+    .from("eventos_modulos")
+    .insert({
+      user_id: user.id,
+      modulo: "laboratorio",
+      tipo: "valor_lab",
+      datos: {
+        paciente_iniciales: parsed.data.pacienteIniciales ?? null,
+        paciente_edad: parsed.data.pacienteEdad ?? null,
+        paciente_sexo: parsed.data.pacienteSexo ?? null,
+        test: parsed.data.test,
+        valor: parsed.data.valor,
+        interpretation,
+        reflexTests,
+        deltaResult,
+      },
+      status: "completado",
+      completed_at: new Date().toISOString(),
+      notas: parsed.data.notas ?? null,
+      metricas: {
+        severidad: interpretation.severidad,
+        es_critico: esCritico,
+        reflex_count: reflexTests.length,
+        delta_anormal: deltaResult?.esDeltaAnormal ?? false,
+      },
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    return { status: "error", message: "No se pudo registrar el valor." };
+  }
+
+  void recordAudit({
+    userId: user.id,
+    action: esCritico
+      ? "laboratorio.valor_critico"
+      : "laboratorio.valor_registrado",
+    metadata: {
+      test: parsed.data.test,
+      severidad: interpretation.severidad,
+      reflex_count: reflexTests.length,
+    },
+  });
+
+  revalidatePath("/dashboard/laboratorio");
+  return { status: "ok", eventoId: data.id };
 }
