@@ -124,11 +124,17 @@ export function WelcomeTour({
     }
     const tryFind = () => {
       const el = document.querySelector(step.selector!);
-      if (el) {
-        setTargetRect(el.getBoundingClientRect());
-      } else {
+      if (!el) {
         setTargetRect(null);
+        return;
       }
+      const rect = el.getBoundingClientRect();
+      // Element exists but is hidden (display:none on mobile sidebar, etc.)
+      if (rect.width === 0 || rect.height === 0) {
+        setTargetRect(null);
+        return;
+      }
+      setTargetRect(rect);
     };
     tryFind();
     const onResize = () => tryFind();
@@ -298,7 +304,91 @@ function TourOverlay({
       }
     : null;
 
-  const tooltipPosition = computeTooltipPosition(targetRect, step.placement);
+  // Use center layout when explicitly requested OR when the target wasn't
+  // found (e.g. sidebar selector on mobile where the sidebar is hidden).
+  const useCenterLayout = step.placement === "center" || !targetRect;
+  const tooltipPosition = useCenterLayout
+    ? null
+    : computeTooltipPosition(targetRect, step.placement);
+
+  const cardContent = (
+    <>
+      <button
+        type="button"
+        onClick={onSkip}
+        aria-label="Saltar tour"
+        className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-muted hover:bg-surface-alt hover:text-ink-strong"
+      >
+        <X className="h-4 w-4" strokeWidth={2.2} />
+      </button>
+
+      <div className="flex items-center gap-2.5 pr-9">
+        <div className="rounded-lg bg-validation-soft/40 p-1.5 text-validation shrink-0">
+          <Icon className="h-4 w-4" strokeWidth={2.2} />
+        </div>
+        <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
+          Paso {stepIdx + 1} de {totalSteps}
+        </p>
+      </div>
+
+      <h3 className="mt-3 text-h3 font-semibold tracking-tight text-ink-strong">
+        {step.title}
+      </h3>
+      <p className="mt-1.5 text-body-sm text-ink-muted leading-relaxed">
+        {step.body}
+      </p>
+
+      <div className="mt-4 flex items-center gap-1.5">
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <span
+            key={i}
+            className={`h-1.5 flex-1 rounded-full transition-colors ${
+              i === stepIdx
+                ? "bg-validation"
+                : i < stepIdx
+                  ? "bg-validation/40"
+                  : "bg-line"
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={onSkip}
+          className="text-caption font-medium text-ink-muted hover:text-ink-strong"
+        >
+          Saltar tour
+        </button>
+        <div className="flex items-center gap-2">
+          {!isFirst && (
+            <button
+              type="button"
+              onClick={onPrev}
+              className="inline-flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-caption font-semibold text-ink-strong hover:border-line-strong"
+            >
+              <ChevronLeft className="h-3 w-3" strokeWidth={2.4} />
+              Atrás
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onNext}
+            className="lg-cta-primary inline-flex items-center gap-1 text-caption"
+          >
+            {isLast ? "Terminar" : "Siguiente"}
+            {!isLast && (
+              <ChevronRight className="h-3 w-3" strokeWidth={2.4} />
+            )}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
+  const cardClasses =
+    "pointer-events-auto relative w-[min(92vw,22rem)] max-h-[85vh] overflow-y-auto rounded-2xl border border-line bg-surface p-5 shadow-deep";
 
   return (
     <AnimatePresence>
@@ -362,88 +452,33 @@ function TourOverlay({
           </>
         )}
 
-        {/* Tooltip card */}
-        <motion.div
-          key={`tooltip-${stepIdx}`}
-          initial={{ opacity: 0, y: 8, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          style={tooltipPosition}
-          className="absolute w-[min(92vw,22rem)] rounded-2xl border border-line bg-surface p-5 shadow-deep"
-        >
-          <button
-            type="button"
-            onClick={onSkip}
-            aria-label="Saltar tour"
-            className="absolute right-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-ink-muted hover:bg-surface-alt hover:text-ink-strong"
-          >
-            <X className="h-3.5 w-3.5" strokeWidth={2.2} />
-          </button>
-
-          <div className="flex items-center gap-2.5">
-            <div className="rounded-lg bg-validation-soft/40 p-1.5 text-validation">
-              <Icon className="h-4 w-4" strokeWidth={2.2} />
-            </div>
-            <p className="text-caption uppercase tracking-eyebrow text-ink-soft font-semibold">
-              Paso {stepIdx + 1} de {totalSteps}
-            </p>
-          </div>
-
-          <h3 className="mt-3 text-h3 font-semibold tracking-tight text-ink-strong">
-            {step.title}
-          </h3>
-          <p className="mt-1.5 text-body-sm text-ink-muted leading-relaxed">
-            {step.body}
-          </p>
-
-          <div className="mt-4 flex items-center gap-1.5">
-            {Array.from({ length: totalSteps }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  i === stepIdx
-                    ? "bg-validation"
-                    : i < stepIdx
-                      ? "bg-validation/40"
-                      : "bg-line"
-                }`}
-              />
-            ))}
-          </div>
-
-          <div className="mt-4 flex items-center justify-between gap-2">
-            <button
-              type="button"
-              onClick={onSkip}
-              className="text-caption font-medium text-ink-muted hover:text-ink-strong"
+        {/* Tooltip card — flex-centered when center mode, absolute when anchored */}
+        {useCenterLayout ? (
+          <div className="pointer-events-none fixed inset-0 z-[101] flex items-center justify-center p-4">
+            <motion.div
+              key={`tooltip-${stepIdx}`}
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className={cardClasses}
             >
-              Saltar tour
-            </button>
-            <div className="flex items-center gap-2">
-              {!isFirst && (
-                <button
-                  type="button"
-                  onClick={onPrev}
-                  className="inline-flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-caption font-semibold text-ink-strong hover:border-line-strong"
-                >
-                  <ChevronLeft className="h-3 w-3" strokeWidth={2.4} />
-                  Atrás
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={onNext}
-                className="lg-cta-primary inline-flex items-center gap-1 text-caption"
-              >
-                {isLast ? "Terminar" : "Siguiente"}
-                {!isLast && (
-                  <ChevronRight className="h-3 w-3" strokeWidth={2.4} />
-                )}
-              </button>
-            </div>
+              {cardContent}
+            </motion.div>
           </div>
-        </motion.div>
+        ) : (
+          <motion.div
+            key={`tooltip-${stepIdx}`}
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={tooltipPosition ?? undefined}
+            className={`absolute ${cardClasses}`}
+          >
+            {cardContent}
+          </motion.div>
+        )}
       </motion.div>
     </AnimatePresence>
   );
@@ -520,28 +555,31 @@ function computeTooltipPosition(
   targetRect: DOMRect | null,
   placement?: "top" | "bottom" | "left" | "right" | "center",
 ): React.CSSProperties {
-  if (!targetRect || placement === "center") {
-    return {
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-    };
+  // Center mode is handled by flex centering in the caller — this function
+  // is only invoked for anchored tooltips with a real target rect.
+  if (!targetRect) {
+    return {};
   }
 
-  const margin = 24;
-  const gap = 20;
-  const tooltipW =
-    typeof window !== "undefined" ? Math.min(352, window.innerWidth * 0.92) : 352;
-  const tooltipH = 260;
+  const margin = 16;
+  const gap = 18;
   const vw = typeof window !== "undefined" ? window.innerWidth : 1200;
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const tooltipW = Math.min(352, vw * 0.92);
+  const tooltipH = 340;
+
+  // Mobile: side placements never fit — collapse to bottom/top.
+  const isMobile = vw < 640;
+  let place = placement ?? "bottom";
+  if (isMobile && (place === "left" || place === "right")) {
+    place = "bottom";
+  }
 
   // Center horizontal on target
   const targetCenterX = targetRect.left + targetRect.width / 2;
   const targetCenterY = targetRect.top + targetRect.height / 2;
 
   // Auto-flip placement based on available space
-  let place = placement ?? "bottom";
   const spaceBelow = vh - targetRect.bottom;
   const spaceAbove = targetRect.top;
   const spaceRight = vw - targetRect.right;
