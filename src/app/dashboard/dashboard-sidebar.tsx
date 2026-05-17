@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
 import {
   LayoutDashboard,
   Mic,
@@ -49,6 +52,37 @@ type NavGroup = {
   title: string;
   items: NavItem[];
 };
+
+function renderItem(it: NavItem, pathname: string) {
+  const active = it.match(pathname);
+  const Icon = it.icon;
+  return (
+    <Link
+      key={it.href}
+      href={it.href}
+      aria-current={active ? "page" : undefined}
+      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-body-sm transition-colors ${
+        active
+          ? "bg-validation-soft text-validation"
+          : "text-ink-strong hover:bg-surface-alt"
+      }`}
+    >
+      <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
+      <span className="flex-1">{it.label}</span>
+      {it.locked && (
+        <Lock
+          className="h-3 w-3 text-ink-quiet"
+          strokeWidth={2.2}
+        />
+      )}
+      {it.admin && (
+        <span className="rounded-full bg-warn-soft px-1.5 py-0.5 text-[0.65rem] text-warn">
+          admin
+        </span>
+      )}
+    </Link>
+  );
+}
 
 export function DashboardSidebar({
   tier,
@@ -346,6 +380,66 @@ export function DashboardSidebar({
     });
   }
 
+  // Estado collapse por grupo (key = título del grupo). Persistido en
+  // localStorage para que la elección del médico se mantenga entre
+  // sesiones — patrón Epic Hyperspace / Linear.
+  //
+  // Default: solo el grupo activo abierto (donde el path actual cae).
+  // El grupo sin título (Inicio) es siempre visible y no necesita estado.
+  const activeGroupTitle = useMemo(() => {
+    for (const g of grupos) {
+      if (!g.title) continue;
+      if (g.items.some((it) => it.match(pathname))) return g.title;
+    }
+    return null;
+  }, [grupos, pathname]);
+
+  const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    // Restaurar estado guardado, sino abrir solo el grupo activo
+    try {
+      const raw = localStorage.getItem("lg-sidebar-groups-v1");
+      const stored = raw
+        ? (JSON.parse(raw) as Record<string, boolean>)
+        : null;
+      const next: Record<string, boolean> = {};
+      for (const g of grupos) {
+        if (!g.title) continue;
+        if (stored && Object.prototype.hasOwnProperty.call(stored, g.title)) {
+          next[g.title] = stored[g.title]!;
+        } else {
+          next[g.title] = g.title === activeGroupTitle;
+        }
+      }
+      // Asegurar que el grupo activo esté abierto siempre al navegar a él
+      if (activeGroupTitle) next[activeGroupTitle] = true;
+      setOpenMap(next);
+    } catch {
+      // localStorage no disponible (SSR / privacy mode) — solo abre el activo
+      const next: Record<string, boolean> = {};
+      for (const g of grupos) {
+        if (g.title) next[g.title] = g.title === activeGroupTitle;
+      }
+      setOpenMap(next);
+    }
+    setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeGroupTitle]);
+
+  function toggleGroup(title: string) {
+    setOpenMap((prev) => {
+      const next = { ...prev, [title]: !prev[title] };
+      try {
+        localStorage.setItem("lg-sidebar-groups-v1", JSON.stringify(next));
+      } catch {
+        /* swallow */
+      }
+      return next;
+    });
+  }
+
   return (
     <aside
       data-tour-sidebar
@@ -360,51 +454,58 @@ export function DashboardSidebar({
             {TIER_LABELS[tier]}
           </p>
         </div>
-        <nav className="space-y-3">
-          {grupos.map((grupo, gIdx) => (
-            <div key={`${grupo.title}-${gIdx}`}>
-              {grupo.title && (
-                <p className="px-3 pt-2 pb-1.5 text-[0.6rem] uppercase tracking-eyebrow font-semibold text-ink-soft">
-                  {grupo.title}
-                </p>
-              )}
-              <div className="space-y-0.5">
-                {grupo.items.map((it) => {
-                  const active = it.match(pathname);
-                  const Icon = it.icon;
-                  return (
-                    <Link
-                      key={it.href}
-                      href={it.href}
-                      aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-body-sm transition-colors ${
-                        active
-                          ? "bg-validation-soft text-validation"
-                          : "text-ink-strong hover:bg-surface-alt"
-                      }`}
+        <nav className="space-y-1">
+          {grupos.map((grupo, gIdx) => {
+            // Grupos sin título (Inicio) — siempre visibles
+            if (!grupo.title) {
+              return (
+                <div key={`untitled-${gIdx}`} className="space-y-0.5 pb-1">
+                  {grupo.items.map((it) => renderItem(it, pathname))}
+                </div>
+              );
+            }
+
+            const isOpen = hydrated ? !!openMap[grupo.title] : true;
+            return (
+              <div key={`${grupo.title}-${gIdx}`}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(grupo.title)}
+                  aria-expanded={isOpen}
+                  className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left transition-colors hover:bg-surface-alt"
+                >
+                  <ChevronRight
+                    className={`h-3 w-3 shrink-0 text-ink-quiet transition-transform duration-200 ${
+                      isOpen ? "rotate-90" : ""
+                    }`}
+                    strokeWidth={2.4}
+                  />
+                  <span className="text-[0.6rem] uppercase tracking-eyebrow font-semibold text-ink-soft group-hover:text-ink-muted">
+                    {grupo.title}
+                  </span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="content"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{
+                        duration: 0.22,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      className="overflow-hidden"
                     >
-                      <Icon
-                        className="h-4 w-4 shrink-0"
-                        strokeWidth={2}
-                      />
-                      <span className="flex-1">{it.label}</span>
-                      {it.locked && (
-                        <Lock
-                          className="h-3 w-3 text-ink-quiet"
-                          strokeWidth={2.2}
-                        />
-                      )}
-                      {it.admin && (
-                        <span className="rounded-full bg-warn-soft px-1.5 py-0.5 text-[0.65rem] text-warn">
-                          admin
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
+                      <div className="space-y-0.5 pt-0.5 pb-1.5">
+                        {grupo.items.map((it) => renderItem(it, pathname))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </nav>
 
         {/* Sello de confianza — siempre visible, abre el certificado */}

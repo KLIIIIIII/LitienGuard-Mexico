@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   LayoutDashboard,
   Mic,
@@ -50,6 +51,40 @@ type NavGroup = {
   title: string;
   items: NavItem[];
 };
+
+function renderMobileItem(it: NavItem, pathname: string) {
+  const active = it.match(pathname);
+  const Icon = it.icon;
+  return (
+    <Link
+      key={it.href}
+      href={it.href}
+      aria-current={active ? "page" : undefined}
+      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-body-sm transition-colors ${
+        active
+          ? "bg-validation-soft text-validation"
+          : "text-ink-strong hover:bg-surface-alt"
+      }`}
+    >
+      <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
+      <span className="flex-1">{it.label}</span>
+      {it.locked && (
+        <Lock className="h-3 w-3 text-ink-quiet" strokeWidth={2.2} />
+      )}
+      {it.admin && (
+        <span className="rounded-full bg-warn-soft px-1.5 py-0.5 text-[0.65rem] text-warn">
+          admin
+        </span>
+      )}
+      {!it.locked && !it.admin && (
+        <ChevronRight
+          className="h-3.5 w-3.5 text-ink-quiet"
+          strokeWidth={2}
+        />
+      )}
+    </Link>
+  );
+}
 
 /**
  * Mobile-only top bar + drawer para el dashboard. Reemplaza a la
@@ -341,6 +376,59 @@ export function DashboardMobileBar({
   const allItems = grupos.flatMap((g) => g.items);
   const activeItem = allItems.find((it) => it.match(pathname));
 
+  // Collapsible por grupo — mismo patrón que el sidebar desktop.
+  // Persistido en localStorage para coherencia entre vistas.
+  const activeGroupTitle = useMemo(() => {
+    for (const g of grupos) {
+      if (!g.title) continue;
+      if (g.items.some((it) => it.match(pathname))) return g.title;
+    }
+    return null;
+  }, [grupos, pathname]);
+
+  const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
+  const [hydratedNav, setHydratedNav] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("lg-sidebar-groups-v1");
+      const stored = raw
+        ? (JSON.parse(raw) as Record<string, boolean>)
+        : null;
+      const next: Record<string, boolean> = {};
+      for (const g of grupos) {
+        if (!g.title) continue;
+        if (stored && Object.prototype.hasOwnProperty.call(stored, g.title)) {
+          next[g.title] = stored[g.title]!;
+        } else {
+          next[g.title] = g.title === activeGroupTitle;
+        }
+      }
+      if (activeGroupTitle) next[activeGroupTitle] = true;
+      setOpenMap(next);
+    } catch {
+      const next: Record<string, boolean> = {};
+      for (const g of grupos) {
+        if (g.title) next[g.title] = g.title === activeGroupTitle;
+      }
+      setOpenMap(next);
+    }
+    setHydratedNav(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeGroupTitle]);
+
+  function toggleGroup(title: string) {
+    setOpenMap((prev) => {
+      const next = { ...prev, [title]: !prev[title] };
+      try {
+        localStorage.setItem("lg-sidebar-groups-v1", JSON.stringify(next));
+      } catch {
+        /* swallow */
+      }
+      return next;
+    });
+  }
+
   const drawer = (
     <>
       {open && (
@@ -377,57 +465,63 @@ export function DashboardMobileBar({
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <div className="space-y-3">
-            {grupos.map((grupo, gIdx) => (
-              <div key={`${grupo.title}-${gIdx}`}>
-                {grupo.title && (
-                  <p className="px-3 pt-2 pb-1.5 text-[0.6rem] uppercase tracking-eyebrow font-semibold text-ink-soft">
-                    {grupo.title}
-                  </p>
-                )}
-                <div className="space-y-0.5">
-                  {grupo.items.map((it) => {
-                    const active = it.match(pathname);
-                    const Icon = it.icon;
-                    return (
-                      <Link
-                        key={it.href}
-                        href={it.href}
-                        aria-current={active ? "page" : undefined}
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-body-sm transition-colors ${
-                          active
-                            ? "bg-validation-soft text-validation"
-                            : "text-ink-strong hover:bg-surface-alt"
-                        }`}
+          <div className="space-y-1">
+            {grupos.map((grupo, gIdx) => {
+              // Grupos sin título — siempre visibles
+              if (!grupo.title) {
+                return (
+                  <div
+                    key={`untitled-${gIdx}`}
+                    className="space-y-0.5 pb-1"
+                  >
+                    {grupo.items.map((it) => renderMobileItem(it, pathname))}
+                  </div>
+                );
+              }
+
+              const isOpen = hydratedNav ? !!openMap[grupo.title] : true;
+              return (
+                <div key={`${grupo.title}-${gIdx}`}>
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(grupo.title)}
+                    aria-expanded={isOpen}
+                    className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left transition-colors hover:bg-surface-alt"
+                  >
+                    <ChevronRight
+                      className={`h-3 w-3 shrink-0 text-ink-quiet transition-transform duration-200 ${
+                        isOpen ? "rotate-90" : ""
+                      }`}
+                      strokeWidth={2.4}
+                    />
+                    <span className="text-[0.6rem] uppercase tracking-eyebrow font-semibold text-ink-soft">
+                      {grupo.title}
+                    </span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                          duration: 0.22,
+                          ease: [0.22, 1, 0.36, 1],
+                        }}
+                        className="overflow-hidden"
                       >
-                        <Icon
-                          className="h-4 w-4 shrink-0"
-                          strokeWidth={2}
-                        />
-                        <span className="flex-1">{it.label}</span>
-                        {it.locked && (
-                          <Lock
-                            className="h-3 w-3 text-ink-quiet"
-                            strokeWidth={2.2}
-                          />
-                        )}
-                        {it.admin && (
-                          <span className="rounded-full bg-warn-soft px-1.5 py-0.5 text-[0.65rem] text-warn">
-                            admin
-                          </span>
-                        )}
-                        {!it.locked && !it.admin && (
-                          <ChevronRight
-                            className="h-3.5 w-3.5 text-ink-quiet"
-                            strokeWidth={2}
-                          />
-                        )}
-                      </Link>
-                    );
-                  })}
+                        <div className="space-y-0.5 pt-0.5 pb-1.5">
+                          {grupo.items.map((it) =>
+                            renderMobileItem(it, pathname),
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </nav>
       </aside>
