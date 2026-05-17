@@ -7,7 +7,7 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
 import type { EventoModulo } from "@/lib/modulos-eventos";
-import { LaboratorioCliente } from "./laboratorio-cliente";
+import { LaboratorioBoard } from "./laboratorio-board";
 
 export const metadata: Metadata = {
   title: "Laboratorio — LitienGuard",
@@ -32,32 +32,28 @@ export default async function LaboratorioPage() {
 
   if (!canUseCerebro(tier)) {
     return (
-      <div>
+      <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+        <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
           Módulo de Laboratorio — Plan Profesional o superior
         </h1>
-        <p className="mt-3 max-w-prose text-body text-ink-muted">
-          El módulo de laboratorio con peticiones y catálogo está incluido en
-          planes Profesional y Clínica.
-        </p>
-        <Link href="/precios" className="lg-cta-primary mt-6 inline-flex">
+        <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes
         </Link>
       </div>
     );
   }
 
-  const desde = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+  const desdeIso = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
     .select(
       "id, user_id, paciente_id, modulo, tipo, datos, status, metricas, notas, created_at, completed_at",
     )
     .eq("modulo", "laboratorio")
-    .gte("created_at", desde)
+    .gte("created_at", desdeIso)
     .order("created_at", { ascending: false })
-    .limit(30);
+    .limit(80);
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   const estudiosLab = ESTUDIOS_DIAGNOSTICOS.filter(
@@ -72,7 +68,7 @@ export default async function LaboratorioPage() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -81,28 +77,24 @@ export default async function LaboratorioPage() {
         Volver al dashboard
       </Link>
 
-      <header>
-        <div className="flex items-center gap-2">
-          <FlaskConical className="h-5 w-5 text-validation" strokeWidth={2} />
-          <Eyebrow tone="validation">Laboratorio</Eyebrow>
+      <header className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-lg bg-validation-soft p-1.5 text-validation">
+            <FlaskConical className="h-5 w-5" strokeWidth={2} />
+          </div>
+          <div>
+            <Eyebrow tone="validation">Laboratorio</Eyebrow>
+            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+              Worklist · {estudiosLab.length} estudios catalogados
+            </h1>
+          </div>
         </div>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          Peticiones de laboratorio
-        </h1>
-        <p className="mt-2 max-w-prose text-body-sm text-ink-muted leading-relaxed">
-          Crea peticiones desde un catálogo curado de {estudiosLab.length}{" "}
-          estudios de laboratorio MX. Información de disponibilidad IMSS y
-          costo orientativo del sector privado.
+        <p className="text-caption text-ink-soft">
+          Patrón Cerner PathNet · Yale + Michigan Pathology Informatics
         </p>
       </header>
 
-      <LaboratorioCliente estudios={estudiosLab} eventos={eventos} />
-
-      <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
-        Próximamente: integración con LIS hospitalario via HL7 v2 ORM/ORU,
-        rangos de referencia por edad y sexo, flag automático de valores
-        críticos, sugerencia de paneles según sospecha diagnóstica.
-      </p>
+      <LaboratorioBoard estudios={estudiosLab} eventos={eventos} />
     </div>
   );
 }

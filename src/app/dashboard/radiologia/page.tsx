@@ -7,7 +7,7 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
 import type { EventoModulo } from "@/lib/modulos-eventos";
-import { RadiologiaCliente } from "./radiologia-cliente";
+import { RadiologiaBoard } from "./radiologia-board";
 
 export const metadata: Metadata = {
   title: "Radiología — LitienGuard",
@@ -32,32 +32,28 @@ export default async function RadiologiaPage() {
 
   if (!canUseCerebro(tier)) {
     return (
-      <div>
+      <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+        <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
           Módulo de Radiología — Plan Profesional o superior
         </h1>
-        <p className="mt-3 max-w-prose text-body text-ink-muted">
-          El módulo de radiología con peticiones y reportes estructurados
-          está incluido en planes Profesional y Clínica.
-        </p>
-        <Link href="/precios" className="lg-cta-primary mt-6 inline-flex">
+        <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes
         </Link>
       </div>
     );
   }
 
-  const desde = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+  const desdeIso = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
     .select(
       "id, user_id, paciente_id, modulo, tipo, datos, status, metricas, notas, created_at, completed_at",
     )
     .eq("modulo", "radiologia")
-    .gte("created_at", desde)
+    .gte("created_at", desdeIso)
     .order("created_at", { ascending: false })
-    .limit(30);
+    .limit(80);
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   const estudiosImg = ESTUDIOS_DIAGNOSTICOS.filter(
@@ -72,7 +68,7 @@ export default async function RadiologiaPage() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -81,30 +77,24 @@ export default async function RadiologiaPage() {
         Volver al dashboard
       </Link>
 
-      <header>
-        <div className="flex items-center gap-2">
-          <ScanLine className="h-5 w-5 text-accent" strokeWidth={2} />
-          <Eyebrow tone="validation">Radiología</Eyebrow>
+      <header className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-lg bg-accent-soft p-1.5 text-accent">
+            <ScanLine className="h-5 w-5" strokeWidth={2} />
+          </div>
+          <div>
+            <Eyebrow tone="validation">Radiología</Eyebrow>
+            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+              Worklist · {estudiosImg.length} estudios catalogados
+            </h1>
+          </div>
         </div>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          Peticiones de imagen + reportes
-        </h1>
-        <p className="mt-2 max-w-prose text-body-sm text-ink-muted leading-relaxed">
-          Catálogo de {estudiosImg.length} estudios de imagen — TAC, RM,
-          ultrasonido, gammagrafía, mamografía, angiografía. Adjunta el
-          reporte cuando esté listo para integrarlo al motor de patrones
-          multi-estudio.
+        <p className="text-caption text-ink-soft">
+          Patrón Cerner RadNet · UCSF Radiologic Informatics
         </p>
       </header>
 
-      <RadiologiaCliente estudios={estudiosImg} eventos={eventos} />
-
-      <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
-        Próximamente: templates estructurados por estudio (TAC craneal,
-        ecocardiograma, eco abdomen), integración con PACS via DICOM Q/R,
-        vinculación automática al motor de patrones multi-estudio cuando se
-        marcan hallazgos positivos.
-      </p>
+      <RadiologiaBoard estudios={estudiosImg} eventos={eventos} />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
-import { QuirofanoCliente } from "./quirofano-cliente";
+import { QuirofanoBoard } from "./quirofano-board";
 
 export const metadata: Metadata = {
   title: "Quirófano — LitienGuard",
@@ -31,36 +31,32 @@ export default async function QuirofanoPage() {
 
   if (!canUseCerebro(tier)) {
     return (
-      <div>
+      <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+        <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
           Módulo de Quirófano — Plan Profesional o superior
         </h1>
-        <p className="mt-3 max-w-prose text-body text-ink-muted">
-          El módulo de quirófano con WHO time-out checklist está incluido en
-          planes Profesional y Clínica.
-        </p>
-        <Link href="/precios" className="lg-cta-primary mt-6 inline-flex">
+        <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes
         </Link>
       </div>
     );
   }
 
-  const desde = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
+  const desdeIso = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
     .select(
       "id, user_id, paciente_id, modulo, tipo, datos, status, metricas, notas, created_at, completed_at",
     )
     .eq("modulo", "quirofano")
-    .gte("created_at", desde)
+    .gte("created_at", desdeIso)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(50);
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -69,28 +65,24 @@ export default async function QuirofanoPage() {
         Volver al dashboard
       </Link>
 
-      <header>
-        <div className="flex items-center gap-2">
-          <ClipboardCheck className="h-5 w-5 text-validation" strokeWidth={2} />
-          <Eyebrow tone="validation">Quirófano</Eyebrow>
+      <header className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-lg bg-validation-soft p-1.5 text-validation">
+            <ClipboardCheck className="h-5 w-5" strokeWidth={2} />
+          </div>
+          <div>
+            <Eyebrow tone="validation">Quirófano</Eyebrow>
+            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+              Lista quirúrgica · WHO time-out · últimos 7 días
+            </h1>
+          </div>
         </div>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          WHO Time-out + lista quirúrgica
-        </h1>
-        <p className="mt-2 max-w-prose text-body-sm text-ink-muted leading-relaxed">
-          Checklist de pausa quirúrgica de la Organización Mundial de la Salud
-          (Surgical Safety Checklist 2009, actualizado 2021). Reduce mortalidad
-          quirúrgica ~36% según estudio NEJM Haynes 2009.
+        <p className="text-caption text-ink-soft">
+          Patrón Cerner SurgiNet · Mayo OR design
         </p>
       </header>
 
-      <QuirofanoCliente eventos={eventos} />
-
-      <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
-        Próximamente: programación quirúrgica con asignación de salas,
-        documentación intraoperatoria, post-op + monitoreo a 30 días con
-        outcome loop (complicaciones, reingresos, mortalidad).
-      </p>
+      <QuirofanoBoard eventos={eventos} />
     </div>
   );
 }

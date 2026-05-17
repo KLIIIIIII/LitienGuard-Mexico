@@ -6,7 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
-import { UciCliente } from "./uci-cliente";
+import { UciBoard } from "./uci-board";
 
 export const metadata: Metadata = {
   title: "UCI — LitienGuard",
@@ -31,36 +31,32 @@ export default async function UciPage() {
 
   if (!canUseCerebro(tier)) {
     return (
-      <div>
+      <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+        <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
           Módulo de UCI — Plan Profesional o superior
         </h1>
-        <p className="mt-3 max-w-prose text-body text-ink-muted">
-          El módulo de UCI con calculadora SOFA está incluido en planes
-          Profesional y Clínica.
-        </p>
-        <Link href="/precios" className="lg-cta-primary mt-6 inline-flex">
+        <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes
         </Link>
       </div>
     );
   }
 
-  const desde = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+  const desdeIso = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
   const { data: eventosRaw } = await supa
     .from("eventos_modulos")
     .select(
       "id, user_id, paciente_id, modulo, tipo, datos, status, metricas, notas, created_at, completed_at",
     )
     .eq("modulo", "uci")
-    .gte("created_at", desde)
+    .gte("created_at", desdeIso)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(50);
   const eventos = (eventosRaw ?? []) as EventoModulo[];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-caption text-ink-muted hover:text-ink-strong"
@@ -69,27 +65,24 @@ export default async function UciPage() {
         Volver al dashboard
       </Link>
 
-      <header>
-        <div className="flex items-center gap-2">
-          <HeartPulse className="h-5 w-5 text-rose" strokeWidth={2} />
-          <Eyebrow tone="warn">UCI</Eyebrow>
+      <header className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-lg bg-code-red-bg/60 p-1.5 text-code-red">
+            <HeartPulse className="h-5 w-5" strokeWidth={2} />
+          </div>
+          <div>
+            <Eyebrow tone="warn">UCI</Eyebrow>
+            <h1 className="mt-1 text-h2 font-semibold tracking-tight text-ink-strong">
+              Pacientes UCI · SOFA seguimiento
+            </h1>
+          </div>
         </div>
-        <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
-          SOFA score · seguimiento diario
-        </h1>
-        <p className="mt-2 max-w-prose text-body-sm text-ink-muted leading-relaxed">
-          Sequential Organ Failure Assessment — 6 sistemas, score 0-24.
-          Cambio ≥ 2 puntos desde basal = deterioro clínicamente significativo.
+        <p className="text-caption text-ink-soft">
+          Patrón Cerner CareCompass · Johns Hopkins LCICM
         </p>
       </header>
 
-      <UciCliente eventos={eventos} />
-
-      <p className="text-caption text-ink-soft leading-relaxed max-w-3xl">
-        Próximamente: APACHE II score al ingreso, parámetros ventilatorios
-        (PEEP, FiO₂, presión meseta, RSBI para destete), dosis de vasoactivos
-        por peso, bundle FAST-HUG.
-      </p>
+      <UciBoard eventos={eventos} />
     </div>
   );
 }
