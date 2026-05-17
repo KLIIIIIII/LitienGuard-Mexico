@@ -123,13 +123,14 @@ export async function detectPersonalPatterns(
 
   const difs = (difsRaw ?? []) as DiferencialRow[];
 
-  // Descifrar `diagnostico` de cada receta (Fase C). decryptField hace
-  // passthrough para filas legacy (texto plano antes de la migración).
+  // Descifrar `diagnostico` de cada receta. AAD = medicoId (las filas
+  // se filtraron por .eq("medico_id", medicoId) arriba). Legacy/v1/v2
+  // manejados automáticamente.
   const recetasRows = (recetasRaw ?? []) as RecetaRow[];
   const recetas: RecetaRow[] = await Promise.all(
     recetasRows.map(async (r) => ({
       ...r,
-      diagnostico: await decryptField(r.diagnostico),
+      diagnostico: await decryptField(r.diagnostico, medicoId),
     })),
   );
   const total = difs.length;

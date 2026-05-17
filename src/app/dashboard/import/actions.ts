@@ -295,11 +295,12 @@ async function insertReceta(
 
   if (!item.medicamento) return null;
 
-  // Fase C — cifrar PII + clínicos antes de persistir
+  // Fase C — cifrar PII + clínicos antes de persistir. AAD = userId
   const diagnosticoStr = (data.diagnostico as string) ?? "";
   const cie10Str = (data.diagnostico_cie10 as string) ?? "";
   const indicacionesGeneralesStr =
     (data.indicaciones_generales as string) ?? "";
+  const aad = userId;
   const [
     pacienteNombreEnc,
     apellidoPEnc,
@@ -308,12 +309,12 @@ async function insertReceta(
     cie10Enc,
     indicacionesGeneralesEnc,
   ] = await Promise.all([
-    encryptField(pacienteNombre),
-    encryptField(apellidoP || null),
-    encryptField(apellidoM || null),
-    encryptField(diagnosticoStr),
-    encryptField(cie10Str || null),
-    encryptField(indicacionesGeneralesStr || null),
+    encryptField(pacienteNombre, aad),
+    encryptField(apellidoP || null, aad),
+    encryptField(apellidoM || null, aad),
+    encryptField(diagnosticoStr, aad),
+    encryptField(cie10Str || null, aad),
+    encryptField(indicacionesGeneralesStr || null, aad),
   ]);
   const fullName = [pacienteNombre, apellidoP, apellidoM]
     .map((s) => (s ?? "").trim())
@@ -342,7 +343,7 @@ async function insertReceta(
   if (error) throw error;
   if (!receta?.id) return null;
 
-  // Cifrar campos clínicos del item
+  // Cifrar campos clínicos del item (mismo AAD)
   const [
     medicamentoEnc,
     presentacionEnc,
@@ -352,13 +353,13 @@ async function insertReceta(
     viaEnc,
     indicacionesEnc,
   ] = await Promise.all([
-    encryptField(item.medicamento),
-    encryptField(item.presentacion || null),
-    encryptField(item.dosis || null),
-    encryptField(item.frecuencia || null),
-    encryptField(item.duracion || null),
-    encryptField(item.via_administracion || null),
-    encryptField(item.indicaciones || null),
+    encryptField(item.medicamento, aad),
+    encryptField(item.presentacion || null, aad),
+    encryptField(item.dosis || null, aad),
+    encryptField(item.frecuencia || null, aad),
+    encryptField(item.duracion || null, aad),
+    encryptField(item.via_administracion || null, aad),
+    encryptField(item.indicaciones || null, aad),
   ]);
 
   await supa.from("recetas_items").insert({

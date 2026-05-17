@@ -6,6 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseRecetas, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { decryptField } from "@/lib/encryption";
+import { recordBulkDecryption } from "@/lib/decrypt-monitor";
 
 export const metadata: Metadata = {
   title: "Recetas — LitienGuard",
@@ -75,20 +76,29 @@ export default async function RecetasPage() {
     .order("created_at", { ascending: false })
     .limit(100);
 
-  // Descifrar PII + dx en paralelo. Filas legacy (texto plano) pasan
-  // sin tocar via passthrough en decryptField.
+  // Descifrar PII + dx en paralelo. AAD = user.id (médico autenticado;
+  // RLS garantiza que solo se ven sus propias filas). decryptField hace
+  // passthrough en legacy plaintext y maneja v1/v2 automáticamente.
+  const aad = user.id;
   const recetas = recetasRaw
     ? await Promise.all(
         recetasRaw.map(async (r) => ({
           ...r,
-          paciente_nombre: (await decryptField(r.paciente_nombre)) ?? "",
+          paciente_nombre:
+            (await decryptField(r.paciente_nombre, aad)) ?? "",
           paciente_apellido_paterno: await decryptField(
             r.paciente_apellido_paterno,
+            aad,
           ),
-          diagnostico: (await decryptField(r.diagnostico)) ?? "",
+          diagnostico: (await decryptField(r.diagnostico, aad)) ?? "",
         })),
       )
     : null;
+
+  // Defensa contra exfiltración: registrar descifrado masivo (fire-and-forget).
+  if (recetas && recetas.length > 0) {
+    void recordBulkDecryption(user.id, "recetas.list", recetas.length);
+  }
 
   return (
     <div className="space-y-6">

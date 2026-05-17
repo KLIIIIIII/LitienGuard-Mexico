@@ -115,7 +115,7 @@ export default async function ExpedientePage({
     admin
       .from("recetas")
       .select(
-        `id, paciente_nombre, paciente_apellido_paterno, diagnostico,
+        `id, medico_id, paciente_nombre, paciente_apellido_paterno, diagnostico,
          fecha_emision, status,
          profiles!recetas_medico_id_fkey ( nombre, especialidad )`,
       )
@@ -140,15 +140,17 @@ export default async function ExpedientePage({
 
   const citas = citasRaw ?? [];
 
-  // Descifrar PII + dx de cada receta (Fase C). Legacy passthrough en
-  // filas no cifradas. paciente_email queda plano (Fase F).
+  // Descifrar PII + dx de cada receta. AAD = medico_id de la fila
+  // (anclaje anti-rebind). Legacy/v1/v2 manejados automáticamente.
+  // paciente_email queda plano (se cifra en Fase F).
   const recetas = recetasRaw
     ? await Promise.all(
         recetasRaw.map(async (r) => {
+          const aad = r.medico_id;
           const [nombre, apellidoP, diagnostico] = await Promise.all([
-            decryptField(r.paciente_nombre),
-            decryptField(r.paciente_apellido_paterno),
-            decryptField(r.diagnostico),
+            decryptField(r.paciente_nombre, aad),
+            decryptField(r.paciente_apellido_paterno, aad),
+            decryptField(r.diagnostico, aad),
           ]);
           return {
             ...r,

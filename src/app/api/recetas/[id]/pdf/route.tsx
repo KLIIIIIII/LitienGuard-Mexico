@@ -49,8 +49,9 @@ export async function GET(
     .eq("receta_id", id)
     .order("orden");
 
-  // Descifrar campos PII + clínicos antes de pasar al renderer.
-  // decryptField hace passthrough en filas legacy (texto plano).
+  // Descifrar PII + clínicos. AAD = medico_id de la fila (anclaje
+  // anti-rebind). decryptField maneja v1/v2 automáticamente.
+  const aad = receta.medico_id;
   const [
     pacienteNombre,
     apellidoPaterno,
@@ -60,13 +61,13 @@ export async function GET(
     indicacionesGenerales,
     motivoAnulacion,
   ] = await Promise.all([
-    decryptField(receta.paciente_nombre),
-    decryptField(receta.paciente_apellido_paterno),
-    decryptField(receta.paciente_apellido_materno),
-    decryptField(receta.diagnostico),
-    decryptField(receta.diagnostico_cie10),
-    decryptField(receta.indicaciones_generales),
-    decryptField(receta.motivo_anulacion),
+    decryptField(receta.paciente_nombre, aad),
+    decryptField(receta.paciente_apellido_paterno, aad),
+    decryptField(receta.paciente_apellido_materno, aad),
+    decryptField(receta.diagnostico, aad),
+    decryptField(receta.diagnostico_cie10, aad),
+    decryptField(receta.indicaciones_generales, aad),
+    decryptField(receta.motivo_anulacion, aad),
   ]);
 
   const items = itemsRaw
@@ -81,13 +82,13 @@ export async function GET(
             via,
             indicaciones,
           ] = await Promise.all([
-            decryptField(it.medicamento),
-            decryptField(it.presentacion),
-            decryptField(it.dosis),
-            decryptField(it.frecuencia),
-            decryptField(it.duracion),
-            decryptField(it.via_administracion),
-            decryptField(it.indicaciones),
+            decryptField(it.medicamento, aad),
+            decryptField(it.presentacion, aad),
+            decryptField(it.dosis, aad),
+            decryptField(it.frecuencia, aad),
+            decryptField(it.duracion, aad),
+            decryptField(it.via_administracion, aad),
+            decryptField(it.indicaciones, aad),
           ]);
           return {
             ...it,

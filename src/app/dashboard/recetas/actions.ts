@@ -102,7 +102,9 @@ export async function createReceta(input: RecetaInput): Promise<ActionResult> {
   const apellidoP = data.paciente_apellido_paterno || null;
   const apellidoM = data.paciente_apellido_materno || null;
 
-  // Cifrar PII + clínicos antes de persistir
+  // Cifrar PII + clínicos antes de persistir. AAD = medico_id ancla
+  // cada ciphertext al doctor dueño: un swap entre filas no descifra.
+  const aad = auth.userId;
   const [
     pacienteNombreEnc,
     apellidoPEnc,
@@ -112,13 +114,13 @@ export async function createReceta(input: RecetaInput): Promise<ActionResult> {
     indicacionesGeneralesEnc,
     observacionesEnc,
   ] = await Promise.all([
-    encryptField(data.paciente_nombre),
-    encryptField(apellidoP),
-    encryptField(apellidoM),
-    encryptField(data.diagnostico),
-    encryptField(data.diagnostico_cie10 || null),
-    encryptField(data.indicaciones_generales || null),
-    encryptField(data.observaciones || null),
+    encryptField(data.paciente_nombre, aad),
+    encryptField(apellidoP, aad),
+    encryptField(apellidoM, aad),
+    encryptField(data.diagnostico, aad),
+    encryptField(data.diagnostico_cie10 || null, aad),
+    encryptField(data.indicaciones_generales || null, aad),
+    encryptField(data.observaciones || null, aad),
   ]);
 
   const { data: receta, error: insertError } = await supa
@@ -150,7 +152,7 @@ export async function createReceta(input: RecetaInput): Promise<ActionResult> {
     return { status: "error", message: "No pudimos crear la receta." };
   }
 
-  // Cifrar campos clínicos de cada item en paralelo
+  // Cifrar campos clínicos de cada item en paralelo (mismo AAD)
   const itemsToInsert = await Promise.all(
     data.items.map(async (it, idx) => {
       const [
@@ -162,13 +164,13 @@ export async function createReceta(input: RecetaInput): Promise<ActionResult> {
         viaEnc,
         indicacionesEnc,
       ] = await Promise.all([
-        encryptField(it.medicamento),
-        encryptField(it.presentacion || null),
-        encryptField(it.dosis || null),
-        encryptField(it.frecuencia || null),
-        encryptField(it.duracion || null),
-        encryptField(it.via_administracion || null),
-        encryptField(it.indicaciones || null),
+        encryptField(it.medicamento, aad),
+        encryptField(it.presentacion || null, aad),
+        encryptField(it.dosis || null, aad),
+        encryptField(it.frecuencia || null, aad),
+        encryptField(it.duracion || null, aad),
+        encryptField(it.via_administracion || null, aad),
+        encryptField(it.indicaciones || null, aad),
       ]);
       return {
         receta_id: receta.id,
@@ -277,7 +279,7 @@ export async function anularReceta(
     return { status: "error", message: "La receta ya está anulada." };
   }
 
-  const motivoEnc = await encryptField(motivoTrim);
+  const motivoEnc = await encryptField(motivoTrim, auth.userId);
   const { error } = await supa
     .from("recetas")
     .update({ status: "anulada", motivo_anulacion: motivoEnc })

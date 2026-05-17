@@ -60,8 +60,11 @@ export default async function RecetaDetailPage({
     .eq("receta_id", id)
     .order("orden");
 
-  // Descifrar TODOS los campos clínicos / PII en paralelo. Filas
-  // legacy pasan sin tocar (decryptField hace passthrough).
+  // Descifrar TODOS los campos clínicos / PII en paralelo. AAD =
+  // medico_id de la fila (anclaje). RLS garantiza que recetaRaw.medico_id
+  // == user.id, pero usamos el de la fila para que un swap entre filas
+  // de distintos médicos haga fallar el authTag aunque RLS fuera saltado.
+  const aad = recetaRaw.medico_id;
   const [
     pacienteNombre,
     apellidoPaterno,
@@ -72,14 +75,14 @@ export default async function RecetaDetailPage({
     observaciones,
     motivoAnulacion,
   ] = await Promise.all([
-    decryptField(recetaRaw.paciente_nombre),
-    decryptField(recetaRaw.paciente_apellido_paterno),
-    decryptField(recetaRaw.paciente_apellido_materno),
-    decryptField(recetaRaw.diagnostico),
-    decryptField(recetaRaw.diagnostico_cie10),
-    decryptField(recetaRaw.indicaciones_generales),
-    decryptField(recetaRaw.observaciones),
-    decryptField(recetaRaw.motivo_anulacion),
+    decryptField(recetaRaw.paciente_nombre, aad),
+    decryptField(recetaRaw.paciente_apellido_paterno, aad),
+    decryptField(recetaRaw.paciente_apellido_materno, aad),
+    decryptField(recetaRaw.diagnostico, aad),
+    decryptField(recetaRaw.diagnostico_cie10, aad),
+    decryptField(recetaRaw.indicaciones_generales, aad),
+    decryptField(recetaRaw.observaciones, aad),
+    decryptField(recetaRaw.motivo_anulacion, aad),
   ]);
 
   const receta = {
@@ -106,13 +109,13 @@ export default async function RecetaDetailPage({
             via,
             indicaciones,
           ] = await Promise.all([
-            decryptField(it.medicamento),
-            decryptField(it.presentacion),
-            decryptField(it.dosis),
-            decryptField(it.frecuencia),
-            decryptField(it.duracion),
-            decryptField(it.via_administracion),
-            decryptField(it.indicaciones),
+            decryptField(it.medicamento, aad),
+            decryptField(it.presentacion, aad),
+            decryptField(it.dosis, aad),
+            decryptField(it.frecuencia, aad),
+            decryptField(it.duracion, aad),
+            decryptField(it.via_administracion, aad),
+            decryptField(it.indicaciones, aad),
           ]);
           return {
             ...it,

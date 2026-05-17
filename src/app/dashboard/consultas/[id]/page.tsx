@@ -79,16 +79,20 @@ export default async function ConsultaDetallePage({
         .order("created_at", { ascending: false }),
       supa
         .from("recetas")
-        .select("id, diagnostico, status, fecha_emision, created_at")
+        .select(
+          "id, medico_id, diagnostico, status, fecha_emision, created_at",
+        )
         .eq("consulta_id", id)
         .order("created_at", { ascending: false })
         .then(async ({ data, error }) => {
           if (error || !data) return { data, error };
-          // Descifrar diagnostico (Fase C). Filas legacy pasan sin tocar.
+          // Descifrar diagnostico (Fase C). AAD = medico_id de la fila
+          // (anclaje anti-rebind). Filas legacy pasan sin tocar.
           const decrypted = await Promise.all(
             data.map(async (r) => ({
               ...r,
-              diagnostico: (await decryptField(r.diagnostico)) ?? "",
+              diagnostico:
+                (await decryptField(r.diagnostico, r.medico_id)) ?? "",
             })),
           );
           return { data: decrypted, error: null };

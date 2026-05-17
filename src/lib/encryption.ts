@@ -36,9 +36,19 @@ import {
 } from "node:crypto";
 import { KeyManagementServiceClient } from "@google-cloud/kms";
 
-const FIELD_PREFIX = "v1:";
+const V1_PREFIX = "v1:";
+const V2_PREFIX = "v2:";
 const ALGO = "aes-256-gcm";
 const IV_BYTES = 12; // 96-bit nonce — estándar para GCM
+
+// Resumen de versiones del formato cifrado:
+//   v1: <iv>:<tag>:<ct>            — cifrado simple (legacy, Fases A/B/C inicial)
+//   v2: <iv>:<tag>:<ct>            — cifrado con AAD binding al contexto.
+//      El AAD (p. ej. medico_id) NO se almacena en el ciphertext; viene
+//      del row al descifrar. Si alguien mueve el ciphertext a otra fila,
+//      el AAD será diferente y el descifrado fallará (anti-rebind).
+// Migración: la app lee AMBOS formatos en paralelo. v1 ignora AAD aunque
+// se le pase. v2 lo exige. Esto permite rollout gradual sin downtime.
 
 // ------------------------------------------------------------------
 // KMS client (lazy singleton)
@@ -110,17 +120,24 @@ async function getDek(): Promise<Buffer> {
 // API pública
 // ------------------------------------------------------------------
 
-/** ¿El valor ya está cifrado con nuestro formato? */
+/** ¿El valor ya está cifrado con nuestro formato (v1 o v2)? */
 export function isEncrypted(value: string | null | undefined): boolean {
-  return typeof value === "string" && value.startsWith(FIELD_PREFIX);
+  return (
+    typeof value === "string" &&
+    (value.startsWith(V1_PREFIX) || value.startsWith(V2_PREFIX))
+  );
 }
 
 /**
- * Cifra un campo de texto. Devuelve el formato empaquetado v1:...
- * Si el valor es null/undefined/"" lo devuelve tal cual (nada que cifrar).
+ * Cifra un campo de texto. Si se pasa `aad`, usa formato v2 con AAD
+ * binding (el contexto queda amarrado al ciphertext y un swap entre
+ * filas hace fallar el descifrado). Si no se pasa `aad`, usa v1.
+ *
+ * Si el valor es null/undefined/"" lo devuelve tal cual.
  */
 export async function encryptField(
   plaintext: string | null | undefined,
+  aad?: string,
 ): Promise<string | null> {
   if (plaintext === null || plaintext === undefined || plaintext === "") {
     return plaintext ?? null;
@@ -131,28 +148,36 @@ export async function encryptField(
   const dek = await getDek();
   const iv = randomBytes(IV_BYTES);
   const cipher = createCipheriv(ALGO, dek, iv);
+  if (aad && aad.length > 0) {
+    cipher.setAAD(Buffer.from(aad, "utf8"));
+  }
   const ciphertext = Buffer.concat([
     cipher.update(plaintext, "utf8"),
     cipher.final(),
   ]);
   const authTag = cipher.getAuthTag();
-  return `${FIELD_PREFIX}${iv.toString("base64")}:${authTag.toString(
+  const prefix = aad && aad.length > 0 ? V2_PREFIX : V1_PREFIX;
+  return `${prefix}${iv.toString("base64")}:${authTag.toString(
     "base64",
   )}:${ciphertext.toString("base64")}`;
 }
 
 /**
- * Descifra un campo. Si el valor NO tiene el prefijo v1: se considera
- * legacy (texto plano sin cifrar) y se devuelve tal cual — esto permite
- * migración gradual. null/undefined pasan sin tocar.
+ * Descifra un campo. Auto-detecta versión por prefijo:
+ *   - v1: ignora el AAD pasado (legacy, sin AAD binding)
+ *   - v2: REQUIERE el AAD correcto. Si no coincide, el authTag falla.
+ * Si el valor NO tiene prefijo, se considera legacy plaintext y se
+ * devuelve tal cual. null/undefined pasan sin tocar.
  */
 export async function decryptField(
   packed: string | null | undefined,
+  aad?: string,
 ): Promise<string | null> {
   if (packed === null || packed === undefined) return null;
   if (!isEncrypted(packed)) return packed; // legacy plaintext
 
-  const body = packed.slice(FIELD_PREFIX.length);
+  const isV2 = packed.startsWith(V2_PREFIX);
+  const body = packed.slice(isV2 ? V2_PREFIX.length : V1_PREFIX.length);
   const parts = body.split(":");
   if (parts.length !== 3) {
     throw new Error("Campo cifrado con formato inválido");
@@ -164,6 +189,14 @@ export async function decryptField(
     dek,
     Buffer.from(ivB64, "base64"),
   );
+  if (isV2) {
+    if (!aad || aad.length === 0) {
+      throw new Error(
+        "Campo cifrado v2 requiere AAD — contexto faltante en el descifrado",
+      );
+    }
+    decipher.setAAD(Buffer.from(aad, "utf8"));
+  }
   decipher.setAuthTag(Buffer.from(tagB64, "base64"));
   const plaintext = Buffer.concat([
     decipher.update(Buffer.from(ctB64, "base64")),
@@ -205,11 +238,26 @@ export async function decryptFields<T extends Record<string, string | null | und
 }
 
 /**
- * HMAC-SHA256 determinístico para búsqueda exacta de campos cifrados.
- * Normaliza (trim + lowercase) antes de hashear para que "Juan@X.com "
- * y "juan@x.com" produzcan el mismo hash. Síncrono — no toca KMS.
+ * HMAC determinístico para búsqueda exacta de campos cifrados.
  *
- * Usar para: pacientes.email → pacientes.email_search_hash, etc.
+ * Tiene DOS modos según las env vars configuradas:
+ *
+ *   1) Solo SEARCH_HMAC_SECRET configurada (legacy/default):
+ *      Un HMAC simple sobre trim+lowercase. Devuelve hex sin prefijo.
+ *      Es compatible con hashes ya almacenados antes de la rotación.
+ *
+ *   2) SEARCH_HMAC_SECRET + SEARCH_HMAC_PEPPER configuradas (v2):
+ *      Doble HMAC encadenado — un atacante con la BD necesitaría AMBOS
+ *      secretos para hacer ataques de diccionario sobre los hashes.
+ *      Devuelve "v2:<hex>" para distinguir del formato legacy.
+ *
+ * El upgrade de modo 1 → 2 es transparente: agregar SEARCH_HMAC_PEPPER
+ * en env y todos los hashes nuevos se escriben en v2. Para LEER hashes
+ * viejos y nuevos en una sola query, usa `searchHashAll(value)` que
+ * devuelve ambas versiones — útil para lookups durante la migración.
+ *
+ * Usar para: pacientes.email → pacientes.email_search_hash,
+ * recetas.paciente_search_hash, etc.
  */
 export function searchHash(value: string | null | undefined): string | null {
   if (value === null || value === undefined || value.trim() === "") {
@@ -219,9 +267,55 @@ export function searchHash(value: string | null | undefined): string | null {
   if (!secret) {
     throw new Error("SEARCH_HMAC_SECRET no configurada");
   }
-  return createHmac("sha256", secret)
-    .update(value.trim().toLowerCase())
-    .digest("hex");
+  const pepper = process.env.SEARCH_HMAC_PEPPER;
+  const normalized = value.trim().toLowerCase();
+
+  if (pepper && pepper.length > 0) {
+    // v2: HMAC encadenado. inner = HMAC(pepper, value); outer = HMAC(secret, inner)
+    const inner = createHmac("sha256", pepper).update(normalized).digest();
+    const outer = createHmac("sha256", secret).update(inner).digest("hex");
+    return `v2:${outer}`;
+  }
+
+  // v1 (legacy/default): single HMAC
+  return createHmac("sha256", secret).update(normalized).digest("hex");
+}
+
+/**
+ * Devuelve TODAS las versiones del searchHash para un valor dado.
+ * Útil para hacer lookups que toleren la migración v1 → v2:
+ *
+ *   const hashes = searchHashAll("ana lopez");
+ *   if (hashes) {
+ *     supa.from("recetas")
+ *       .select("*")
+ *       .in("paciente_search_hash", hashes);
+ *   }
+ *
+ * Cuando SEARCH_HMAC_PEPPER no está configurada, devuelve solo [v1].
+ */
+export function searchHashAll(
+  value: string | null | undefined,
+): string[] | null {
+  if (value === null || value === undefined || value.trim() === "") {
+    return null;
+  }
+  const secret = process.env.SEARCH_HMAC_SECRET;
+  if (!secret) {
+    throw new Error("SEARCH_HMAC_SECRET no configurada");
+  }
+  const pepper = process.env.SEARCH_HMAC_PEPPER;
+  const normalized = value.trim().toLowerCase();
+
+  const v1 = createHmac("sha256", secret).update(normalized).digest("hex");
+  if (!pepper || pepper.length === 0) {
+    return [v1];
+  }
+
+  const inner = createHmac("sha256", pepper).update(normalized).digest();
+  const v2 =
+    "v2:" + createHmac("sha256", secret).update(inner).digest("hex");
+  return [v1, v2];
 }
 
 /**
@@ -235,4 +329,13 @@ export function isEncryptionConfigured(): boolean {
     !!process.env.GCP_KMS_KEY_NAME &&
     !!process.env.SEARCH_HMAC_SECRET
   );
+}
+
+/**
+ * ¿Está activado el modo doble-HMAC (v2)? Para reportes de seguridad
+ * o para decidir si exhibir hashes con prefijo en la app.
+ */
+export function isSearchHashV2Active(): boolean {
+  const pepper = process.env.SEARCH_HMAC_PEPPER;
+  return !!pepper && pepper.length > 0;
 }
