@@ -1,0 +1,179 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "fixture-001-dm-ic",
+        "name": [
+          {
+            "use": "official",
+            "family": "Hernández",
+            "given": ["María", "Guadalupe"]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1965-03-12",
+        "telecom": [
+          { "system": "email", "value": "maria.h@demo.local" },
+          { "system": "phone", "value": "+52 55 0000 0001" }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-001-dm2",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "44054006",
+              "display": "Diabetes mellitus tipo 2"
+            }
+          ],
+          "text": "Diabetes mellitus tipo 2"
+        },
+        "subject": { "reference": "urn:uuid:fixture-001-dm-ic" },
+        "onsetDateTime": "2018-06-15"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-001-hfref",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "84114007",
+              "display": "Insuficiencia cardíaca con FE reducida"
+            }
+          ],
+          "text": "HFrEF"
+        },
+        "subject": { "reference": "urn:uuid:fixture-001-dm-ic" },
+        "onsetDateTime": "2023-11-02"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-001-a",
+        "status": "finished",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185349003",
+                "display": "Consulta de control"
+              }
+            ],
+            "text": "Consulta externa"
+          }
+        ],
+        "subject": { "reference": "urn:uuid:fixture-001-dm-ic" },
+        "period": {
+          "start": "2026-04-15T10:00:00Z",
+          "end": "2026-04-15T10:30:00Z"
+        },
+        "reasonCode": [{ "text": "Control de diabetes e insuficiencia cardíaca" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-001-hba1c",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "4548-4",
+              "display": "Hemoglobina A1c"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:fixture-001-dm-ic" },
+        "effectiveDateTime": "2026-04-15T10:15:00Z",
+        "valueQuantity": { "value": 8.4, "unit": "%", "code": "%" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-001-creat",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2160-0",
+              "display": "Creatinina sérica"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:fixture-001-dm-ic" },
+        "effectiveDateTime": "2026-04-15T10:15:00Z",
+        "valueQuantity": { "value": 1.6, "unit": "mg/dL", "code": "mg/dL" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-001-k",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2823-3",
+              "display": "Potasio sérico"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:fixture-001-dm-ic" },
+        "effectiveDateTime": "2026-04-15T10:15:00Z",
+        "valueQuantity": { "value": 5.4, "unit": "mEq/L", "code": "mEq/L" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "med-001-metf",
+        "status": "active",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "860975",
+              "display": "Metformina 850 mg oral"
+            }
+          ],
+          "text": "Metformina 850 mg"
+        },
+        "subject": { "reference": "urn:uuid:fixture-001-dm-ic" },
+        "authoredOn": "2026-04-15T10:25:00Z",
+        "dosageInstruction": [{ "text": "1 tableta c/12h con alimentos" }]
+      }
+    }
+  ]
+}

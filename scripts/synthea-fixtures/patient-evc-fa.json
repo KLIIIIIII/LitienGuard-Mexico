@@ -1,0 +1,161 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "fixture-002-evc-fa",
+        "name": [
+          {
+            "use": "official",
+            "family": "Ramírez",
+            "given": ["Jorge", "Alberto"]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1958-09-25",
+        "telecom": [
+          { "system": "email", "value": "jorge.r@demo.local" },
+          { "system": "phone", "value": "+52 55 0000 0002" }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-002-evc",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "422504002",
+              "display": "Evento cerebrovascular isquémico agudo"
+            }
+          ],
+          "text": "EVC isquémico"
+        },
+        "subject": { "reference": "urn:uuid:fixture-002-evc-fa" },
+        "onsetDateTime": "2026-03-20"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-002-hta",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "38341003",
+              "display": "Hipertensión arterial sistémica"
+            }
+          ],
+          "text": "HTA esencial"
+        },
+        "subject": { "reference": "urn:uuid:fixture-002-evc-fa" },
+        "onsetDateTime": "2015-01-10"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-002-a",
+        "status": "finished",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "50849002",
+                "display": "Emergency room admission"
+              }
+            ],
+            "text": "Urgencias"
+          }
+        ],
+        "subject": { "reference": "urn:uuid:fixture-002-evc-fa" },
+        "period": {
+          "start": "2026-03-20T03:45:00Z",
+          "end": "2026-03-20T11:30:00Z"
+        },
+        "reasonCode": [{ "text": "Hemiparesia derecha súbita + afasia · código stroke" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-002-b",
+        "status": "finished",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185349003",
+                "display": "Consulta de control"
+              }
+            ],
+            "text": "Consulta externa"
+          }
+        ],
+        "subject": { "reference": "urn:uuid:fixture-002-evc-fa" },
+        "period": {
+          "start": "2026-05-01T09:00:00Z",
+          "end": "2026-05-01T09:25:00Z"
+        },
+        "reasonCode": [{ "text": "Seguimiento post-EVC · valoración fibrilación auricular detectada en monitor" }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-002-inr",
+        "status": "final",
+        "code": {
+          "coding": [
+            { "system": "http://loinc.org", "code": "5895-7", "display": "INR" }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:fixture-002-evc-fa" },
+        "effectiveDateTime": "2026-05-01T09:10:00Z",
+        "valueQuantity": { "value": 1.1, "unit": "ratio", "code": "ratio" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-002-trop",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "10839-9",
+              "display": "Troponina I"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:fixture-002-evc-fa" },
+        "effectiveDateTime": "2026-03-20T04:00:00Z",
+        "valueQuantity": { "value": 0.02, "unit": "ng/mL", "code": "ng/mL" }
+      }
+    }
+  ]
+}
