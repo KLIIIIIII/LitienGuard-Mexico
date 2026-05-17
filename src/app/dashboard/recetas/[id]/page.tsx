@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Pill, CheckCircle2, XCircle, Pencil } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { Eyebrow } from "@/components/eyebrow";
+import { decryptField } from "@/lib/encryption";
 import { RecetaActions } from "./receta-actions";
 
 export const metadata: Metadata = {
@@ -46,18 +47,86 @@ export default async function RecetaDetailPage({
   } = await supa.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: receta } = await supa
+  const { data: recetaRaw } = await supa
     .from("recetas")
     .select("*")
     .eq("id", id)
     .single();
-  if (!receta) notFound();
+  if (!recetaRaw) notFound();
 
-  const { data: items } = await supa
+  const { data: itemsRaw } = await supa
     .from("recetas_items")
     .select("*")
     .eq("receta_id", id)
     .order("orden");
+
+  // Descifrar TODOS los campos clínicos / PII en paralelo. Filas
+  // legacy pasan sin tocar (decryptField hace passthrough).
+  const [
+    pacienteNombre,
+    apellidoPaterno,
+    apellidoMaterno,
+    diagnostico,
+    diagnosticoCie10,
+    indicacionesGenerales,
+    observaciones,
+    motivoAnulacion,
+  ] = await Promise.all([
+    decryptField(recetaRaw.paciente_nombre),
+    decryptField(recetaRaw.paciente_apellido_paterno),
+    decryptField(recetaRaw.paciente_apellido_materno),
+    decryptField(recetaRaw.diagnostico),
+    decryptField(recetaRaw.diagnostico_cie10),
+    decryptField(recetaRaw.indicaciones_generales),
+    decryptField(recetaRaw.observaciones),
+    decryptField(recetaRaw.motivo_anulacion),
+  ]);
+
+  const receta = {
+    ...recetaRaw,
+    paciente_nombre: pacienteNombre ?? "",
+    paciente_apellido_paterno: apellidoPaterno,
+    paciente_apellido_materno: apellidoMaterno,
+    diagnostico: diagnostico ?? "",
+    diagnostico_cie10: diagnosticoCie10,
+    indicaciones_generales: indicacionesGenerales,
+    observaciones: observaciones,
+    motivo_anulacion: motivoAnulacion,
+  };
+
+  const items = itemsRaw
+    ? await Promise.all(
+        itemsRaw.map(async (it) => {
+          const [
+            medicamento,
+            presentacion,
+            dosis,
+            frecuencia,
+            duracion,
+            via,
+            indicaciones,
+          ] = await Promise.all([
+            decryptField(it.medicamento),
+            decryptField(it.presentacion),
+            decryptField(it.dosis),
+            decryptField(it.frecuencia),
+            decryptField(it.duracion),
+            decryptField(it.via_administracion),
+            decryptField(it.indicaciones),
+          ]);
+          return {
+            ...it,
+            medicamento: medicamento ?? "",
+            presentacion,
+            dosis,
+            frecuencia,
+            duracion,
+            via_administracion: via,
+            indicaciones,
+          };
+        }),
+      )
+    : null;
 
   const status = STATUS_META[receta.status] ?? STATUS_META.borrador;
   const Icon = status.icon;

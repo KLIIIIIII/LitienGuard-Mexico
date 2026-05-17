@@ -5,6 +5,7 @@ import { Plus, FileText, CheckCircle2, XCircle, Pencil } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseRecetas, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
+import { decryptField } from "@/lib/encryption";
 
 export const metadata: Metadata = {
   title: "Recetas — LitienGuard",
@@ -66,13 +67,28 @@ export default async function RecetasPage() {
 
   const consultorioListo = !!profile?.cedula_profesional;
 
-  const { data: recetas } = await supa
+  const { data: recetasRaw } = await supa
     .from("recetas")
     .select(
       "id,paciente_nombre,paciente_apellido_paterno,diagnostico,status,fecha_emision,created_at",
     )
     .order("created_at", { ascending: false })
     .limit(100);
+
+  // Descifrar PII + dx en paralelo. Filas legacy (texto plano) pasan
+  // sin tocar via passthrough en decryptField.
+  const recetas = recetasRaw
+    ? await Promise.all(
+        recetasRaw.map(async (r) => ({
+          ...r,
+          paciente_nombre: (await decryptField(r.paciente_nombre)) ?? "",
+          paciente_apellido_paterno: await decryptField(
+            r.paciente_apellido_paterno,
+          ),
+          diagnostico: (await decryptField(r.diagnostico)) ?? "",
+        })),
+      )
+    : null;
 
   return (
     <div className="space-y-6">

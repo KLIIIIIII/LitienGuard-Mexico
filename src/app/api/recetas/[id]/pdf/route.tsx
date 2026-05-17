@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseRecetas, type SubscriptionTier } from "@/lib/entitlements";
 import { recordAudit } from "@/lib/audit";
+import { decryptField } from "@/lib/encryption";
 import { RecetaPdf } from "@/lib/pdf/receta-pdf";
 
 export async function GET(
@@ -42,29 +43,83 @@ export async function GET(
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const { data: items } = await supa
+  const { data: itemsRaw } = await supa
     .from("recetas_items")
     .select("*")
     .eq("receta_id", id)
     .order("orden");
 
+  // Descifrar campos PII + clínicos antes de pasar al renderer.
+  // decryptField hace passthrough en filas legacy (texto plano).
+  const [
+    pacienteNombre,
+    apellidoPaterno,
+    apellidoMaterno,
+    diagnostico,
+    diagnosticoCie10,
+    indicacionesGenerales,
+    motivoAnulacion,
+  ] = await Promise.all([
+    decryptField(receta.paciente_nombre),
+    decryptField(receta.paciente_apellido_paterno),
+    decryptField(receta.paciente_apellido_materno),
+    decryptField(receta.diagnostico),
+    decryptField(receta.diagnostico_cie10),
+    decryptField(receta.indicaciones_generales),
+    decryptField(receta.motivo_anulacion),
+  ]);
+
+  const items = itemsRaw
+    ? await Promise.all(
+        itemsRaw.map(async (it) => {
+          const [
+            medicamento,
+            presentacion,
+            dosis,
+            frecuencia,
+            duracion,
+            via,
+            indicaciones,
+          ] = await Promise.all([
+            decryptField(it.medicamento),
+            decryptField(it.presentacion),
+            decryptField(it.dosis),
+            decryptField(it.frecuencia),
+            decryptField(it.duracion),
+            decryptField(it.via_administracion),
+            decryptField(it.indicaciones),
+          ]);
+          return {
+            ...it,
+            medicamento: medicamento ?? "",
+            presentacion,
+            dosis,
+            frecuencia,
+            duracion,
+            via_administracion: via,
+            indicaciones,
+          };
+        }),
+      )
+    : [];
+
   const buffer = await renderToBuffer(
     <RecetaPdf
       receta={{
         id: receta.id,
-        paciente_nombre: receta.paciente_nombre,
-        paciente_apellido_paterno: receta.paciente_apellido_paterno,
-        paciente_apellido_materno: receta.paciente_apellido_materno,
+        paciente_nombre: pacienteNombre ?? "",
+        paciente_apellido_paterno: apellidoPaterno,
+        paciente_apellido_materno: apellidoMaterno,
         paciente_edad: receta.paciente_edad,
         paciente_sexo: receta.paciente_sexo,
-        diagnostico: receta.diagnostico,
-        diagnostico_cie10: receta.diagnostico_cie10,
-        indicaciones_generales: receta.indicaciones_generales,
+        diagnostico: diagnostico ?? "",
+        diagnostico_cie10: diagnosticoCie10,
+        indicaciones_generales: indicacionesGenerales,
         status: receta.status,
         fecha_emision: receta.fecha_emision,
-        motivo_anulacion: receta.motivo_anulacion,
+        motivo_anulacion: motivoAnulacion,
       }}
-      items={items ?? []}
+      items={items}
       medico={{
         nombre: profile?.nombre ?? null,
         email: profile?.email ?? null,
@@ -86,7 +141,7 @@ export async function GET(
   });
 
   const safeName =
-    receta.paciente_nombre.replace(/[^\w-]/g, "_").slice(0, 40) || "paciente";
+    (pacienteNombre ?? "").replace(/[^\w-]/g, "_").slice(0, 40) || "paciente";
   const dateStr = (receta.fecha_emision ?? "").slice(0, 10);
   const filename = `receta_${safeName}_${dateStr}.pdf`;
 

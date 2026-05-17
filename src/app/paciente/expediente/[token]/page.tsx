@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { recordAudit } from "@/lib/audit";
+import { decryptField } from "@/lib/encryption";
 import { PageHero } from "@/components/page-hero";
 import { Eyebrow } from "@/components/eyebrow";
 import { consumeTokenIfPending } from "../../actions";
@@ -138,7 +139,26 @@ export default async function ExpedientePage({
   };
 
   const citas = citasRaw ?? [];
-  const recetas = recetasRaw ?? [];
+
+  // Descifrar PII + dx de cada receta (Fase C). Legacy passthrough en
+  // filas no cifradas. paciente_email queda plano (Fase F).
+  const recetas = recetasRaw
+    ? await Promise.all(
+        recetasRaw.map(async (r) => {
+          const [nombre, apellidoP, diagnostico] = await Promise.all([
+            decryptField(r.paciente_nombre),
+            decryptField(r.paciente_apellido_paterno),
+            decryptField(r.diagnostico),
+          ]);
+          return {
+            ...r,
+            paciente_nombre: nombre ?? "",
+            paciente_apellido_paterno: apellidoP,
+            diagnostico: diagnostico ?? "",
+          };
+        }),
+      )
+    : [];
 
   const now2 = new Date();
   const citasProximas = citas

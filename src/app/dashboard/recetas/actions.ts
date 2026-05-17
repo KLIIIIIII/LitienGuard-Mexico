@@ -5,6 +5,22 @@ import { z } from "zod";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { canUseRecetas, type SubscriptionTier } from "@/lib/entitlements";
 import { recordAudit } from "@/lib/audit";
+import { encryptField, searchHash } from "@/lib/encryption";
+
+// HMAC determinístico para "buscar receta de paciente X" cuando los
+// nombres ya están cifrados. Concatena nombre + apellidos (los que no
+// sean null) y deja que searchHash() los normalice (trim + lowercase).
+function recetaPacienteSearchHash(
+  nombre: string,
+  apellidoP: string | null,
+  apellidoM: string | null,
+): string | null {
+  const full = [nombre, apellidoP, apellidoM]
+    .map((s) => (s ?? "").trim())
+    .filter((s) => s.length > 0)
+    .join(" ");
+  return searchHash(full);
+}
 
 const itemSchema = z.object({
   medicamento: z.string().trim().min(1, "Medicamento requerido").max(200),
@@ -83,19 +99,46 @@ export async function createReceta(input: RecetaInput): Promise<ActionResult> {
 
   const supa = await createSupabaseServer();
 
+  const apellidoP = data.paciente_apellido_paterno || null;
+  const apellidoM = data.paciente_apellido_materno || null;
+
+  // Cifrar PII + clínicos antes de persistir
+  const [
+    pacienteNombreEnc,
+    apellidoPEnc,
+    apellidoMEnc,
+    diagnosticoEnc,
+    cie10Enc,
+    indicacionesGeneralesEnc,
+    observacionesEnc,
+  ] = await Promise.all([
+    encryptField(data.paciente_nombre),
+    encryptField(apellidoP),
+    encryptField(apellidoM),
+    encryptField(data.diagnostico),
+    encryptField(data.diagnostico_cie10 || null),
+    encryptField(data.indicaciones_generales || null),
+    encryptField(data.observaciones || null),
+  ]);
+
   const { data: receta, error: insertError } = await supa
     .from("recetas")
     .insert({
       medico_id: auth.userId,
-      paciente_nombre: data.paciente_nombre,
-      paciente_apellido_paterno: data.paciente_apellido_paterno || null,
-      paciente_apellido_materno: data.paciente_apellido_materno || null,
+      paciente_nombre: pacienteNombreEnc,
+      paciente_apellido_paterno: apellidoPEnc,
+      paciente_apellido_materno: apellidoMEnc,
+      paciente_search_hash: recetaPacienteSearchHash(
+        data.paciente_nombre,
+        apellidoP,
+        apellidoM,
+      ),
       paciente_edad: data.paciente_edad ?? null,
       paciente_sexo: data.paciente_sexo ?? null,
-      diagnostico: data.diagnostico,
-      diagnostico_cie10: data.diagnostico_cie10 || null,
-      indicaciones_generales: data.indicaciones_generales || null,
-      observaciones: data.observaciones || null,
+      diagnostico: diagnosticoEnc,
+      diagnostico_cie10: cie10Enc,
+      indicaciones_generales: indicacionesGeneralesEnc,
+      observaciones: observacionesEnc,
       status: "borrador",
       consulta_id: data.consulta_id ?? null,
     })
@@ -107,17 +150,39 @@ export async function createReceta(input: RecetaInput): Promise<ActionResult> {
     return { status: "error", message: "No pudimos crear la receta." };
   }
 
-  const itemsToInsert = data.items.map((it, idx) => ({
-    receta_id: receta.id,
-    orden: idx + 1,
-    medicamento: it.medicamento,
-    presentacion: it.presentacion || null,
-    dosis: it.dosis || null,
-    frecuencia: it.frecuencia || null,
-    duracion: it.duracion || null,
-    via_administracion: it.via_administracion || null,
-    indicaciones: it.indicaciones || null,
-  }));
+  // Cifrar campos clínicos de cada item en paralelo
+  const itemsToInsert = await Promise.all(
+    data.items.map(async (it, idx) => {
+      const [
+        medicamentoEnc,
+        presentacionEnc,
+        dosisEnc,
+        frecuenciaEnc,
+        duracionEnc,
+        viaEnc,
+        indicacionesEnc,
+      ] = await Promise.all([
+        encryptField(it.medicamento),
+        encryptField(it.presentacion || null),
+        encryptField(it.dosis || null),
+        encryptField(it.frecuencia || null),
+        encryptField(it.duracion || null),
+        encryptField(it.via_administracion || null),
+        encryptField(it.indicaciones || null),
+      ]);
+      return {
+        receta_id: receta.id,
+        orden: idx + 1,
+        medicamento: medicamentoEnc,
+        presentacion: presentacionEnc,
+        dosis: dosisEnc,
+        frecuencia: frecuenciaEnc,
+        duracion: duracionEnc,
+        via_administracion: viaEnc,
+        indicaciones: indicacionesEnc,
+      };
+    }),
+  );
 
   const { error: itemsError } = await supa
     .from("recetas_items")
@@ -212,9 +277,10 @@ export async function anularReceta(
     return { status: "error", message: "La receta ya está anulada." };
   }
 
+  const motivoEnc = await encryptField(motivoTrim);
   const { error } = await supa
     .from("recetas")
-    .update({ status: "anulada", motivo_anulacion: motivoTrim })
+    .update({ status: "anulada", motivo_anulacion: motivoEnc })
     .eq("id", recetaId);
 
   if (error) {

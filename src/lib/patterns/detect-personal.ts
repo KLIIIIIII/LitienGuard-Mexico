@@ -16,6 +16,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { decryptField } from "@/lib/encryption";
 
 export interface DiagnosticoFrecuencia {
   label: string;
@@ -121,7 +122,16 @@ export async function detectPersonalPatterns(
   ]);
 
   const difs = (difsRaw ?? []) as DiferencialRow[];
-  const recetas = (recetasRaw ?? []) as RecetaRow[];
+
+  // Descifrar `diagnostico` de cada receta (Fase C). decryptField hace
+  // passthrough para filas legacy (texto plano antes de la migración).
+  const recetasRows = (recetasRaw ?? []) as RecetaRow[];
+  const recetas: RecetaRow[] = await Promise.all(
+    recetasRows.map(async (r) => ({
+      ...r,
+      diagnostico: await decryptField(r.diagnostico),
+    })),
+  );
   const total = difs.length;
 
   // ---------------- diagnosticosFrecuentes ----------------

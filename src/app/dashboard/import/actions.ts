@@ -17,6 +17,7 @@ import {
   type EntityKey,
   type ColumnMapping,
 } from "@/lib/adaptive-import";
+import { encryptField, searchHash } from "@/lib/encryption";
 
 const entitySchema = z.enum(["pacientes", "recetas", "consultas"]);
 
@@ -294,18 +295,44 @@ async function insertReceta(
 
   if (!item.medicamento) return null;
 
+  // Fase C — cifrar PII + clínicos antes de persistir
+  const diagnosticoStr = (data.diagnostico as string) ?? "";
+  const cie10Str = (data.diagnostico_cie10 as string) ?? "";
+  const indicacionesGeneralesStr =
+    (data.indicaciones_generales as string) ?? "";
+  const [
+    pacienteNombreEnc,
+    apellidoPEnc,
+    apellidoMEnc,
+    diagnosticoEnc,
+    cie10Enc,
+    indicacionesGeneralesEnc,
+  ] = await Promise.all([
+    encryptField(pacienteNombre),
+    encryptField(apellidoP || null),
+    encryptField(apellidoM || null),
+    encryptField(diagnosticoStr),
+    encryptField(cie10Str || null),
+    encryptField(indicacionesGeneralesStr || null),
+  ]);
+  const fullName = [pacienteNombre, apellidoP, apellidoM]
+    .map((s) => (s ?? "").trim())
+    .filter((s) => s.length > 0)
+    .join(" ");
+
   const { data: receta, error } = await supa
     .from("recetas")
     .insert({
       medico_id: userId,
-      paciente_nombre: pacienteNombre,
-      paciente_apellido_paterno: apellidoP,
-      paciente_apellido_materno: apellidoM,
+      paciente_nombre: pacienteNombreEnc,
+      paciente_apellido_paterno: apellidoPEnc,
+      paciente_apellido_materno: apellidoMEnc,
+      paciente_search_hash: searchHash(fullName),
       paciente_edad: (data.paciente_edad as number) ?? null,
       paciente_sexo: (data.paciente_sexo as string) ?? null,
-      diagnostico: (data.diagnostico as string) ?? "",
-      diagnostico_cie10: (data.diagnostico_cie10 as string) ?? "",
-      indicaciones_generales: (data.indicaciones_generales as string) ?? "",
+      diagnostico: diagnosticoEnc,
+      diagnostico_cie10: cie10Enc,
+      indicaciones_generales: indicacionesGeneralesEnc,
       fecha_emision: (data.fecha_emision as string) ?? null,
       status: "borrador",
     })
@@ -315,10 +342,34 @@ async function insertReceta(
   if (error) throw error;
   if (!receta?.id) return null;
 
-  // Insertar item
+  // Cifrar campos clínicos del item
+  const [
+    medicamentoEnc,
+    presentacionEnc,
+    dosisEnc,
+    frecuenciaEnc,
+    duracionEnc,
+    viaEnc,
+    indicacionesEnc,
+  ] = await Promise.all([
+    encryptField(item.medicamento),
+    encryptField(item.presentacion || null),
+    encryptField(item.dosis || null),
+    encryptField(item.frecuencia || null),
+    encryptField(item.duracion || null),
+    encryptField(item.via_administracion || null),
+    encryptField(item.indicaciones || null),
+  ]);
+
   await supa.from("recetas_items").insert({
     receta_id: receta.id,
-    ...item,
+    medicamento: medicamentoEnc,
+    presentacion: presentacionEnc,
+    dosis: dosisEnc,
+    frecuencia: frecuenciaEnc,
+    duracion: duracionEnc,
+    via_administracion: viaEnc,
+    indicaciones: indicacionesEnc,
   });
 
   return receta.id;
