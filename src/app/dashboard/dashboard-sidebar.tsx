@@ -255,6 +255,13 @@ export function DashboardSidebar({
       title: "Admin",
       items: [
         {
+          href: "/admin/smart-hospital-progress",
+          label: "Roadmap progreso",
+          icon: TrendingUp,
+          match: (p) => p.startsWith("/admin/smart-hospital-progress"),
+          admin: true,
+        },
+        {
           href: "/admin/invitaciones",
           label: "Invitaciones",
           icon: ShieldCheck,
