@@ -1,112 +1,59 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, X, Sparkles, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
 import { Eyebrow } from "@/components/eyebrow";
-import { isBillingConfigured, PLANS } from "@/lib/stripe";
-import { CycleToggle } from "./cycle-toggle";
-import { CheckoutButton } from "./checkout-button";
+import { isBillingConfigured } from "@/lib/stripe";
+import { PricingMatrix } from "./pricing-matrix";
 
 export const metadata: Metadata = {
   title: "Planes y precios — LitienGuard",
   description:
-    "Capa de inteligencia clínica que complementa tu EHR — desde el plan gratuito Explorador hasta multi-médico. Sin contratos largos.",
+    "Capa de inteligencia clínica con cerebro MX. Pricing por especialidad, tamaño de consultorio y volumen. Desde médico individual hasta hospital enterprise.",
 };
 
 export const dynamic = "force-dynamic";
 
 type SP = Record<string, string | string[] | undefined>;
 
-const FEATURES_BY_TIER: Record<
-  "free" | "esencial" | "profesional" | "clinica",
-  Array<{ label: string; ok: boolean }>
-> = {
-  free: [
-    { label: "5 notas SOAP al mes", ok: true },
-    { label: "Cerebro lectura — búsqueda en guías clínicas", ok: true },
-    { label: "Scribe ambient con transcripción y SOAP automático", ok: false },
-    { label: "Diferencial diagnóstico", ok: false },
-    { label: "Recetas digitales con estructura NOM-024", ok: false },
-    { label: "Agenda de citas", ok: false },
-  ],
-  esencial: [
-    { label: "100 SOAPs al mes (cargados manual)", ok: true },
-    { label: "Padrón de pacientes + import CSV + recordatorios manuales", ok: true },
-    { label: "Agenda + reservación pública (link tipo Calendly)", ok: true },
-    { label: "Cerebro lectura completo con cita verbatim", ok: true },
-    { label: "Recetas digitales con estructura NOM-024", ok: true },
-    { label: "Odontograma + export PDF", ok: true },
-    { label: "MFA opcional y audit log", ok: true },
-    { label: "Diferencial diagnóstico", ok: false },
-    { label: "Scribe ambient", ok: false },
-    { label: "Recall automático de pacientes inactivos", ok: false },
-    { label: "Soporte correo (48 h)", ok: true },
-  ],
-  profesional: [
-    { label: "300 SOAPs al mes con scribe ambient", ok: true },
-    { label: "Scribe ambient con procesamiento local de audio", ok: true },
-    { label: "Cerebro completo + Q&A con citas verbatim", ok: true },
-    { label: "Diferencial diagnóstico multi-señal con anti-anclaje", ok: true },
-    { label: "Auto-extracción de findings desde texto libre", ok: true },
-    { label: "Recetas, agenda y reservación pública", ok: true },
-    { label: "Padrón de pacientes + recall automático mensual (Q3 2026)", ok: true },
-    { label: "Mi calidad personal — calibración PPV", ok: true },
-    { label: "Soporte correo (24 h)", ok: true },
-  ],
-  clinica: [
-    { label: "Todo lo de Profesional", ok: true },
-    { label: "Notas y citas ilimitadas", ok: true },
-    { label: "Multi-médico con roles personalizados", ok: true },
-    { label: "RCM Copilot (validación pólizas + cobranza · 2027)", ok: true },
-    { label: "Integración con sistemas existentes", ok: true },
-    { label: "SLA 99.5% y soporte dedicado", ok: true },
-    { label: "Onboarding personalizado + capacitación", ok: true },
-    { label: "Arquitectura compatible Reforma LGS 2026 + NOM-024", ok: true },
-  ],
-};
-
 const FAQ = [
   {
+    q: "¿Por qué el cambio de precios?",
+    a: "Después de 6 meses de iteración el stack es mucho más profundo: módulos hospitalarios Cerner-style, critical alerting automático, allergy hard-stop, adaptive importer con IA, cumplimiento documentado AMIA + HIMSS + FDA CDS 2026. El médico que paga obtiene 4× más valor del que recibía al inicio. Usuarios actuales mantienen su precio v1 hasta el primer renovación del 2027 (grandfathering).",
+  },
+  {
     q: "¿Los precios incluyen IVA?",
-    a: "Sí. Todos los precios mostrados son precio final con IVA mexicano (16%) ya incluido. No hay cargos adicionales sorpresa al momento de cobrar.",
+    a: "Sí. Todos los precios mostrados son precio final con IVA mexicano (16%) ya incluido.",
   },
   {
-    q: "¿Cómo se factura?",
-    a: "Cobramos automáticamente mes a mes (o anualmente con 2 meses de descuento) a la tarjeta que registres en Stripe. Puedes cancelar tu suscripción cuando quieras desde tu panel; el acceso continúa hasta el fin del periodo ya pagado.",
+    q: "¿Cómo elijo entre Médico General / Especialista / Dentista?",
+    a: "Médico General: medicina familiar, internista general, urgenciólogo. Especialista: cardiólogo, neurólogo, endocrinólogo, gineco-oncólogo, intensivista, cirujano — cualquier subespecialidad. Dentista: odontología general u especializada. La diferencia de precio refleja qué tanto cerebro especializado + motor de patrones consultas en tu flujo típico.",
   },
   {
-    q: "¿Puedo cambiar de plan después?",
-    a: "Sí. Desde tu panel de facturación puedes subir o bajar de tier con prorrateo automático. El cambio surte efecto inmediato.",
+    q: "¿Cómo se factura el plan Equipo?",
+    a: "Mínimo 2 médicos, máximo 5. Se cobra por médico activo al mes. Si un médico se va, deja de facturarse al siguiente ciclo. Onboarding compartido. Para 6+ médicos en consultorio se recomienda Clínica.",
+  },
+  {
+    q: "¿Qué pasa si exceso los SOAPs incluidos?",
+    a: "Cada SOAP adicional se cobra $5 MXN en Esencial, $4 MXN en Profesional, $3 MXN en Clínica. Ilimitado en Hospital Enterprise. Te avisamos cuando llegues al 80% de tu cuota para que decidas si subes de tier.",
+  },
+  {
+    q: "¿Cómo se factura el plan Clínica?",
+    a: "Base incluye 6 médicos. Cada médico adicional desde el 7° suma $499 MXN/mes en Estándar o $999 MXN/mes en Pro. Hasta 30 médicos. Para 30+ → Hospital Enterprise.",
   },
   {
     q: "¿Aceptan OXXO o transferencias?",
-    a: "Stripe en México acepta tarjetas (crédito y débito nacionales e internacionales) y OXXO Pay. Para SPEI o transferencias directas, contáctanos para planes anuales.",
+    a: "Stripe en México acepta tarjetas (crédito y débito) y OXXO Pay. Para SPEI o transferencias directas, contáctanos para planes anuales o Hospital Enterprise.",
   },
   {
     q: "¿Emiten factura fiscal?",
-    a: "La emisión automatizada de facturas fiscales (CFDI 4.0) se habilita al cierre del piloto, cuando integremos al PAC autorizado por SAT. Mientras tanto, contáctanos al cerrar tu plan y coordinamos la emisión con tu proveedor fiscal o el nuestro.",
+    a: "La emisión automatizada de CFDI 4.0 se habilita al cierre del piloto. Mientras tanto coordinamos manualmente al cierre del plan anual.",
   },
   {
     q: "¿Hay periodo de prueba?",
-    a: "El plan Explorador es gratis indefinidamente (con 5 notas SOAP al mes) — úsalo para probar el sistema antes de comprometerte con un plan pagado.",
+    a: "El plan Explorador es gratis para siempre (5 SOAPs/mes, cerebro lectura básica). Úsalo para conocer el sistema antes de pagar.",
   },
 ];
-
-function priceLabel(plan: "esencial" | "profesional", cycle: "mensual" | "anual"): string {
-  const cfg = PLANS[plan];
-  if (cycle === "anual") {
-    const monthly = Math.round(cfg.annualMxn / 12);
-    return `$${monthly}`;
-  }
-  return `$${cfg.monthlyMxn}`;
-}
-
-function annualSavings(plan: "esencial" | "profesional"): string {
-  const cfg = PLANS[plan];
-  const yearAtMonthly = cfg.monthlyMxn * 12;
-  const saved = yearAtMonthly - cfg.annualMxn;
-  return `Ahorras $${saved} al año`;
-}
 
 export default async function PreciosPage({
   searchParams,
@@ -114,10 +61,6 @@ export default async function PreciosPage({
   searchParams: Promise<SP>;
 }) {
   const params = await searchParams;
-  const cycle: "mensual" | "anual" =
-    typeof params.cycle === "string" && params.cycle === "anual"
-      ? "anual"
-      : "mensual";
   const checkoutCancelled = params.checkout === "cancelled";
   const errorParam = typeof params.error === "string" ? params.error : null;
   const billingEnabled = isBillingConfigured();
@@ -125,7 +68,7 @@ export default async function PreciosPage({
   return (
     <>
       <PageHero
-        eyebrow="Planes y precios"
+        eyebrow="Planes y precios v2"
         title={
           <>
             La inteligencia clínica que{" "}
@@ -135,13 +78,12 @@ export default async function PreciosPage({
             tu sistema actual.
           </>
         }
-        description="LitienGuard convive con tu EHR — no lo reemplaza. Por eso nuestro pricing está pensado como complemento: agrega diferencial diagnóstico, red flags y loop de calidad sin pedirte migrar. Empieza gratis, escala cuando lo necesites."
+        description="Pricing por especialidad, tamaño de consultorio y volumen. Desde médico individual hasta hospital enterprise. Convivimos con tu EHR — no lo reemplazamos."
         variant="alt"
       />
 
       <section className="border-b border-line bg-canvas py-12">
         <div className="lg-shell">
-          {/* Notices */}
           {checkoutCancelled && (
             <div className="mb-8 max-w-2xl rounded-lg border border-warn-soft bg-warn-soft px-4 py-3 text-body-sm text-ink-strong">
               <p className="font-semibold">Cancelaste el checkout</p>
@@ -161,8 +103,7 @@ export default async function PreciosPage({
             <div className="mb-8 max-w-2xl rounded-lg border border-accent-soft bg-accent-soft/50 px-4 py-3 text-body-sm text-ink-strong">
               <p className="font-semibold">Suscripciones próximamente</p>
               <p className="mt-1 text-caption text-ink-muted">
-                Estamos en la última fase de configuración de pagos. Mientras
-                tanto,{" "}
+                Los planes Pricing v2 están en configuración. Mientras tanto,{" "}
                 <Link
                   href="/contacto"
                   className="font-semibold text-accent underline"
@@ -174,89 +115,7 @@ export default async function PreciosPage({
             </div>
           )}
 
-          {/* Cycle toggle */}
-          <div className="mb-10 flex justify-center">
-            <CycleToggle current={cycle} />
-          </div>
-
-          {/* Tier cards */}
-          <div className="grid gap-5 lg:grid-cols-4">
-            {/* Free */}
-            <TierCard
-              name="Explorador"
-              eyebrow="Empieza gratis"
-              price="$0"
-              cycle="para siempre"
-              description="Conoce el sistema sin pagar. Ideal para evaluar antes de comprometerte."
-              features={FEATURES_BY_TIER.free}
-              cta={
-                <Link
-                  href="/contacto#piloto"
-                  className="lg-cta-ghost w-full justify-center"
-                >
-                  Empezar gratis
-                </Link>
-              }
-            />
-
-            {/* Esencial */}
-            <TierCard
-              name="Esencial"
-              eyebrow="Complemento del EHR"
-              price={priceLabel("esencial", cycle)}
-              cycle={cycle === "anual" ? "MXN / mes · pagado anual" : "MXN / mes"}
-              annualNote={cycle === "anual" ? annualSavings("esencial") : null}
-              description="Para el médico que ya usa Nimbo, SaludTotal o cualquier EHR — agrega cerebro clínico curado, recetas NOM-024 y agenda integrada sin migrar nada."
-              features={FEATURES_BY_TIER.esencial}
-              cta={
-                <CheckoutButton
-                  plan="esencial"
-                  cycle={cycle}
-                  enabled={billingEnabled}
-                  label="Suscribirme"
-                />
-              }
-            />
-
-            {/* Profesional (recomendado) */}
-            <TierCard
-              name="Profesional"
-              eyebrow="Recomendado"
-              price={priceLabel("profesional", cycle)}
-              cycle={cycle === "anual" ? "MXN / mes · pagado anual" : "MXN / mes"}
-              annualNote={cycle === "anual" ? annualSavings("profesional") : null}
-              description="Especialista que quiere todo el motor — diferencial diagnóstico, scribe local con procesamiento en consultorio, red flags por síntoma y calibración personal."
-              features={FEATURES_BY_TIER.profesional}
-              highlight
-              cta={
-                <CheckoutButton
-                  plan="profesional"
-                  cycle={cycle}
-                  enabled={billingEnabled}
-                  label="Suscribirme"
-                  variant="primary"
-                />
-              }
-            />
-
-            {/* Clínica */}
-            <TierCard
-              name="Clínica"
-              eyebrow="Multi-médico"
-              price="A medida"
-              cycle="desde $4,999 MXN / mes"
-              description="Clínicas y hospitales privados que necesitan multi-usuario, RCM, integraciones y SLA."
-              features={FEATURES_BY_TIER.clinica}
-              cta={
-                <Link
-                  href="/contacto?plan=clinica"
-                  className="lg-cta-ghost w-full justify-center"
-                >
-                  Hablar con ventas
-                </Link>
-              }
-            />
-          </div>
+          <PricingMatrix billingEnabled={billingEnabled} />
         </div>
       </section>
 
@@ -289,107 +148,17 @@ export default async function PreciosPage({
       <section className="border-b border-line bg-canvas py-14">
         <div className="lg-shell text-center">
           <p className="text-body-sm text-ink-muted">
-            ¿Tienes una clínica con necesidades específicas? Diseñamos un plan
-            a tu medida.
+            ¿Tu clínica u hospital tiene 30+ médicos? Diseñamos un plan
+            Enterprise a tu medida.
           </p>
           <Link
             href="/contacto?plan=enterprise"
             className="lg-cta-primary mt-5 inline-flex"
           >
-            Conversar con el equipo
+            Hablar con ventas — Hospital Enterprise
           </Link>
         </div>
       </section>
     </>
-  );
-}
-
-function TierCard({
-  name,
-  eyebrow,
-  price,
-  cycle,
-  annualNote,
-  description,
-  features,
-  cta,
-  highlight,
-}: {
-  name: string;
-  eyebrow: string;
-  price: string;
-  cycle: string;
-  annualNote?: string | null;
-  description: string;
-  features: Array<{ label: string; ok: boolean }>;
-  cta: React.ReactNode;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`flex h-full flex-col rounded-xl border bg-surface p-6 shadow-soft ${
-        highlight ? "border-validation shadow-deep" : "border-line"
-      }`}
-    >
-      <div className="flex items-center gap-2">
-        <p className="text-caption uppercase tracking-eyebrow text-ink-soft">
-          {eyebrow}
-        </p>
-        {highlight && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-validation-soft px-2 py-0.5 text-caption font-semibold text-validation">
-            <Sparkles className="h-3 w-3" strokeWidth={2.2} />
-            Más elegido
-          </span>
-        )}
-      </div>
-      <h3 className="mt-2 text-h2 font-semibold tracking-tight text-ink-strong">
-        {name}
-      </h3>
-      <div className="mt-4">
-        <p className="text-display font-bold text-ink-strong leading-none">
-          {price}
-        </p>
-        <p className="mt-1 text-caption text-ink-muted">
-          {cycle}
-          {price !== "$0" && price !== "A medida" && (
-            <span className="ml-1 text-ink-soft">· IVA incluido</span>
-          )}
-        </p>
-        {annualNote && (
-          <p className="mt-1 text-caption font-semibold text-validation">
-            {annualNote}
-          </p>
-        )}
-      </div>
-      <p className="mt-4 text-body-sm text-ink-muted leading-relaxed">
-        {description}
-      </p>
-
-      <ul className="mt-6 flex-1 space-y-2">
-        {features.map((f) => (
-          <li
-            key={f.label}
-            className="flex items-start gap-2 text-body-sm"
-          >
-            {f.ok ? (
-              <Check
-                className="mt-0.5 h-4 w-4 shrink-0 text-validation"
-                strokeWidth={2.2}
-              />
-            ) : (
-              <X
-                className="mt-0.5 h-4 w-4 shrink-0 text-ink-quiet"
-                strokeWidth={2.2}
-              />
-            )}
-            <span className={f.ok ? "text-ink-strong" : "text-ink-soft"}>
-              {f.label}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-6">{cta}</div>
-    </div>
   );
 }
