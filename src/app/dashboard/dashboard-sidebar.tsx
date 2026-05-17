@@ -16,6 +16,13 @@ import {
   Calendar,
   Sparkles,
   Users,
+  FlaskConical,
+  Network,
+  TrendingUp,
+  Siren,
+  ClipboardCheck,
+  HeartPulse,
+  ScanLine,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -133,13 +140,15 @@ export function DashboardSidebar({
       ],
     },
     {
-      title: "Conocimiento",
+      title: "Diagnóstico",
       items: [
         {
           href: "/dashboard/cerebro",
           label: "Cerebro",
           icon: BookOpen,
-          match: (p) => p.startsWith("/dashboard/cerebro"),
+          match: (p) =>
+            p.startsWith("/dashboard/cerebro") ||
+            p === "/dashboard/diferencial/patrones",
           locked: !canCerebro,
         },
         ...(showDiferencial
@@ -149,7 +158,33 @@ export function DashboardSidebar({
                 label: "Diferencial",
                 icon: Sparkles,
                 match: (p: string) =>
-                  p.startsWith("/dashboard/diferencial"),
+                  p === "/dashboard/diferencial" ||
+                  p.startsWith("/dashboard/diferencial/calidad") ||
+                  /^\/dashboard\/diferencial\/[^/]+$/.test(p),
+                locked: !canCerebro,
+              } satisfies NavItem,
+              {
+                href: "/dashboard/diferencial/estudios",
+                label: "Motor estudios",
+                icon: FlaskConical,
+                match: (p: string) =>
+                  p.startsWith("/dashboard/diferencial/estudios"),
+                locked: !canCerebro,
+              } satisfies NavItem,
+              {
+                href: "/dashboard/diferencial/patrones",
+                label: "Patrones",
+                icon: Network,
+                match: (p: string) =>
+                  p.startsWith("/dashboard/diferencial/patrones"),
+                locked: !canCerebro,
+              } satisfies NavItem,
+              {
+                href: "/dashboard/diferencial/calidad",
+                label: "Mi calidad",
+                icon: TrendingUp,
+                match: (p: string) =>
+                  p.startsWith("/dashboard/diferencial/calidad"),
                 locked: !canCerebro,
               } satisfies NavItem,
             ]
@@ -157,8 +192,54 @@ export function DashboardSidebar({
       ],
     },
     {
+      title: "Workflows hospitalarios",
+      items: [
+        {
+          href: "/dashboard/urgencias",
+          label: "Urgencias",
+          icon: Siren,
+          match: (p) => p.startsWith("/dashboard/urgencias"),
+          locked: !canCerebro,
+        },
+        {
+          href: "/dashboard/quirofano",
+          label: "Quirófano",
+          icon: ClipboardCheck,
+          match: (p) => p.startsWith("/dashboard/quirofano"),
+          locked: !canCerebro,
+        },
+        {
+          href: "/dashboard/uci",
+          label: "UCI",
+          icon: HeartPulse,
+          match: (p) => p.startsWith("/dashboard/uci"),
+          locked: !canCerebro,
+        },
+        {
+          href: "/dashboard/laboratorio",
+          label: "Laboratorio",
+          icon: FlaskConical,
+          match: (p) => p.startsWith("/dashboard/laboratorio"),
+          locked: !canCerebro,
+        },
+        {
+          href: "/dashboard/radiologia",
+          label: "Radiología",
+          icon: ScanLine,
+          match: (p) => p.startsWith("/dashboard/radiologia"),
+          locked: !canCerebro,
+        },
+      ],
+    },
+    {
       title: "Cuenta",
       items: [
+        {
+          href: "/dashboard/mi-impacto",
+          label: "Mi impacto",
+          icon: TrendingUp,
+          match: (p) => p.startsWith("/dashboard/mi-impacto"),
+        },
         {
           href: "/dashboard/configuracion",
           label: "Configuración",
@@ -199,7 +280,10 @@ export function DashboardSidebar({
   }
 
   return (
-    <aside className="lg:sticky lg:top-[88px] lg:self-start">
+    <aside
+      data-tour-sidebar
+      className="lg:sticky lg:top-[88px] lg:self-start"
+    >
       <div className="rounded-2xl border border-line bg-surface px-3 py-4 shadow-soft">
         <div className="px-3 pb-3">
           <p className="text-caption uppercase tracking-eyebrow text-ink-soft">

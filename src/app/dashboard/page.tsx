@@ -1,37 +1,19 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  FileText,
   Mic,
-  BookOpen,
-  ShieldCheck,
   Plus,
   Lock,
-  Clock,
   Sparkles,
+  FileText,
   ArrowRight,
-  TrendingUp,
-  Brain,
-  Upload,
-  Network,
-  Settings,
-  CreditCard,
-  Users,
-  BarChart3,
-  MessageCircle,
-  Megaphone,
-  FlaskConical,
-  Siren,
-  ClipboardCheck,
-  HeartPulse,
-  ScanLine,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { decryptField } from "@/lib/encryption";
 import { Eyebrow } from "@/components/eyebrow";
-import { NoteStatusBadge } from "@/components/note-status-badge";
 import { AnunciosBanner, type AnuncioItem } from "@/components/anuncios-banner";
+import { WelcomeTour } from "@/components/welcome-tour";
+import { ClinicalMetric } from "@/components/clinical";
 import {
   canUseScribe,
   canUseCerebro,
@@ -55,7 +37,7 @@ type RecentNota = {
   created_at: string;
 };
 
-function snippet(text: string | null, max = 80): string {
+function snippet(text: string | null, max = 70): string {
   if (!text) return "—";
   const clean = text.replace(/\s+/g, " ").trim();
   return clean.length > max ? clean.slice(0, max) + "…" : clean;
@@ -70,7 +52,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("nombre, role, hospital, subscription_tier")
+    .select("nombre, role, hospital, subscription_tier, welcome_tour_completed_at")
     .eq("id", user.id)
     .single();
 
@@ -78,6 +60,7 @@ export default async function DashboardPage() {
   const scribeUnlocked = canUseScribe(tier);
   const cerebroUnlocked = canUseCerebro(tier);
   const isAdmin = profile?.role === "admin";
+  const tourCompleted = Boolean(profile?.welcome_tour_completed_at);
 
   const startOfMonth = new Date();
   startOfMonth.setUTCDate(1);
@@ -97,7 +80,7 @@ export default async function DashboardPage() {
         "id,paciente_iniciales,paciente_nombre,paciente_apellido_paterno,paciente_edad,status,soap_analisis,soap_subjetivo,created_at",
       )
       .order("created_at", { ascending: false })
-      .limit(5),
+      .limit(6),
     supa.from("notas_scribe").select("*", { count: "exact", head: true }),
     supa
       .from("notas_scribe")
@@ -149,12 +132,10 @@ export default async function DashboardPage() {
   const signed = firmadas ?? 0;
   const usedThisMonth = notasMes ?? 0;
   const limit = scribeMonthlyLimit(tier);
-  const usagePct =
-    Number.isFinite(limit) && limit > 0
-      ? Math.min(100, Math.round((usedThisMonth / limit) * 100))
-      : 0;
+  const limitLabel = Number.isFinite(limit)
+    ? `${usedThisMonth} / ${limit}`
+    : `${usedThisMonth}`;
 
-  // CTA primario depende del tier y estado del usuario
   const primaryCta = scribeUnlocked
     ? { href: "/dashboard/scribe", label: "Nueva nota", icon: Plus }
     : tier === "free"
@@ -162,21 +143,24 @@ export default async function DashboardPage() {
       : { href: "/dashboard/notas", label: "Nueva nota", icon: Plus };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {anuncios.length > 0 && <AnunciosBanner anuncios={anuncios} />}
 
       {/* ============================================================
-          Header
+          Header — nombre + meta + CTA primaria
       ============================================================ */}
-      <header className="flex flex-wrap items-start justify-between gap-6">
-        <div>
+      <header
+        data-tour="header"
+        className="flex flex-wrap items-start justify-between gap-4"
+      >
+        <div className="min-w-0">
           <Eyebrow tone="validation">
             {isAdmin ? "Panel admin" : "Panel del médico"}
           </Eyebrow>
-          <h1 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+          <h1 className="mt-2 text-h1 font-semibold tracking-tight text-ink-strong">
             Hola{profile?.nombre ? `, ${profile.nombre.split(" ")[0]}` : ""}.
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-body-sm text-ink-muted">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-caption text-ink-muted">
             <span>{user.email}</span>
             {profile?.hospital && (
               <>
@@ -191,49 +175,49 @@ export default async function DashboardPage() {
             </span>
           </div>
         </div>
-        <Link href={primaryCta.href} className="lg-cta-primary shrink-0">
+        <Link
+          href={primaryCta.href}
+          data-tour="cta-primary"
+          className="lg-cta-primary shrink-0"
+        >
           <primaryCta.icon className="h-4 w-4" />
           {primaryCta.label}
         </Link>
       </header>
 
       {/* ============================================================
-          First-time push — solo si nunca ha hecho nota y tiene scribe
+          Primer empuje cuando aún no hay notas
       ============================================================ */}
       {total === 0 && scribeUnlocked && (
-        <section className="overflow-hidden rounded-2xl border border-validation bg-gradient-to-br from-validation-soft via-surface to-canvas">
+        <section className="overflow-hidden rounded-2xl border border-validation bg-gradient-to-br from-validation-soft/40 via-surface to-canvas">
           <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-validation-soft px-3 py-1 text-caption text-validation">
                 <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
                 Tu primer SOAP en 30 segundos
               </div>
-              <h2 className="mt-3 text-h1 font-semibold tracking-tight text-ink-strong">
+              <h2 className="mt-3 text-h2 font-semibold tracking-tight text-ink-strong">
                 Empieza por la nota.
               </h2>
-              <p className="mt-3 max-w-prose text-body text-ink-muted">
+              <p className="mt-2 max-w-prose text-body-sm text-ink-muted">
                 Graba 30 segundos de una consulta — real o de práctica — y
-                obtén la nota SOAP estructurada con cita verbatim. El resto
-                del cerebro se desbloquea cuando ya entendiste el flujo.
+                obtén la nota SOAP estructurada con cita verbatim.
               </p>
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <Link href="/dashboard/scribe" className="lg-cta-primary group">
-                  <Mic className="h-4 w-4" strokeWidth={2.2} />
-                  Grabar mi primera consulta
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    strokeWidth={2.2}
-                  />
-                </Link>
-                <span className="inline-flex items-center gap-1.5 text-caption text-ink-soft">
-                  <Clock className="h-3.5 w-3.5" strokeWidth={2.2} />
-                  Transcribe + estructura en ~13 segundos
-                </span>
-              </div>
+              <Link
+                href="/dashboard/scribe"
+                className="lg-cta-primary mt-4 inline-flex items-center gap-2 group"
+              >
+                <Mic className="h-4 w-4" strokeWidth={2.2} />
+                Grabar mi primera consulta
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  strokeWidth={2.2}
+                />
+              </Link>
             </div>
             <div className="hidden lg:block">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-validation text-canvas shadow-lift">
-                <Mic className="h-10 w-10" strokeWidth={2} />
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-validation text-canvas shadow-lift">
+                <Mic className="h-8 w-8" strokeWidth={2} />
               </div>
             </div>
           </div>
@@ -241,52 +225,43 @@ export default async function DashboardPage() {
       )}
 
       {/* ============================================================
-          Stats compactos — barra horizontal con dividers
+          KPI row — F-pattern top row (NN/g)
       ============================================================ */}
-      <section className="grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-surface">
-        <StatInline label="Notas totales" value={total.toLocaleString("es-MX")} />
-        <StatInline
+      <section data-tour="kpis" className="grid gap-3 sm:grid-cols-3">
+        <ClinicalMetric
+          label="Notas totales"
+          value={total.toLocaleString("es-MX")}
+          icon={FileText}
+        />
+        <ClinicalMetric
           label="Firmadas"
           value={signed.toLocaleString("es-MX")}
-          tone="validation"
+          deltaInterpretation="good"
+          caption={`${total > 0 ? Math.round((signed / total) * 100) : 0}% del total`}
         />
-        <StatInline
+        <ClinicalMetric
           label="Este mes"
-          value={
-            Number.isFinite(limit)
-              ? `${usedThisMonth} / ${limit}`
-              : `${usedThisMonth}`
-          }
-          progressPct={Number.isFinite(limit) && limit > 0 ? usagePct : null}
+          value={limitLabel}
+          caption={Number.isFinite(limit) ? `límite ${limit}` : "ilimitado"}
         />
       </section>
 
       {/* ============================================================
-          SECCIÓN 1 — Tu día (quick actions)
+          Tu día — 3 quick actions (no más)
       ============================================================ */}
-      <section>
+      <section data-tour="quick-actions">
         <Eyebrow>Tu día</Eyebrow>
-        <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
-          ¿Qué necesitas ahora?
-        </h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <QuickAction
             icon={Mic}
             title="Nueva nota"
             description="Graba consulta · SOAP en segundos"
             href={scribeUnlocked ? "/dashboard/scribe" : "/dashboard/notas"}
-            primary={scribeUnlocked}
             locked={!scribeUnlocked}
+            primary
           />
           <QuickAction
             icon={Sparkles}
-            title="Pegar nota clínica"
-            description="Analiza una nota de otro sistema"
-            href="/dashboard/cerebro/analizar"
-            locked={!cerebroUnlocked}
-          />
-          <QuickAction
-            icon={Brain}
             title="Diferencial diagnóstico"
             description="Confronta tu hipótesis con el motor"
             href="/dashboard/diferencial"
@@ -294,293 +269,105 @@ export default async function DashboardPage() {
           />
           <QuickAction
             icon={FileText}
-            title="Mis notas"
-            description={`${total} ${total === 1 ? "nota" : "notas"} · historial completo`}
-            href="/dashboard/notas"
+            title="Mis consultas"
+            description={`${total} ${total === 1 ? "nota" : "notas"}`}
+            href="/dashboard/consultas"
           />
         </div>
       </section>
 
       {/* ============================================================
-          SECCIÓN 2 — Últimas notas (subió de posición)
+          Actividad reciente — tabla densa (F-pattern bottom row)
       ============================================================ */}
       {recentRows.length > 0 && (
-        <section>
-          <div className="flex items-center justify-between">
+        <section data-tour="recent">
+          <div className="flex items-baseline justify-between">
             <Eyebrow>Actividad reciente</Eyebrow>
             <Link
-              href="/dashboard/notas"
+              href="/dashboard/consultas"
               className="text-caption font-medium text-ink-muted hover:text-ink-strong"
             >
               Ver todas →
             </Link>
           </div>
-          <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
-            Últimas notas
-          </h2>
-          <div className="mt-4 space-y-2">
-            {recentRows.map((n) => {
-              const fullName = [n.paciente_nombre, n.paciente_apellido_paterno]
-                .filter((v): v is string => Boolean(v && v.trim()))
-                .join(" ");
-              const identifier =
-                fullName || n.paciente_iniciales || "Sin nombre";
-              const ctx = [
-                identifier,
-                n.paciente_edad != null ? `${n.paciente_edad}a` : null,
-              ]
-                .filter(Boolean)
-                .join(" · ");
-              return (
-                <Link
-                  key={n.id}
-                  href={`/dashboard/notas/${n.id}`}
-                  className="block rounded-xl border border-line bg-surface px-5 py-4 transition-all hover:border-line-strong hover:shadow-soft"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-body-sm font-semibold text-ink-strong">
+          <div className="mt-3 overflow-hidden rounded-xl border border-line bg-surface">
+            <table className="w-full text-body-sm">
+              <thead className="bg-surface-alt">
+                <tr>
+                  <Th>Paciente</Th>
+                  <Th>Status</Th>
+                  <Th className="w-full">Resumen</Th>
+                  <Th className="text-right">Fecha</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentRows.map((n) => {
+                  const fullName = [
+                    n.paciente_nombre,
+                    n.paciente_apellido_paterno,
+                  ]
+                    .filter((v): v is string => Boolean(v && v.trim()))
+                    .join(" ");
+                  const identifier =
+                    fullName || n.paciente_iniciales || "Sin nombre";
+                  const ctx = [
+                    identifier,
+                    n.paciente_edad != null ? `${n.paciente_edad}a` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ");
+                  return (
+                    <tr
+                      key={n.id}
+                      className="border-t border-line-soft hover:bg-surface-alt/40"
+                    >
+                      <td className="px-3 py-2.5">
+                        <Link
+                          href={`/dashboard/notas/${n.id}`}
+                          className="font-semibold text-ink-strong hover:underline"
+                        >
                           {ctx || "Sin contexto"}
-                        </span>
-                        <NoteStatusBadge status={n.status} />
-                      </div>
-                      <p className="mt-1.5 text-body-sm text-ink-muted">
+                        </Link>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <StatusPill status={n.status} />
+                      </td>
+                      <td className="px-3 py-2.5 text-ink-muted">
                         {snippet(n.soap_analisis || n.soap_subjetivo)}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-caption text-ink-soft">
-                      {new Date(n.created_at).toLocaleDateString("es-MX", {
-                        day: "2-digit",
-                        month: "short",
-                      })}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+                      </td>
+                      <td className="px-3 py-2.5 text-right text-caption tabular-nums text-ink-soft">
+                        {new Date(n.created_at).toLocaleDateString("es-MX", {
+                          day: "2-digit",
+                          month: "short",
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </section>
       )}
 
       {/* ============================================================
-          SECCIÓN 3 — Herramientas del cerebro
+          Tour interactivo opcional
       ============================================================ */}
-      <section>
-        <Eyebrow tone="validation">Cerebro clínico</Eyebrow>
-        <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
-          Lo que el cerebro puede hacer
-        </h2>
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <ToolCard
-            icon={BookOpen}
-            title="Buscar en guías"
-            description="Consulta el cerebro clínico curado con cita verbatim a la fuente original."
-            href="/dashboard/cerebro"
-            locked={!cerebroUnlocked}
-          />
-          <ToolCard
-            icon={Network}
-            title="Patrones clínicos"
-            description="Patrones detectados desde tu propia práctica y referencia académica curada."
-            href="/dashboard/diferencial/patrones"
-            locked={!cerebroUnlocked}
-          />
-          <ToolCard
-            icon={FlaskConical}
-            title="Motor de estudios"
-            description="Cruza estudios diagnósticos (imagen, lab, endoscopia, EKG, biopsia) y detecta patrones complejos multi-variables."
-            href="/dashboard/diferencial/estudios"
-            locked={!cerebroUnlocked}
-            badge="Nuevo"
-          />
-          <ToolCard
-            icon={Upload}
-            title="Importar desde papel u otro EHR"
-            description="Fotos, archivos HL7 v2 o CDA XML. El cerebro extrae estructura clínica."
-            href="/dashboard/importar-papel"
-            locked={!scribeUnlocked}
-            badge="Nuevo"
-          />
-          <ToolCard
-            icon={TrendingUp}
-            title="Mi calidad"
-            description="PPV personal, override patterns y calibración de tu práctica."
-            href="/dashboard/diferencial/calidad"
-            locked={!cerebroUnlocked}
-          />
-        </div>
-      </section>
-
-      {/* ============================================================
-          SECCIÓN 3.5 — Workflows hospitalarios (módulos enterprise)
-      ============================================================ */}
-      <section>
-        <Eyebrow tone="warn">Workflows hospitalarios</Eyebrow>
-        <h2 className="mt-2 text-h3 font-semibold tracking-tight text-ink-strong">
-          Módulos operacionales por departamento
-        </h2>
-        <p className="mt-1 text-caption text-ink-muted max-w-prose">
-          Triage, protocolos críticos de urgencias, time-out quirúrgico,
-          calculadora SOFA y peticiones de laboratorio / imagen.
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <ModuloCard
-            icon={Siren}
-            title="Urgencias"
-            subtitle="Triage + protocolos críticos"
-            href="/dashboard/urgencias"
-            locked={!cerebroUnlocked}
-            tone="rose"
-          />
-          <ModuloCard
-            icon={ClipboardCheck}
-            title="Quirófano"
-            subtitle="WHO time-out checklist"
-            href="/dashboard/quirofano"
-            locked={!cerebroUnlocked}
-            tone="validation"
-          />
-          <ModuloCard
-            icon={HeartPulse}
-            title="UCI"
-            subtitle="SOFA · seguimiento"
-            href="/dashboard/uci"
-            locked={!cerebroUnlocked}
-            tone="rose"
-          />
-          <ModuloCard
-            icon={FlaskConical}
-            title="Laboratorio"
-            subtitle="Peticiones + resultados"
-            href="/dashboard/laboratorio"
-            locked={!cerebroUnlocked}
-            tone="validation"
-          />
-          <ModuloCard
-            icon={ScanLine}
-            title="Radiología"
-            subtitle="Imagen + reportes"
-            href="/dashboard/radiologia"
-            locked={!cerebroUnlocked}
-            tone="accent"
-          />
-        </div>
-      </section>
-
-      {/* ============================================================
-          SECCIÓN 4 — Avanzado / cuenta
-      ============================================================ */}
-      <section>
-        <Eyebrow>Cuenta y opciones</Eyebrow>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <CompactCard
-            icon={TrendingUp}
-            title="Mi impacto"
-            description="Tu contribución al cerebro colectivo"
-            href="/dashboard/mi-impacto"
-          />
-          <CompactCard
-            icon={Settings}
-            title="Configuración"
-            description="Perfil, consultorio y preferencias"
-            href="/dashboard/configuracion"
-          />
-          <CompactCard
-            icon={CreditCard}
-            title="Mi plan"
-            description={`${TIER_LABELS[tier]} · cambiar suscripción`}
-            href="/dashboard/mi-plan"
-          />
-        </div>
-      </section>
-
-      {/* ============================================================
-          SECCIÓN 5 — Admin (solo admin)
-      ============================================================ */}
-      {isAdmin && (
-        <section>
-          <Eyebrow tone="warn">Administración</Eyebrow>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <CompactCard
-              icon={Users}
-              title="Invitaciones"
-              description="Pilote control"
-              href="/admin/invitaciones"
-            />
-            <CompactCard
-              icon={BarChart3}
-              title="Uso plataforma"
-              description="Métricas de doctores activos"
-              href="/admin/uso"
-            />
-            <CompactCard
-              icon={MessageCircle}
-              title="Feedback"
-              description="Bugs y sugerencias"
-              href="/admin/feedback"
-            />
-            <CompactCard
-              icon={Megaphone}
-              title="Anuncios"
-              description="Comunicar novedades"
-              href="/admin/anuncios"
-            />
-          </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <CompactCard
-              icon={ShieldCheck}
-              title="Validación cerebro"
-              description="Benchmarks técnicos"
-              href="/admin/validacion"
-            />
-            <CompactCard
-              icon={BookOpen}
-              title="Curar cerebro"
-              description="Editar fragmentos curados"
-              href="/admin/cerebro"
-            />
-          </div>
-        </section>
+      {!tourCompleted && total > 0 && (
+        <WelcomeTour autoStart={false} />
+      )}
+      {/* Auto-start tour solo si nunca lo completó Y aún no tiene notas: la
+          mejor primera experiencia incluye walkthrough antes de empezar. */}
+      {!tourCompleted && total === 0 && (
+        <WelcomeTour autoStart={true} />
       )}
     </div>
   );
 }
 
-// =====================================================================
-// Subcomponents
-// =====================================================================
-
-function StatInline({
-  label,
-  value,
-  tone,
-  progressPct,
-}: {
-  label: string;
-  value: string;
-  tone?: "validation";
-  progressPct?: number | null;
-}) {
-  const valueClass =
-    tone === "validation" ? "text-validation" : "text-ink-strong";
-  return (
-    <div className="px-4 py-3 sm:px-5 sm:py-4">
-      <p className="text-caption text-ink-muted">{label}</p>
-      <p className={`mt-1 text-h2 font-semibold tabular-nums ${valueClass}`}>
-        {value}
-      </p>
-      {progressPct !== null && progressPct !== undefined && (
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-surface-alt">
-          <div
-            className="h-full rounded-full bg-validation transition-all"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
+/* ============================================================
+   Subcomponents
+   ============================================================ */
 
 function QuickAction({
   icon: Icon,
@@ -590,7 +377,7 @@ function QuickAction({
   primary,
   locked,
 }: {
-  icon: LucideIcon;
+  icon: typeof Mic;
   title: string;
   description: string;
   href: string;
@@ -616,11 +403,9 @@ function QuickAction({
       </div>
     );
   }
-
   const classes = primary
-    ? "lg-card border-validation bg-validation-soft/30 hover:border-validation hover:shadow-lift transition-all"
+    ? "lg-card border-validation/60 bg-validation-soft/20 hover:border-validation hover:shadow-lift transition-all"
     : "lg-card hover:border-line-strong hover:shadow-soft transition-all";
-
   return (
     <Link href={href} className={classes}>
       <div className="flex items-center gap-2">
@@ -641,158 +426,37 @@ function QuickAction({
   );
 }
 
-function ToolCard({
-  icon: Icon,
-  title,
-  description,
-  href,
-  locked,
-  badge,
+function Th({
+  children,
+  className,
 }: {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  href: string;
-  locked?: boolean;
-  badge?: string;
+  children: React.ReactNode;
+  className?: string;
 }) {
-  if (locked) {
-    return (
-      <div className="lg-card opacity-70">
-        <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-surface-alt p-2 text-ink-quiet">
-            <Lock className="h-5 w-5" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-h3 font-semibold tracking-tight text-ink-strong">
-              {title}
-            </h3>
-            <p className="mt-1 text-body-sm text-ink-muted leading-relaxed">
-              {description}
-            </p>
-            <Link
-              href="/precios"
-              className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-warn hover:underline"
-            >
-              Plan requerido →
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <Link
-      href={href}
-      className="lg-card group transition-all hover:border-validation hover:shadow-lift"
+    <th
+      className={`px-3 py-2 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-soft ${className ?? ""}`}
     >
-      <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-validation-soft p-2 text-validation">
-          <Icon className="h-5 w-5" strokeWidth={2} />
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-h3 font-semibold tracking-tight text-ink-strong">
-              {title}
-            </h3>
-            {badge && (
-              <span className="inline-flex items-center rounded-full bg-validation-soft px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-eyebrow text-validation">
-                {badge}
-              </span>
-            )}
-          </div>
-          <p className="mt-1 text-body-sm text-ink-muted leading-relaxed">
-            {description}
-          </p>
-        </div>
-      </div>
-    </Link>
+      {children}
+    </th>
   );
 }
 
-function ModuloCard({
-  icon: Icon,
-  title,
-  subtitle,
-  href,
-  locked,
-  tone,
-}: {
-  icon: LucideIcon;
-  title: string;
-  subtitle: string;
-  href: string;
-  locked?: boolean;
-  tone: "rose" | "validation" | "warn" | "accent";
-}) {
-  const toneClasses: Record<
-    "rose" | "validation" | "warn" | "accent",
-    { text: string; bg: string }
-  > = {
-    rose: { text: "text-rose", bg: "bg-rose-soft" },
-    validation: { text: "text-validation", bg: "bg-validation-soft" },
-    warn: { text: "text-warn", bg: "bg-warn-soft" },
-    accent: { text: "text-accent", bg: "bg-accent-soft" },
-  };
-  const c = toneClasses[tone];
-
-  if (locked) {
-    return (
-      <div className="lg-card opacity-60">
-        <div className="flex items-center gap-2 text-ink-quiet">
-          <Lock className="h-4 w-4" strokeWidth={2} />
-          <p className="text-body-sm font-semibold">{title}</p>
-        </div>
-        <p className="mt-1 text-caption text-ink-muted">{subtitle}</p>
-        <Link
-          href="/precios"
-          className="mt-2 inline-flex items-center gap-1 text-caption font-semibold text-warn hover:underline"
-        >
-          Plan requerido →
-        </Link>
-      </div>
-    );
-  }
-
+function StatusPill({ status }: { status: RecentNota["status"] }) {
+  const map = {
+    firmada: { label: "Firmada", classes: "bg-code-green-bg text-code-green" },
+    borrador: { label: "Borrador", classes: "bg-warn-soft text-warn" },
+    descartada: {
+      label: "Descartada",
+      classes: "bg-surface-alt text-ink-quiet",
+    },
+  } as const;
+  const def = map[status];
   return (
-    <Link
-      href={href}
-      className="lg-card group transition-all hover:border-line-strong hover:shadow-lift"
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-semibold ${def.classes}`}
     >
-      <div className={`inline-flex rounded-lg ${c.bg} p-2 ${c.text}`}>
-        <Icon className="h-5 w-5" strokeWidth={2} />
-      </div>
-      <p className="mt-2 text-body-sm font-semibold text-ink-strong">{title}</p>
-      <p className="mt-0.5 text-caption text-ink-muted">{subtitle}</p>
-    </Link>
-  );
-}
-
-function CompactCard({
-  icon: Icon,
-  title,
-  description,
-  href,
-}: {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex items-start gap-3 rounded-lg border border-line bg-surface px-4 py-3 transition-colors hover:border-line-strong hover:bg-surface-alt"
-    >
-      <Icon
-        className="mt-0.5 h-4 w-4 shrink-0 text-ink-quiet group-hover:text-ink-strong"
-        strokeWidth={2}
-      />
-      <div className="min-w-0 flex-1">
-        <p className="text-body-sm font-semibold text-ink-strong">{title}</p>
-        <p className="text-caption text-ink-muted truncate">{description}</p>
-      </div>
-    </Link>
+      {def.label}
+    </span>
   );
 }
