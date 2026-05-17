@@ -20,6 +20,7 @@ import {
   BarChart3,
   MessageCircle,
   Megaphone,
+  FlaskConical,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
@@ -379,6 +380,13 @@ export default async function DashboardPage() {
             title="Patrones clínicos"
             description="Patrones detectados desde tu propia práctica y referencia académica curada."
             href="/dashboard/diferencial/patrones"
+            locked={!cerebroUnlocked}
+          />
+          <ToolCard
+            icon={FlaskConical}
+            title="Motor de estudios"
+            description="Cruza estudios diagnósticos (imagen, lab, endoscopia, EKG, biopsia) y detecta patrones complejos multi-variables."
+            href="/dashboard/diferencial/estudios"
             locked={!cerebroUnlocked}
             badge="Nuevo"
           />
