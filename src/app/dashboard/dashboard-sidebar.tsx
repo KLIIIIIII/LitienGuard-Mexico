@@ -23,6 +23,10 @@ import {
   ClipboardCheck,
   HeartPulse,
   ScanLine,
+  Heart,
+  Brain,
+  Activity,
+  Droplet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -72,9 +76,9 @@ export function DashboardSidebar({
   const pathname = usePathname();
   void showRcm; // reservado para items futuros RCM si se agregan al sidebar
 
-  // Agrupar items por contexto. Mi plan / Facturación / Seguridad /
-  // Refiere / Exportar quedaron consolidados dentro de Configuración
-  // — sus pages siguen existiendo pero se acceden desde ahí.
+  // Sidebar organizado por departamento — coherente con un hospital
+  // real. Mi plan / Facturación / Seguridad / Refiere / Exportar
+  // quedaron consolidados dentro de Configuración.
   const grupos: NavGroup[] = [
     {
       title: "",
@@ -140,7 +144,7 @@ export function DashboardSidebar({
       ],
     },
     {
-      title: "Diagnóstico",
+      title: "Inteligencia clínica",
       items: [
         {
           href: "/dashboard/cerebro",
@@ -192,7 +196,7 @@ export function DashboardSidebar({
       ],
     },
     {
-      title: "Workflows hospitalarios",
+      title: "Áreas críticas",
       items: [
         {
           href: "/dashboard/urgencias",
@@ -202,19 +206,24 @@ export function DashboardSidebar({
           locked: !canCerebro,
         },
         {
-          href: "/dashboard/quirofano",
-          label: "Quirófano",
-          icon: ClipboardCheck,
-          match: (p) => p.startsWith("/dashboard/quirofano"),
-          locked: !canCerebro,
-        },
-        {
           href: "/dashboard/uci",
           label: "UCI",
           icon: HeartPulse,
           match: (p) => p.startsWith("/dashboard/uci"),
           locked: !canCerebro,
         },
+        {
+          href: "/dashboard/quirofano",
+          label: "Quirófano",
+          icon: ClipboardCheck,
+          match: (p) => p.startsWith("/dashboard/quirofano"),
+          locked: !canCerebro,
+        },
+      ],
+    },
+    {
+      title: "Apoyo diagnóstico",
+      items: [
         {
           href: "/dashboard/laboratorio",
           label: "Laboratorio",
@@ -227,6 +236,39 @@ export function DashboardSidebar({
           label: "Radiología",
           icon: ScanLine,
           match: (p) => p.startsWith("/dashboard/radiologia"),
+          locked: !canCerebro,
+        },
+      ],
+    },
+    {
+      title: "Especialidades",
+      items: [
+        {
+          href: "/dashboard/cardiologia",
+          label: "Cardiología",
+          icon: Heart,
+          match: (p) => p.startsWith("/dashboard/cardiologia"),
+          locked: !canCerebro,
+        },
+        {
+          href: "/dashboard/neurologia",
+          label: "Neurología",
+          icon: Brain,
+          match: (p) => p.startsWith("/dashboard/neurologia"),
+          locked: !canCerebro,
+        },
+        {
+          href: "/dashboard/oncologia",
+          label: "Oncología",
+          icon: Activity,
+          match: (p) => p.startsWith("/dashboard/oncologia"),
+          locked: !canCerebro,
+        },
+        {
+          href: "/dashboard/endocrinologia",
+          label: "Endocrinología",
+          icon: Droplet,
+          match: (p) => p.startsWith("/dashboard/endocrinologia"),
           locked: !canCerebro,
         },
       ],

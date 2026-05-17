@@ -3,7 +3,11 @@ export type ModuloHospital =
   | "quirofano"
   | "uci"
   | "laboratorio"
-  | "radiologia";
+  | "radiologia"
+  | "cardiologia"
+  | "neurologia"
+  | "oncologia"
+  | "endocrinologia";
 
 export type EventoStatus = "activo" | "completado" | "cancelado";
 
@@ -27,7 +31,33 @@ export const MODULO_LABELS: Record<ModuloHospital, string> = {
   uci: "UCI",
   laboratorio: "Laboratorio",
   radiologia: "Radiología",
+  cardiologia: "Cardiología",
+  neurologia: "Neurología",
+  oncologia: "Oncología",
+  endocrinologia: "Endocrinología",
 };
+
+export const CARDIOLOGIA_TIPOS = {
+  heart_score: "heart_score",
+  grace: "grace",
+  chads_vasc: "chads_vasc",
+} as const;
+
+export const NEUROLOGIA_TIPOS = {
+  nihss: "nihss",
+  glasgow: "glasgow",
+  mini_mental: "mini_mental",
+} as const;
+
+export const ONCOLOGIA_TIPOS = {
+  ecog: "ecog",
+  karnofsky: "karnofsky",
+} as const;
+
+export const ENDOCRINOLOGIA_TIPOS = {
+  hba1c_control: "hba1c_control",
+  framingham_dm: "framingham_dm",
+} as const;
 
 export const URGENCIAS_TIPOS = {
   triage: "triage",
