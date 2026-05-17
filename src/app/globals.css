@@ -2,6 +2,161 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================================================
+   Design tokens — Light theme (default)
+   Mantenido compatible con código existente (mismos nombres).
+   ================================================================ */
+:root {
+  /* Surfaces */
+  --canvas: 251 250 246;          /* #FBFAF6 */
+  --surface: 255 255 255;         /* #FFFFFF */
+  --surface-alt: 244 242 235;     /* #F4F2EB */
+  --surface-deep: 236 233 223;    /* #ECE9DF */
+  --surface-elevated: 255 255 255; /* idem surface light */
+
+  /* Ink */
+  --ink: 31 30 27;                /* #1F1E1B */
+  --ink-strong: 44 43 39;         /* #2C2B27 */
+  --ink-muted: 87 85 79;          /* #57554F */
+  --ink-soft: 139 136 127;        /* #8B887F */
+  --ink-quiet: 181 178 168;       /* #B5B2A8 */
+
+  /* Lines */
+  --line: 229 226 218;            /* #E5E2DA */
+  --line-soft: 239 236 227;       /* #EFECE3 */
+  --line-strong: 201 196 184;     /* #C9C4B8 */
+
+  /* Accent (deep slate blue) */
+  --accent: 45 62 80;             /* #2D3E50 */
+  --accent-deep: 31 45 61;        /* #1F2D3D */
+  --accent-soft: 232 236 240;     /* #E8ECF0 */
+
+  /* Semantic */
+  --validation: 74 107 91;        /* #4A6B5B */
+  --validation-soft: 229 237 232; /* #E5EDE8 */
+  --warn: 139 107 58;             /* #8B6B3A */
+  --warn-soft: 240 233 220;       /* #F0E9DC */
+  --rose: 142 74 82;              /* #8E4A52 */
+  --rose-soft: 240 225 226;       /* #F0E1E2 */
+
+  /* Critical clinical states (added in design system v2) */
+  --code-red: 178 50 50;          /* sepsis / código stroke / código IAM */
+  --code-red-bg: 246 220 220;
+  --code-amber: 184 130 50;
+  --code-amber-bg: 246 232 200;
+  --code-green: 74 130 95;
+  --code-green-bg: 220 240 228;
+
+  /* Shadows — light */
+  --shadow-soft: 0 1px 2px rgba(31, 30, 27, 0.04), 0 4px 14px rgba(31, 30, 27, 0.04);
+  --shadow-lift: 0 6px 24px rgba(31, 30, 27, 0.08), 0 2px 6px rgba(31, 30, 27, 0.04);
+  --shadow-deep: 0 18px 48px rgba(31, 30, 27, 0.12), 0 4px 12px rgba(31, 30, 27, 0.06);
+  --shadow-glass: 0 12px 36px rgba(31, 30, 27, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* Logo fill (used by top-bar SVG) */
+  --logo-fill: #1F1E1B;
+
+  color-scheme: light;
+}
+
+/* ================================================================
+   Design tokens — Dark theme
+   Linear-inspired: deep navy with brighter accents.
+   ================================================================ */
+[data-theme="dark"] {
+  /* Surfaces */
+  --canvas: 11 15 20;             /* #0B0F14 */
+  --surface: 17 22 29;            /* #11161D */
+  --surface-alt: 22 28 36;        /* #161C24 */
+  --surface-deep: 28 35 44;       /* #1C232C */
+  --surface-elevated: 27 34 42;   /* slight lift on dark */
+
+  /* Ink */
+  --ink: 232 235 240;             /* #E8EBF0 */
+  --ink-strong: 244 246 250;      /* #F4F6FA */
+  --ink-muted: 168 176 188;       /* #A8B0BC */
+  --ink-soft: 107 114 128;        /* #6B7280 */
+  --ink-quiet: 75 85 99;          /* #4B5563 */
+
+  /* Lines */
+  --line: 31 39 48;               /* #1F2730 */
+  --line-soft: 42 51 64;          /* #2A3340 */
+  --line-strong: 58 68 81;        /* #3A4451 */
+
+  /* Accent (brighter blue for dark) */
+  --accent: 91 164 224;           /* #5BA4E0 */
+  --accent-deep: 74 143 200;      /* #4A8FC8 */
+  --accent-soft: 26 40 55;        /* #1A2837 */
+
+  /* Semantic — brighter on dark for legibility */
+  --validation: 111 168 135;      /* #6FA887 */
+  --validation-soft: 21 41 31;    /* #15291F */
+  --warn: 192 144 96;             /* #C09060 */
+  --warn-soft: 45 35 23;          /* #2D2317 */
+  --rose: 197 117 128;            /* #C57580 */
+  --rose-soft: 45 26 28;          /* #2D1A1C */
+
+  /* Critical clinical states */
+  --code-red: 235 100 110;
+  --code-red-bg: 50 20 25;
+  --code-amber: 220 165 80;
+  --code-amber-bg: 50 35 18;
+  --code-green: 111 168 135;
+  --code-green-bg: 18 36 26;
+
+  /* Shadows — dark (heavier, less elevation contrast) */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.25);
+  --shadow-lift: 0 6px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-deep: 0 18px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-glass: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  --logo-fill: #F4F6FA;
+
+  color-scheme: dark;
+}
+
+/* ================================================================
+   Auto dark mode (system) — only applied when user has not chosen
+   ================================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --canvas: 11 15 20;
+    --surface: 17 22 29;
+    --surface-alt: 22 28 36;
+    --surface-deep: 28 35 44;
+    --surface-elevated: 27 34 42;
+    --ink: 232 235 240;
+    --ink-strong: 244 246 250;
+    --ink-muted: 168 176 188;
+    --ink-soft: 107 114 128;
+    --ink-quiet: 75 85 99;
+    --line: 31 39 48;
+    --line-soft: 42 51 64;
+    --line-strong: 58 68 81;
+    --accent: 91 164 224;
+    --accent-deep: 74 143 200;
+    --accent-soft: 26 40 55;
+    --validation: 111 168 135;
+    --validation-soft: 21 41 31;
+    --warn: 192 144 96;
+    --warn-soft: 45 35 23;
+    --rose: 197 117 128;
+    --rose-soft: 45 26 28;
+    --code-red: 235 100 110;
+    --code-red-bg: 50 20 25;
+    --code-amber: 220 165 80;
+    --code-amber-bg: 50 35 18;
+    --code-green: 111 168 135;
+    --code-green-bg: 18 36 26;
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.25);
+    --shadow-lift: 0 6px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+    --shadow-deep: 0 18px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-glass: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --logo-fill: #F4F6FA;
+    color-scheme: dark;
+  }
+}
+
 @layer base {
   html {
     font-feature-settings: "ss01", "cv11";
@@ -13,17 +168,26 @@
     @apply bg-canvas font-sans text-ink;
     font-size: 0.94rem;
     line-height: 1.6;
+    transition: background-color 200ms ease, color 200ms ease;
   }
 
   ::selection {
-    background: #4a6b5b;
-    color: #fbfaf6;
+    background: rgb(var(--validation));
+    color: rgb(var(--canvas));
   }
 
   *:focus-visible {
-    outline: 2px solid #2d3e50;
+    outline: 2px solid rgb(var(--accent));
     outline-offset: 2px;
     border-radius: 4px;
+  }
+
+  /* Tabular numbers for clinical metrics by default */
+  .tabular-nums,
+  table,
+  .num,
+  [data-num] {
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -31,15 +195,12 @@
   .lg-eyebrow {
     @apply text-eyebrow font-semibold uppercase tracking-eyebrow text-ink-soft;
   }
-
   .lg-eyebrow-validation {
     @apply text-eyebrow font-semibold uppercase tracking-eyebrow text-validation;
   }
-
   .lg-eyebrow-accent {
     @apply text-eyebrow font-semibold uppercase tracking-eyebrow text-accent;
   }
-
   .lg-eyebrow-warn {
     @apply text-eyebrow font-semibold uppercase tracking-eyebrow text-warn;
   }
@@ -57,7 +218,7 @@
   }
 
   .lg-cta-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-accent px-5 py-2.5 text-body-sm font-medium text-canvas shadow-soft transition-all duration-200 ease-out-quint hover:bg-accent-deep hover:shadow-lift focus-visible:outline-validation;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-accent px-5 py-2.5 text-body-sm font-medium text-canvas shadow-soft transition-all duration-200 ease-out-quint hover:bg-accent-deep hover:shadow-lift;
   }
 
   .lg-cta-ghost {
@@ -70,6 +231,27 @@
 
   .lg-input {
     @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-body text-ink placeholder:text-ink-quiet focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-soft;
+  }
+
+  /* Clinical density helpers (added v2) */
+  .clinical-card {
+    @apply rounded-xl border border-line bg-surface p-4 shadow-soft;
+  }
+
+  .clinical-table {
+    @apply w-full border-collapse text-body-sm;
+  }
+  .clinical-table thead {
+    @apply sticky top-0 z-10 bg-surface-alt;
+  }
+  .clinical-table th {
+    @apply border-b border-line px-3 py-2 text-left text-caption font-semibold uppercase tracking-eyebrow text-ink-soft;
+  }
+  .clinical-table td {
+    @apply border-b border-line-soft px-3 py-2 text-ink-strong;
+  }
+  .clinical-table tr:hover td {
+    @apply bg-surface-alt/40;
   }
 }
 

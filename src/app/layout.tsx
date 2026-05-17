@@ -10,6 +10,7 @@ import { PWAInstallBanner } from "@/components/pwa-install-banner";
 import { FeedbackFab } from "@/components/feedback-fab";
 import { ErrorReporter } from "@/components/error-reporter";
 import { ReferralCapture } from "@/components/referral-capture";
+import { ThemeProvider, themeInitScript } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -73,7 +74,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FBFAF6",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FBFAF6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B0F14" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
@@ -87,19 +91,27 @@ export default function RootLayout({
     <html
       lang="es-MX"
       className={`${manrope.variable} ${sourceSerif.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
+      </head>
       <body className="flex min-h-screen flex-col bg-canvas text-ink antialiased">
-        <TopBar />
-        <main className="flex-1 pt-[72px]">{children}</main>
-        <Footer />
-        <Suspense fallback={null}>
-          <SessionAware />
-        </Suspense>
-        <PWARegister />
-        <PWAInstallBanner />
-        <FeedbackFab />
-        <ErrorReporter />
-        <ReferralCapture />
+        <ThemeProvider>
+          <TopBar />
+          <main className="flex-1 pt-[72px]">{children}</main>
+          <Footer />
+          <Suspense fallback={null}>
+            <SessionAware />
+          </Suspense>
+          <PWARegister />
+          <PWAInstallBanner />
+          <FeedbackFab />
+          <ErrorReporter />
+          <ReferralCapture />
+        </ThemeProvider>
       </body>
     </html>
   );

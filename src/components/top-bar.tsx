@@ -4,6 +4,7 @@ import { createSupabaseServer } from "@/lib/supabase-server";
 import { UserChip } from "@/components/user-chip";
 import { SolucionesMenu } from "@/components/soluciones-menu";
 import { MobileMenu } from "@/components/mobile-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const secondaryLinks = [
   { href: "/precios", label: "Precios" },
@@ -55,7 +56,7 @@ export async function TopBar() {
         >
           <svg
             viewBox="0 0 220 40"
-            className="h-7 w-auto"
+            className="h-7 w-auto text-ink-strong"
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden
           >
@@ -66,11 +67,11 @@ export async function TopBar() {
               fontWeight="700"
               fontSize="28"
               letterSpacing="-0.022em"
-              fill="#1F1E1B"
+              fill="currentColor"
             >
               LitienGuard
             </text>
-            <circle cx="195" cy="22" r="4" fill="#4A6B5B" />
+            <circle cx="195" cy="22" r="4" fill="rgb(var(--validation))" />
           </svg>
           <span className="hidden text-caption text-ink-soft md:inline">
             Inteligencia Médica para México
@@ -100,6 +101,9 @@ export async function TopBar() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <div className="hidden md:block">
+            <ThemeToggle />
+          </div>
           {user ? (
             <>
               <UserChip />
