@@ -7,7 +7,9 @@ import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
 import { PATRONES_MULTI_ESTUDIO } from "@/lib/inference/patrones-multi-estudio";
+import { detectStudyCorrelations } from "@/lib/patterns/detect-study-correlations";
 import { EstudiosCliente } from "./estudios-cliente";
+import { CorrelacionesCohorte } from "./correlaciones-cohorte";
 
 export const metadata: Metadata = {
   title: "Motor de estudios — LitienGuard",
@@ -29,6 +31,10 @@ export default async function EstudiosPage() {
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
+  const correlations = canUseCerebro(tier)
+    ? await detectStudyCorrelations(supa, user.id)
+    : null;
+
   if (!canUseCerebro(tier)) {
     return (
       <div>
@@ -88,6 +94,8 @@ export default async function EstudiosPage() {
           text="Cada match incluye los pasos secuenciales sugeridos, alertas críticas y referencia interna a fuente clínica."
         />
       </div>
+
+      {correlations && <CorrelacionesCohorte correlations={correlations} />}
 
       <EstudiosCliente
         estudios={ESTUDIOS_DIAGNOSTICOS.map((e) => ({

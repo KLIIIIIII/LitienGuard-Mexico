@@ -110,6 +110,36 @@ function randFloat(min, max, decimals = 1) {
   );
 }
 
+/**
+ * Selecciona una clave de un objeto {clave: peso}. Pesos no normalizados OK.
+ */
+function weightedRand(weights) {
+  const entries = Object.entries(weights);
+  const total = entries.reduce((s, [, w]) => s + w, 0);
+  let r = Math.random() * total;
+  for (const [k, w] of entries) {
+    r -= w;
+    if (r <= 0) return k;
+  }
+  return entries[entries.length - 1][0];
+}
+
+/**
+ * Bias int hacia el extremo bajo del rango (distribución triangular).
+ * Útil para scores donde casos leves son más frecuentes que críticos.
+ */
+function biasedLow(min, max) {
+  // 2 uniformes -> distribución triangular hacia min
+  const u = Math.min(Math.random(), Math.random());
+  return Math.floor(u * (max - min + 1)) + min;
+}
+
+/** Inverso: bias hacia el extremo alto (compliance, etc.) */
+function biasedHigh(min, max) {
+  const u = Math.max(Math.random(), Math.random());
+  return Math.floor(u * (max - min + 1)) + min;
+}
+
 const NOMBRES_M = [
   "Juan",
   "Carlos",
@@ -509,12 +539,13 @@ function buildCamIcuEvent(p, daysAgo) {
 }
 
 function buildHeartEvent(p, daysAgo) {
+  // Bias hacia 0 — la mayoría de chest pain no es SCA (~80% bajo riesgo)
   const inputs = {
-    historia: randInt(0, 2),
-    ecg: randInt(0, 2),
+    historia: biasedLow(0, 2),
+    ecg: biasedLow(0, 2),
     edad: p.edad >= 65 ? 2 : p.edad >= 45 ? 1 : 0,
-    factoresRiesgo: randInt(0, 2),
-    troponina: randInt(0, 2),
+    factoresRiesgo: biasedLow(0, 2),
+    troponina: biasedLow(0, 2),
   };
   const total = Object.values(inputs).reduce((a, b) => a + b, 0);
   const riesgo = total <= 3 ? "bajo" : total <= 6 ? "moderado" : "alto";
@@ -537,7 +568,14 @@ function buildHeartEvent(p, daysAgo) {
 }
 
 function buildNihssEvent(p, daysAgo) {
-  const total = randInt(2, 22);
+  // Distribución real EVC: 50% leve (0-4), 30% moderado (5-15),
+  // 15% severo (16-20), 5% catastrófico (21+). Bias hacia bajo.
+  const bucket = weightedRand({ leve: 0.5, moderado: 0.3, severo: 0.15, catastrofico: 0.05 });
+  const total =
+    bucket === "leve" ? randInt(0, 4)
+    : bucket === "moderado" ? randInt(5, 15)
+    : bucket === "severo" ? randInt(16, 20)
+    : randInt(21, 32);
   const severidad =
     total === 0 ? "sin_deficit" : total <= 4 ? "leve" : total <= 15 ? "moderado" : total <= 20 ? "moderado_severo" : "severo";
   const tpaCandidato = total >= 4 && total <= 25;
@@ -558,7 +596,8 @@ function buildNihssEvent(p, daysAgo) {
 }
 
 function buildEcogEvent(p, daysAgo) {
-  const ecog = randInt(0, 4);
+  // Distribución oncológica real: mayoría apto a terapia
+  const ecog = Number(weightedRand({ "0": 0.25, "1": 0.4, "2": 0.18, "3": 0.12, "4": 0.05 }));
   const ago = new Date(Date.now() - daysAgo * 86400000).toISOString();
   return {
     modulo: "oncologia",
@@ -576,7 +615,14 @@ function buildEcogEvent(p, daysAgo) {
 }
 
 function buildHba1cEvent(p, daysAgo) {
-  const hba1c = randFloat(5.5, 12, 1);
+  // Distribución real DM2 controlada: mayoría 6-8%
+  const bucket = weightedRand({ no_dm: 0.1, prediab: 0.15, meta: 0.3, aceptable: 0.25, fuera: 0.2 });
+  const hba1c =
+    bucket === "no_dm" ? randFloat(5.0, 5.6, 1)
+    : bucket === "prediab" ? randFloat(5.7, 6.4, 1)
+    : bucket === "meta" ? randFloat(6.5, 7.0, 1)
+    : bucket === "aceptable" ? randFloat(7.1, 8.0, 1)
+    : randFloat(8.1, 12.0, 1);
   const glucosaPromedio = Math.round(28.7 * hba1c - 46.7);
   const categoria = hba1c < 5.7 ? "no_diabetes" : hba1c < 6.5 ? "prediabetes" : hba1c <= 7 ? "diabetes_meta" : hba1c <= 8 ? "control_aceptable" : "fuera_meta";
   const ago = new Date(Date.now() - daysAgo * 86400000).toISOString();
@@ -670,7 +716,8 @@ function buildRcriEvent(p, daysAgo) {
 }
 
 function buildTriageEvent(p, daysAgoHours) {
-  const nivel = rand(["amarillo", "naranja", "verde", "rojo"]);
+  // Manchester real ED: 40% verde, 35% amarillo, 12% naranja, 5% rojo, 8% azul
+  const nivel = weightedRand({ verde: 0.4, amarillo: 0.35, naranja: 0.12, rojo: 0.05, azul: 0.08 });
   const ago = new Date(Date.now() - daysAgoHours * 3600000).toISOString();
   return {
     modulo: "urgencias",

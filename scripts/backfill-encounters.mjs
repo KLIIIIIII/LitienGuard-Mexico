@@ -86,6 +86,31 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/**
+ * Selecciona una clave de un objeto {clave: peso} con probabilidad
+ * proporcional al peso. Pesos no necesitan sumar 1.
+ */
+function weightedRand(weights) {
+  const entries = Object.entries(weights);
+  const total = entries.reduce((s, [, w]) => s + w, 0);
+  let r = Math.random() * total;
+  for (const [k, w] of entries) {
+    r -= w;
+    if (r <= 0) return k;
+  }
+  return entries[entries.length - 1][0];
+}
+
+// Distribuciones de severidad realistas por contexto clínico
+const SEV_UCI = { rojo: 0.25, naranja: 0.45, amarillo: 0.25, verde: 0.05 };
+const SEV_CIRUGIA = { naranja: 0.15, amarillo: 0.45, verde: 0.4 };
+const SEV_URG_INFECTO = { rojo: 0.12, naranja: 0.25, amarillo: 0.4, verde: 0.23 };
+const SEV_CARDIO_HOSP = { naranja: 0.2, amarillo: 0.5, verde: 0.3 };
+const SEV_NEURO_HOSP = { rojo: 0.15, naranja: 0.3, amarillo: 0.4, verde: 0.15 };
+const SEV_ONCO_HOSP = { naranja: 0.25, amarillo: 0.5, verde: 0.25 };
+const SEV_AMBULATORIO = { verde: 1 };
+const SEV_ENDO_DKA = { naranja: 0.4, amarillo: 0.6 };
+
 // -------------------------------------------------------------
 // 1) Limpiar encounters previos
 // -------------------------------------------------------------
@@ -251,7 +276,7 @@ for (const p of pacientes) {
         modulo: "uci",
         tipo: "admision_uci",
         status,
-        severidad: rand(["rojo", "naranja"]),
+        severidad: weightedRand(SEV_UCI),
         admitted_at: admittedAt,
         discharged_at: dischargedAt,
         disposition,
@@ -295,7 +320,7 @@ for (const p of pacientes) {
         modulo: "quirofano",
         tipo: rand(["cirugia_programada", "cirugia_urgencia"]),
         status,
-        severidad: rand(["amarillo", "naranja"]),
+        severidad: weightedRand(SEV_CIRUGIA),
         admitted_at: admittedAt,
         discharged_at: dischargedAt,
         disposition,
@@ -339,7 +364,7 @@ for (const p of pacientes) {
         modulo: "urgencias",
         tipo: "urgencia",
         status,
-        severidad: rand(["rojo", "naranja", "amarillo"]),
+        severidad: weightedRand(SEV_URG_INFECTO),
         admitted_at: admittedAt,
         discharged_at: dischargedAt,
         disposition,
@@ -384,7 +409,7 @@ for (const p of pacientes) {
           modulo: "cardiologia",
           tipo: "hospitalizacion_cardio",
           status,
-          severidad: rand(["amarillo", "naranja"]),
+          severidad: weightedRand(SEV_CARDIO_HOSP),
           admitted_at: admittedAt,
           discharged_at: dischargedAt,
           disposition,
@@ -448,7 +473,7 @@ for (const p of pacientes) {
           modulo: "neurologia",
           tipo: "evc_agudo",
           status,
-          severidad: rand(["rojo", "naranja"]),
+          severidad: weightedRand(SEV_NEURO_HOSP),
           admitted_at: admittedAt,
           discharged_at: dischargedAt,
           disposition,
@@ -501,7 +526,7 @@ for (const p of pacientes) {
           modulo: "oncologia",
           tipo: "hospitalizacion_onco",
           status,
-          severidad: "amarillo",
+          severidad: weightedRand(SEV_ONCO_HOSP),
           admitted_at: admittedAt,
           discharged_at: dischargedAt,
           disposition,
@@ -543,7 +568,7 @@ for (const p of pacientes) {
           modulo: "endocrinologia",
           tipo: "dka_hosp",
           status: "alta",
-          severidad: "naranja",
+          severidad: weightedRand(SEV_ENDO_DKA),
           admitted_at: admittedAt,
           discharged_at: dischargedAt,
           disposition: "alta_domicilio",

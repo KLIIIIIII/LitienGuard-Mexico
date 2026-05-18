@@ -31,6 +31,7 @@ import {
   Activity,
   Droplet,
   LayoutGrid,
+  Bed,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -317,6 +318,13 @@ export function DashboardSidebar({
                     },
                   ] satisfies NavItem[])
                 : []),
+              {
+                href: "/dashboard/camas",
+                label: "Camas",
+                icon: Bed,
+                match: (p: string) => p.startsWith("/dashboard/camas"),
+                locked: !canHospitalModules,
+              },
             ],
           } satisfies NavGroup,
         ]
