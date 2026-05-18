@@ -616,15 +616,34 @@ export async function updateInvitationTier(
   // dejamos rastro explícito de la acción admin (porque cubrimos
   // también el caso "invitación no activada todavía" donde el trigger
   // del profile no se dispara).
-  const { error: profileErr } = await supa
+  //
+  // Verificamos cantidad de filas afectadas para detectar fallos
+  // silenciosos por RLS (la policy admins_update_all_profiles cubre
+  // el caso admin cambiando tier de otro user). Si el user todavía
+  // no existe (profile no creado), 0 filas es esperado y no es error.
+  const { data: profileSync, error: profileErr } = await supa
     .from("profiles")
     .update({ subscription_tier: parsed.data.tier })
-    .ilike("email", invite.email);
+    .ilike("email", invite.email)
+    .select("id");
 
   if (profileErr) {
-    console.warn(
-      "[admin/invitaciones] profile sync warn (invitation updated OK):",
+    console.error(
+      "[admin/invitaciones] profile sync FAILED:",
       profileErr,
+    );
+    return {
+      status: "error",
+      message: `Invitación actualizada pero el sync del perfil falló: ${profileErr.message}. Revisa policies RLS.`,
+    };
+  }
+
+  const profileSyncCount = profileSync?.length ?? 0;
+  // 0 filas es OK si la invitación todavía no fue activada (sin profile);
+  // pero si esperamos sync y devolvió 0, log warning visible.
+  if (profileSyncCount === 0) {
+    console.warn(
+      `[admin/invitaciones] profile sync afectó 0 filas para ${invite.email} — probablemente invitación no activada todavía.`,
     );
   }
 
