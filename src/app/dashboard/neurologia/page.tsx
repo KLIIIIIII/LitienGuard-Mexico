@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Brain } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { canUseHospitalModules, type SubscriptionTier } from "@/lib/entitlements";
+import { canUseEspecialidadModulo, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
 import { loadBoardData } from "@/lib/encounters/board-data";
@@ -26,21 +26,37 @@ export default async function NeurologiaPage() {
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("subscription_tier")
+    .select("subscription_tier, especialidad")
     .eq("id", user.id)
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
 
-  if (!canUseHospitalModules(tier)) {
+  if (
+    !canUseEspecialidadModulo({
+      tier,
+      profileEspecialidad: profile?.especialidad,
+      targetModulo: "neurologia",
+    })
+  ) {
     return (
       <div className="space-y-3">
-        <Eyebrow tone="warn">Plan requerido</Eyebrow>
+        <Eyebrow tone="warn">Módulo no disponible en tu plan</Eyebrow>
         <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
-          Módulo de Neurología — Plan Clínica
+          Neurología
         </h1>
-        <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
-          Ver planes
-        </Link>
+        <p className="max-w-prose text-body text-ink-muted">
+          Profesional incluye el módulo de tu especialidad. Para usar
+          Neurología, configura tu especialidad como Neurología en tu
+          perfil, o sube a Clínica para acceso a todos los departamentos.
+        </p>
+        <div className="flex gap-2">
+          <Link href="/dashboard/configuracion" className="lg-cta-primary">
+            Configurar especialidad
+          </Link>
+          <Link href="/precios" className="lg-cta-secondary">
+            Ver planes
+          </Link>
+        </div>
       </div>
     );
   }

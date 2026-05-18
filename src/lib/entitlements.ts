@@ -249,3 +249,126 @@ export function shouldShowEspecialidadesMedicas(
   if (!p || p === "sin_definir") return true;
   return p === "medico_general" || p === "hospital";
 }
+
+// ============================================================
+// Mapeo de especialidad (texto libre) → módulo del sistema
+// ============================================================
+// La columna profiles.especialidad es texto libre (entrada en
+// configuración). Para el modelo de tiers necesitamos mapear esa
+// especialidad a uno de los módulos del cerebro.
+
+export type EspecialidadModulo =
+  | "cardiologia"
+  | "neurologia"
+  | "oncologia"
+  | "endocrinologia"
+  | "medicina_general"
+  | null;
+
+export function getEspecialidadModulo(
+  especialidad: string | null | undefined,
+): EspecialidadModulo {
+  if (!especialidad) return null;
+  const e = especialidad.toLowerCase().trim();
+  if (e.includes("cardio")) return "cardiologia";
+  if (e.includes("neuro")) return "neurologia";
+  if (e.includes("onco") || e.includes("cáncer") || e.includes("cancer"))
+    return "oncologia";
+  if (
+    e.includes("endocri") ||
+    e.includes("diabet") ||
+    e.includes("tiroide")
+  )
+    return "endocrinologia";
+  if (
+    e.includes("medicina general") ||
+    e.includes("familiar") ||
+    e === "general"
+  )
+    return "medicina_general";
+  return null;
+}
+
+/**
+ * Modelo de especialidades por tier (decidido 2026-05-17):
+ *
+ * - Profesional (pro): médico individual. Ve cerebro completo +
+ *   diferencial + cruces + patrones (calidad personal) + motor estudios
+ *   manual + SU módulo de especialidad (HEART para cardio, NIHSS para
+ *   neuro, etc.). NO ve los otros módulos de especialidad ni
+ *   departamentos hospitalarios.
+ *
+ * - Clínica (enterprise): hospital. Ve todos los módulos de
+ *   especialidad + departamentos hospitalarios + bed mgmt + RCM +
+ *   motor estudios con correlaciones de cohorte multi-médico.
+ */
+export function canUseEspecialidadModulo(opts: {
+  tier: SubscriptionTier | null | undefined;
+  profileEspecialidad: string | null | undefined;
+  targetModulo: "cardiologia" | "neurologia" | "oncologia" | "endocrinologia";
+}): boolean {
+  if (!opts.tier) return false;
+  // Clínica ve todos los módulos
+  if (opts.tier === "enterprise") return true;
+  // Profesional solo ve SU módulo de especialidad
+  if (opts.tier === "pro") {
+    const mod = getEspecialidadModulo(opts.profileEspecialidad);
+    return mod === opts.targetModulo;
+  }
+  // Esencial y free no tienen módulos de especialidad
+  return false;
+}
+
+/**
+ * Diferencial bayesiano + Q&A evidencia — disponible Pro+.
+ * Diferente de canUseCerebro (que cubre acceso al motor completo).
+ * Mantenemos el alias para compatibilidad.
+ */
+export function canUseDiferencial(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  return canUseCerebro(tier);
+}
+
+/**
+ * Patrones personales (loop calidad, dx frecuentes, override rate,
+ * co-ocurrencias, PPV personal). Pro+.
+ */
+export function canUsePatrones(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  return canUseCerebro(tier);
+}
+
+/**
+ * Motor de Estudios manual — marcar estudios + sugerir patrones.
+ * Disponible Pro+.
+ */
+export function canUseMotorEstudios(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  return canUseCerebro(tier);
+}
+
+/**
+ * Correlaciones automáticas de cohorte (estudios anormales × dx
+ * confirmados × patrones multi-score). Requiere volumen — solo
+ * Clínica (multi-médico, ≥100 pacientes para significancia).
+ */
+export function canUseMotorEstudiosCohorte(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  return canUseHospitalModules(tier);
+}
+
+/**
+ * Cruces clínicos multivariables. Pro ve los de SU especialidad,
+ * Clínica ve todos. (En esta primera versión, el componente UI los
+ * filtra; el motor sigue calculando todos pero la UI mostrará solo
+ * los relevantes para Pro.)
+ */
+export function canUseCrucesClinicos(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  return canUseCerebro(tier);
+}

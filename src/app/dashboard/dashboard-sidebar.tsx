@@ -86,6 +86,12 @@ function renderItem(it: NavItem, pathname: string) {
   );
 }
 
+type EspecialidadKey =
+  | "cardiologia"
+  | "neurologia"
+  | "oncologia"
+  | "endocrinologia";
+
 export function DashboardSidebar({
   tier,
   isAdmin,
@@ -95,6 +101,7 @@ export function DashboardSidebar({
   canRecetas,
   canAgenda,
   canPacientes,
+  availableEspecialidades = ["cardiologia", "neurologia", "oncologia", "endocrinologia"],
   showOdontograma = true,
   showDiferencial = true,
   showRcm = true,
@@ -112,6 +119,7 @@ export function DashboardSidebar({
   canRecetas: boolean;
   canAgenda: boolean;
   canPacientes: boolean;
+  availableEspecialidades?: readonly EspecialidadKey[];
   showOdontograma?: boolean;
   showDiferencial?: boolean;
   showRcm?: boolean;
@@ -335,42 +343,69 @@ export function DashboardSidebar({
           {
             title: "Especialidades",
             items: [
-              {
-                href: "/dashboard/especialidades",
-                label: "Vista general",
-                icon: LayoutGrid,
-                match: (p: string) => p === "/dashboard/especialidades",
-                locked: !canHospitalModules,
-              },
-              {
-                href: "/dashboard/cardiologia",
-                label: "Cardiología",
-                icon: Heart,
-                match: (p: string) => p.startsWith("/dashboard/cardiologia"),
-                locked: !canHospitalModules,
-              },
-              {
-                href: "/dashboard/neurologia",
-                label: "Neurología",
-                icon: Brain,
-                match: (p: string) => p.startsWith("/dashboard/neurologia"),
-                locked: !canHospitalModules,
-              },
-              {
-                href: "/dashboard/oncologia",
-                label: "Oncología",
-                icon: Activity,
-                match: (p: string) => p.startsWith("/dashboard/oncologia"),
-                locked: !canHospitalModules,
-              },
-              {
-                href: "/dashboard/endocrinologia",
-                label: "Endocrinología",
-                icon: Droplet,
-                match: (p: string) =>
-                  p.startsWith("/dashboard/endocrinologia"),
-                locked: !canHospitalModules,
-              },
+              // "Vista general" solo tiene sentido si hay más de 1
+              // especialidad disponible (Clínica). En Pro con 1
+              // especialidad, va directo al módulo.
+              ...(availableEspecialidades.length > 1
+                ? [
+                    {
+                      href: "/dashboard/especialidades",
+                      label: "Vista general",
+                      icon: LayoutGrid,
+                      match: (p: string) =>
+                        p === "/dashboard/especialidades",
+                      locked: false,
+                    } satisfies NavItem,
+                  ]
+                : []),
+              ...(availableEspecialidades.includes("cardiologia")
+                ? [
+                    {
+                      href: "/dashboard/cardiologia",
+                      label: "Cardiología",
+                      icon: Heart,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/cardiologia"),
+                      locked: false,
+                    } satisfies NavItem,
+                  ]
+                : []),
+              ...(availableEspecialidades.includes("neurologia")
+                ? [
+                    {
+                      href: "/dashboard/neurologia",
+                      label: "Neurología",
+                      icon: Brain,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/neurologia"),
+                      locked: false,
+                    } satisfies NavItem,
+                  ]
+                : []),
+              ...(availableEspecialidades.includes("oncologia")
+                ? [
+                    {
+                      href: "/dashboard/oncologia",
+                      label: "Oncología",
+                      icon: Activity,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/oncologia"),
+                      locked: false,
+                    } satisfies NavItem,
+                  ]
+                : []),
+              ...(availableEspecialidades.includes("endocrinologia")
+                ? [
+                    {
+                      href: "/dashboard/endocrinologia",
+                      label: "Endocrinología",
+                      icon: Droplet,
+                      match: (p: string) =>
+                        p.startsWith("/dashboard/endocrinologia"),
+                      locked: false,
+                    } satisfies NavItem,
+                  ]
+                : []),
             ],
           } satisfies NavGroup,
         ]

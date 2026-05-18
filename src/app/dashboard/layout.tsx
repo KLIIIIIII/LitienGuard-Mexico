@@ -5,6 +5,7 @@ import {
   canUseScribe,
   canUseCerebro,
   canUseHospitalModules,
+  canUseEspecialidadModulo,
   canUseRecetas,
   canUseAgenda,
   canUsePacientes,
@@ -54,13 +55,28 @@ export default async function DashboardLayout({
 
   const { data: profile } = await supa
     .from("profiles")
-    .select("role, subscription_tier, profile_type")
+    .select("role, subscription_tier, profile_type, especialidad")
     .eq("id", user.id)
     .single();
 
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
   const profileType = (profile?.profile_type ?? "sin_definir") as ProfileType;
   const isAdmin = profile?.role === "admin";
+  const especialidad = (profile?.especialidad ?? null) as string | null;
+
+  // Calcular qué módulos de especialidad puede ver el médico:
+  // - Clínica: los 4
+  // - Profesional: solo el que mapea a SU especialidad
+  // - Otros: ninguno
+  const availableEspecialidades = (
+    ["cardiologia", "neurologia", "oncologia", "endocrinologia"] as const
+  ).filter((target) =>
+    canUseEspecialidadModulo({
+      tier,
+      profileEspecialidad: especialidad,
+      targetModulo: target,
+    }),
+  );
 
   // Fire-and-forget: apply captured referral cookie if first dashboard visit.
   // Idempotent — won't apply twice. Silently no-ops if no captured code.
@@ -75,13 +91,16 @@ export default async function DashboardLayout({
     canRecetas: canUseRecetas(tier),
     canAgenda: canUseAgenda(tier),
     canPacientes: canUsePacientes(tier),
+    availableEspecialidades,
     showOdontograma: shouldShowOdontograma(profileType),
     showScribe: shouldShowScribe(profileType),
     showMisConsultas: shouldShowMisConsultas(profileType),
     showDiferencial: shouldShowDiferencial(profileType),
     showAreasCriticas: shouldShowAreasCriticas(profileType),
     showApoyoDiagnostico: shouldShowApoyoDiagnostico(profileType),
-    showEspecialidadesMedicas: shouldShowEspecialidadesMedicas(profileType),
+    showEspecialidadesMedicas:
+      shouldShowEspecialidadesMedicas(profileType) &&
+      availableEspecialidades.length > 0,
   };
 
   return (
