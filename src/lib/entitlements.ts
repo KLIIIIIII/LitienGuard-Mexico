@@ -39,6 +39,10 @@ const AGENDA_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterpris
 const PACIENTES_TIERS: SubscriptionTier[] = ["esencial", "pilot", "pro", "enterprise"];
 const PACIENTES_RECALL_AUTO_TIERS: SubscriptionTier[] = ["pro", "enterprise"];
 const RCM_TIERS: SubscriptionTier[] = ["enterprise"];
+// Hospital-scale modules (Urgencias/UCI/Quirófano/Laboratorio/Radiología/
+// Departamentos clínicos/Bed Management). Solo Clínica — operación
+// multi-departamento, no consultorio individual.
+const HOSPITAL_MODULES_TIERS: SubscriptionTier[] = ["enterprise"];
 
 /**
  * Read-only access to cerebro (search guidelines, no diferencial engine
@@ -84,6 +88,18 @@ export function canUseAgenda(
 export function canUseRcm(tier: SubscriptionTier | null | undefined): boolean {
   if (!tier) return false;
   return RCM_TIERS.includes(tier);
+}
+
+/**
+ * Acceso a módulos hospitalarios (Urgencias / UCI / Quirófano /
+ * Laboratorio / Radiología / Departamentos clínicos / Bed Management).
+ * Solo Clínica. Profesional (pro) es médico individual, no hospital.
+ */
+export function canUseHospitalModules(
+  tier: SubscriptionTier | null | undefined,
+): boolean {
+  if (!tier) return false;
+  return HOSPITAL_MODULES_TIERS.includes(tier);
 }
 
 /**
@@ -149,7 +165,9 @@ export function tierBadgeClass(tier: SubscriptionTier | null | undefined): strin
 
 export function shouldShowOdontograma(p: ProfileType | null | undefined): boolean {
   if (!p || p === "sin_definir") return true; // todavía no eligieron, mostrar todo
-  return p === "dentista" || p === "hospital";
+  // Hospital queda fuera: opera multi-departamental, los dentistas
+  // dentro de un hospital trabajan con cuenta individual de dentista.
+  return p === "dentista";
 }
 
 export function shouldShowDiferencial(p: ProfileType | null | undefined): boolean {
@@ -178,8 +196,22 @@ export function shouldShowRcm(p: ProfileType | null | undefined): boolean {
   return p === "hospital";
 }
 
-export function shouldShowScribe(_p: ProfileType | null | undefined): boolean {
-  return true; // todos los perfiles usan Scribe
+export function shouldShowScribe(p: ProfileType | null | undefined): boolean {
+  if (!p || p === "sin_definir") return true;
+  // Hospital: Scribe es feature personal de cada médico. La cuenta
+  // admin del hospital no graba consultas, los médicos individuales sí.
+  return p === "medico_general" || p === "dentista";
+}
+
+/**
+ * "Mis consultas" — feature personal del médico (notas SOAP propias).
+ * Hospital usa los boards por departamento, no la lista personal.
+ */
+export function shouldShowMisConsultas(
+  p: ProfileType | null | undefined,
+): boolean {
+  if (!p || p === "sin_definir") return true;
+  return p === "medico_general" || p === "dentista";
 }
 
 /**

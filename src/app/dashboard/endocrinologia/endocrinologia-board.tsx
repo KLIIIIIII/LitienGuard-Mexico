@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Droplet, Users, Target, AlertTriangle, X, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Plus, Droplet, Users, Target, AlertTriangle, X, Loader2, ExternalLink } from "lucide-react";
 import {
   ClinicalMetric,
   ClinicalAlert,
@@ -16,6 +17,7 @@ import { registrarHba1c } from "./actions";
 
 type A1cRow = {
   id: string;
+  pacienteId: string | null;
   iniciales: string;
   edad: number | null;
   fecha: Date;
@@ -53,6 +55,7 @@ export function EndocrinologiaBoard({ eventos }: { eventos: EventoModulo[] }) {
         const r = d.resultado;
         return {
           id: e.id,
+          pacienteId: e.paciente_id,
           iniciales: d.paciente_iniciales ?? "—",
           edad: d.paciente_edad ?? null,
           fecha: new Date(e.completed_at ?? e.created_at),
@@ -198,16 +201,33 @@ function a1cColumns(): DataTableColumn<A1cRow>[] {
     {
       key: "iniciales",
       label: "Paciente",
-      render: (r) => (
-        <span className="font-semibold text-ink-strong">
-          {r.iniciales}
-          {r.edad && (
-            <span className="ml-1 font-normal text-ink-muted tabular-nums">
-              {r.edad}a
-            </span>
-          )}
-        </span>
-      ),
+      render: (r) =>
+        r.pacienteId ? (
+          <Link
+            href={`/dashboard/pacientes/${r.pacienteId}`}
+            className="group inline-flex items-center gap-1 font-semibold text-ink-strong hover:text-validation"
+          >
+            {r.iniciales}
+            {r.edad && (
+              <span className="font-normal text-ink-muted tabular-nums">
+                {r.edad}a
+              </span>
+            )}
+            <ExternalLink
+              className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
+              strokeWidth={2}
+            />
+          </Link>
+        ) : (
+          <span className="font-semibold text-ink-strong">
+            {r.iniciales}
+            {r.edad && (
+              <span className="ml-1 font-normal text-ink-muted tabular-nums">
+                {r.edad}a
+              </span>
+            )}
+          </span>
+        ),
     },
     {
       key: "categoria",

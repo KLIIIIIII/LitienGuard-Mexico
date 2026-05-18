@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Droplet } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
+import { canUseHospitalModules, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import type { EventoModulo } from "@/lib/modulos-eventos";
 import { loadBoardData } from "@/lib/encounters/board-data";
@@ -31,12 +31,12 @@ export default async function EndocrinologiaPage() {
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
 
-  if (!canUseCerebro(tier)) {
+  if (!canUseHospitalModules(tier)) {
     return (
       <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
         <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
-          Módulo de Endocrinología — Plan Profesional o superior
+          Módulo de Endocrinología — Plan Clínica
         </h1>
         <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes

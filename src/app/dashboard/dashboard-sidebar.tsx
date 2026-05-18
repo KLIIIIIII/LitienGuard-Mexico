@@ -90,12 +90,15 @@ export function DashboardSidebar({
   isAdmin,
   canScribe,
   canCerebro,
+  canHospitalModules,
   canRecetas,
   canAgenda,
   canPacientes,
   showOdontograma = true,
   showDiferencial = true,
   showRcm = true,
+  showScribe = true,
+  showMisConsultas = true,
   showAreasCriticas = true,
   showApoyoDiagnostico = true,
   showEspecialidadesMedicas = true,
@@ -104,12 +107,15 @@ export function DashboardSidebar({
   isAdmin: boolean;
   canScribe: boolean;
   canCerebro: boolean;
+  canHospitalModules: boolean;
   canRecetas: boolean;
   canAgenda: boolean;
   canPacientes: boolean;
   showOdontograma?: boolean;
   showDiferencial?: boolean;
   showRcm?: boolean;
+  showScribe?: boolean;
+  showMisConsultas?: boolean;
   showAreasCriticas?: boolean;
   showApoyoDiagnostico?: boolean;
   showEspecialidadesMedicas?: boolean;
@@ -135,21 +141,29 @@ export function DashboardSidebar({
     {
       title: "Consulta",
       items: [
-        {
-          href: "/dashboard/scribe",
-          label: "Scribe",
-          icon: Mic,
-          match: (p) => p.startsWith("/dashboard/scribe"),
-          locked: !canScribe,
-        },
-        {
-          href: "/dashboard/consultas",
-          label: "Mis consultas",
-          icon: ClipboardList,
-          match: (p) =>
-            p.startsWith("/dashboard/consultas") ||
-            p.startsWith("/dashboard/notas"),
-        },
+        ...(showScribe
+          ? [
+              {
+                href: "/dashboard/scribe",
+                label: "Scribe",
+                icon: Mic,
+                match: (p: string) => p.startsWith("/dashboard/scribe"),
+                locked: !canScribe,
+              } satisfies NavItem,
+            ]
+          : []),
+        ...(showMisConsultas
+          ? [
+              {
+                href: "/dashboard/consultas",
+                label: "Mis consultas",
+                icon: ClipboardList,
+                match: (p: string) =>
+                  p.startsWith("/dashboard/consultas") ||
+                  p.startsWith("/dashboard/notas"),
+              } satisfies NavItem,
+            ]
+          : []),
         ...(showOdontograma
           ? [
               {
@@ -254,7 +268,7 @@ export function DashboardSidebar({
                 label: "Vista general",
                 icon: LayoutGrid,
                 match: (p: string) => p === "/dashboard/operaciones",
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               ...(showAreasCriticas
                 ? ([
@@ -264,14 +278,14 @@ export function DashboardSidebar({
                       icon: Siren,
                       match: (p: string) =>
                         p.startsWith("/dashboard/urgencias"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                     {
                       href: "/dashboard/uci",
                       label: "UCI",
                       icon: HeartPulse,
                       match: (p: string) => p.startsWith("/dashboard/uci"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                     {
                       href: "/dashboard/quirofano",
@@ -279,7 +293,7 @@ export function DashboardSidebar({
                       icon: ClipboardCheck,
                       match: (p: string) =>
                         p.startsWith("/dashboard/quirofano"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                   ] satisfies NavItem[])
                 : []),
@@ -291,7 +305,7 @@ export function DashboardSidebar({
                       icon: FlaskConical,
                       match: (p: string) =>
                         p.startsWith("/dashboard/laboratorio"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                     {
                       href: "/dashboard/radiologia",
@@ -299,7 +313,7 @@ export function DashboardSidebar({
                       icon: ScanLine,
                       match: (p: string) =>
                         p.startsWith("/dashboard/radiologia"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                   ] satisfies NavItem[])
                 : []),
@@ -318,28 +332,28 @@ export function DashboardSidebar({
                 label: "Vista general",
                 icon: LayoutGrid,
                 match: (p: string) => p === "/dashboard/especialidades",
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/cardiologia",
                 label: "Cardiología",
                 icon: Heart,
                 match: (p: string) => p.startsWith("/dashboard/cardiologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/neurologia",
                 label: "Neurología",
                 icon: Brain,
                 match: (p: string) => p.startsWith("/dashboard/neurologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/oncologia",
                 label: "Oncología",
                 icon: Activity,
                 match: (p: string) => p.startsWith("/dashboard/oncologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/endocrinologia",
@@ -347,7 +361,7 @@ export function DashboardSidebar({
                 icon: Droplet,
                 match: (p: string) =>
                   p.startsWith("/dashboard/endocrinologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
             ],
           } satisfies NavGroup,

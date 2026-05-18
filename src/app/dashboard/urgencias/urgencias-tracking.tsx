@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Plus,
@@ -8,6 +9,7 @@ import {
   Users,
   Clock,
   TrendingUp,
+  ExternalLink,
   Activity,
   Brain,
   Heart,
@@ -272,6 +274,7 @@ const PROTOCOLOS: Record<string, ProtocoloDef> = {
 
 type TriageRow = {
   id: string;
+  pacienteId: string | null;
   iniciales: string;
   edad: number | null;
   sexo: "M" | "F" | "X" | null;
@@ -340,6 +343,7 @@ export function UrgenciasTracking({ eventos }: { eventos: EventoModulo[] }) {
         }));
       return {
         id: t.id,
+        pacienteId: t.paciente_id,
         iniciales,
         edad: d.paciente_edad ?? null,
         sexo: d.paciente_sexo ?? null,
@@ -977,16 +981,33 @@ function trackingBoardColumns(
     {
       key: "iniciales",
       label: "Paciente",
-      render: (r) => (
-        <span className="font-semibold text-ink-strong">
-          {r.iniciales}
-          {r.edad && (
-            <span className="ml-1 font-normal text-ink-muted tabular-nums">
-              {r.edad}{r.sexo ?? ""}
-            </span>
-          )}
-        </span>
-      ),
+      render: (r) =>
+        r.pacienteId ? (
+          <Link
+            href={`/dashboard/pacientes/${r.pacienteId}`}
+            className="group inline-flex items-center gap-1 font-semibold text-ink-strong hover:text-validation"
+          >
+            {r.iniciales}
+            {r.edad && (
+              <span className="font-normal text-ink-muted tabular-nums">
+                {r.edad}{r.sexo ?? ""}
+              </span>
+            )}
+            <ExternalLink
+              className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
+              strokeWidth={2}
+            />
+          </Link>
+        ) : (
+          <span className="font-semibold text-ink-strong">
+            {r.iniciales}
+            {r.edad && (
+              <span className="ml-1 font-normal text-ink-muted tabular-nums">
+                {r.edad}{r.sexo ?? ""}
+              </span>
+            )}
+          </span>
+        ),
     },
     {
       key: "motivo",

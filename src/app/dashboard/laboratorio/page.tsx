@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, FlaskConical } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
-import { canUseCerebro, type SubscriptionTier } from "@/lib/entitlements";
+import { canUseHospitalModules, type SubscriptionTier } from "@/lib/entitlements";
 import { Eyebrow } from "@/components/eyebrow";
 import { ESTUDIOS_DIAGNOSTICOS } from "@/lib/inference/estudios-diagnosticos";
 import type { EventoModulo } from "@/lib/modulos-eventos";
@@ -33,12 +33,12 @@ export default async function LaboratorioPage() {
     .single();
   const tier = (profile?.subscription_tier ?? "free") as SubscriptionTier;
 
-  if (!canUseCerebro(tier)) {
+  if (!canUseHospitalModules(tier)) {
     return (
       <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
         <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
-          Módulo de Laboratorio — Plan Profesional o superior
+          Módulo de Laboratorio — Plan Clínica
         </h1>
         <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes

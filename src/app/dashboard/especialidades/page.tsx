@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import {
-  canUseCerebro,
+  canUseHospitalModules,
   shouldShowEspecialidadesMedicas,
   type SubscriptionTier,
   type ProfileType,
@@ -115,12 +115,12 @@ export default async function EspecialidadesHubPage() {
     );
   }
 
-  if (!canUseCerebro(tier)) {
+  if (!canUseHospitalModules(tier)) {
     return (
       <div className="space-y-3">
         <Eyebrow tone="warn">Plan requerido</Eyebrow>
         <h1 className="text-h1 font-semibold tracking-tight text-ink-strong">
-          Especialidades clínicas — Plan Profesional o superior
+          Especialidades clínicas — Plan Clínica
         </h1>
         <Link href="/precios" className="lg-cta-primary mt-2 inline-flex">
           Ver planes

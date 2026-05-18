@@ -100,10 +100,13 @@ export function DashboardMobileBar({
   isAdmin,
   canScribe,
   canCerebro,
+  canHospitalModules,
   canRecetas,
   canAgenda,
   canPacientes,
   showOdontograma = true,
+  showScribe = true,
+  showMisConsultas = true,
   showDiferencial = true,
   showAreasCriticas = true,
   showApoyoDiagnostico = true,
@@ -113,10 +116,13 @@ export function DashboardMobileBar({
   isAdmin: boolean;
   canScribe: boolean;
   canCerebro: boolean;
+  canHospitalModules: boolean;
   canRecetas: boolean;
   canAgenda: boolean;
   canPacientes: boolean;
   showOdontograma?: boolean;
+  showScribe?: boolean;
+  showMisConsultas?: boolean;
   showDiferencial?: boolean;
   showAreasCriticas?: boolean;
   showApoyoDiagnostico?: boolean;
@@ -173,19 +179,27 @@ export function DashboardMobileBar({
     {
       title: "Consulta",
       items: [
-        {
-          href: "/dashboard/scribe",
-          label: "Scribe",
-          icon: Mic,
-          match: (p) => p.startsWith("/dashboard/scribe"),
-          locked: !canScribe,
-        },
-        {
-          href: "/dashboard/notas",
-          label: "Mis notas",
-          icon: FileText,
-          match: (p) => p.startsWith("/dashboard/notas"),
-        },
+        ...(showScribe
+          ? [
+              {
+                href: "/dashboard/scribe",
+                label: "Scribe",
+                icon: Mic,
+                match: (p: string) => p.startsWith("/dashboard/scribe"),
+                locked: !canScribe,
+              } satisfies NavItem,
+            ]
+          : []),
+        ...(showMisConsultas
+          ? [
+              {
+                href: "/dashboard/notas",
+                label: "Mis notas",
+                icon: FileText,
+                match: (p: string) => p.startsWith("/dashboard/notas"),
+              } satisfies NavItem,
+            ]
+          : []),
         ...(showOdontograma
           ? [
               {
@@ -259,7 +273,7 @@ export function DashboardMobileBar({
                 label: "Vista general",
                 icon: LayoutGrid,
                 match: (p: string) => p === "/dashboard/operaciones",
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               ...(showAreasCriticas
                 ? ([
@@ -268,21 +282,21 @@ export function DashboardMobileBar({
                       label: "Urgencias",
                       icon: Siren,
                       match: (p: string) => p.startsWith("/dashboard/urgencias"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                     {
                       href: "/dashboard/uci",
                       label: "UCI",
                       icon: HeartPulse,
                       match: (p: string) => p.startsWith("/dashboard/uci"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                     {
                       href: "/dashboard/quirofano",
                       label: "Quirófano",
                       icon: ClipboardCheck,
                       match: (p: string) => p.startsWith("/dashboard/quirofano"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                   ] satisfies NavItem[])
                 : []),
@@ -293,14 +307,14 @@ export function DashboardMobileBar({
                       label: "Laboratorio",
                       icon: FlaskConical,
                       match: (p: string) => p.startsWith("/dashboard/laboratorio"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                     {
                       href: "/dashboard/radiologia",
                       label: "Radiología",
                       icon: ScanLine,
                       match: (p: string) => p.startsWith("/dashboard/radiologia"),
-                      locked: !canCerebro,
+                      locked: !canHospitalModules,
                     },
                   ] satisfies NavItem[])
                 : []),
@@ -318,35 +332,35 @@ export function DashboardMobileBar({
                 label: "Vista general",
                 icon: LayoutGrid,
                 match: (p: string) => p === "/dashboard/especialidades",
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/cardiologia",
                 label: "Cardiología",
                 icon: Heart,
                 match: (p: string) => p.startsWith("/dashboard/cardiologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/neurologia",
                 label: "Neurología",
                 icon: Brain,
                 match: (p: string) => p.startsWith("/dashboard/neurologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/oncologia",
                 label: "Oncología",
                 icon: Activity,
                 match: (p: string) => p.startsWith("/dashboard/oncologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
               {
                 href: "/dashboard/endocrinologia",
                 label: "Endocrinología",
                 icon: Droplet,
                 match: (p: string) => p.startsWith("/dashboard/endocrinologia"),
-                locked: !canCerebro,
+                locked: !canHospitalModules,
               },
             ],
           } satisfies NavGroup,
